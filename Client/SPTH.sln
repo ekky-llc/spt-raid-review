@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPTH", "SPTH.csproj", "{6216F5F2-5841-45CE-AEC5-D78D359591D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6216F5F2-5841-45CE-AEC5-D78D359591D8}.Debug|x86.ActiveCfg = Debug|x86
+		{6216F5F2-5841-45CE-AEC5-D78D359591D8}.Debug|x86.Build.0 = Debug|x86
+		{6216F5F2-5841-45CE-AEC5-D78D359591D8}.Release|x86.ActiveCfg = Release|x86
+		{6216F5F2-5841-45CE-AEC5-D78D359591D8}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF3C779B-5B28-453E-B09C-16A50EB805A3}
+	EndGlobalSection
+EndGlobal

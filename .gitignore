@@ -2,3 +2,5 @@
 .vs
 obj
 *.dll
+node_modules
+dist

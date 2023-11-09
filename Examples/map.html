@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang='en'>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <style>
+    .leaflet-popup-content-wrapper {
+      background-color: gray;
+    }
+    .leaflet-control-layers-expanded {
+      background-color: #2da0e2;
+      background-size: 100%;
+      background-image: url("images/x.png");
+      transition-property: opacity;
+      transition-duration: 1s;
+      opacity: 70%;
+    }
+    .leaflet-control-layers-expanded:hover {
+      opacity: 100%;
+    }
+    .leaflet-popup-tip {
+      background-color: gray;
+      opacity: 0%;
+    }
+    .leaflet-popup-close-button {
+      background-color: gray;
+      opacity: 0%;
+    }
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    html,body,#map {
+      height: 100%;
+      width: 100%;
+    }
+	h3 {
+	  margin: 4px;
+	}
+	.comsml {
+		z-index:10; 
+		color:white; 
+		text-align:center; 
+		position:absolute; 
+		right:43px; 
+		top:37px; 
+		font-weight:600; 
+		width:30px; 
+		height:30px; 
+		font-size:28px; 
+		background-color:red; 
+		border-radius:15px;
+	}	
+	.combig {
+		z-index:10; 
+		color:white; 
+		text-align:center; 
+		position:absolute; 
+		right:39px; 
+		top:32px; 
+		font-weight:600; 
+		width:40px; 
+		height:40px; 
+		font-size:34px; 
+		background-color:red; 
+		border-radius:20px;
+	}	
+  </style>
+</head>
+<title>EFT Map Coordinates</title>
+
+<body style="background-color:#000; font-family:sans-serif">
+  <div id="map" style="width: 100%; z-index:0; height: 100%;background-color:#000;"></div>
+  <div style="z-index:9; background-color:white; border:1px solid red; position:absolute; left:10px; top:10px">
+	<select id="mapsel" onchange="newmap(mapname)" style="font-size:20px; ">
+		<option value="customs">Customs</option>
+		<option value="factory1211-0">Factory, basement</option> 
+		<option value="factory1211-g">Factory</option> 
+		<option value="factory1211-1">Factory, 1st floor</option>
+		<option value="factory1211-2">Factory, 2nd floor</option>
+		<option value="interchange0">Interchange</option>
+		<option value="interchange1">Interchange, 1st floor</option>
+		<option value="interchange2">Interchange, 2nd floor</option>
+		<option value="lab0">Lab, basement</option>
+		<option value="lab1">Lab, 1st floor</option>
+		<option value="lab2">Lab, 2nd floor</option>
+		<option value="lighthouse">Lighthouse</option>
+		<option value="reserve0">Reserve, bunkers</option>
+		<option value="reserve1">Reserve</option>
+		<option value="shoreline">Shoreline</option>
+		<option value="woods">Woods</option>
+	</select>	
+  </div>
+
+  <script>
+    var map = L.map('map', {
+      crs: L.CRS.Simple,
+      minZoom: -2,
+	  maxZoom: 5,
+      maxBoundsViscosity: 1.0,
+	  zoomControl: false
+    });
+	$('.leaflet-control-attribution').hide();
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	var mapname = 'customs';
+	var run = "1";
+	if (urlParams.has('map')) {
+		mapname = urlParams.get("map");
+		document.getElementById("mapsel").value = mapname;
+	};
+	var view = [0];
+	if (urlParams.has('view')) {
+		view = urlParams.get("view").split(';');
+	};
+	
+	// measure coordinates from lower left
+	def = ["customsb.jpg",1910,993, "Administration Gate",671,-55, "Crossroads",-331,-85, "Dorms V-Ex",181,213, "Factory Far Corner",655,-160, "Factory Shacks",206,3, "Military Base CP",643,127, "Old Gas Station",302,-198, "Old Road Gate",182,214, "Passage between rocks",539,200, "Railroad To Military Base",489,221, "Railroad To Port",-143,47, "Railroad To Tarkov",-166,-218, "RUAF Roadblock",-14,-139, "Scavs checkpoint",652,-27, "Smugglers Boat",-43,119, "Sniper Roadblock",15,128, "Trailer Park",-314,-233, "Trailer Park Workers Shack",-249,-233, "Warehouse 17",46,-78, "Warehouse 4",342,-26, "ZB-013",201,-153, "ZB-1011",621,-128, "ZB-1012",459,-111];
+	p1 = [182,214,990,897]; // old road gate
+	p2 = [657,-150,1856,233]; // zb-1011 cache
+	var mapdir = 180;
+	range = [-99,99];
+	
+	var showpath = false;
+	var arrname = "";
+	switch (mapname) {
+		case "customs":		
+			def = ["customsb.jpg",1910,993, "Administration Gate",671,-55, "Crossroads",-331,-85, "Dorms V-Ex",181,213, "Factory Far Corner",655,-160, "Factory Shacks",206,3, "Military Base CP",643,127, "Old Gas Station",302,-198, "Old Road Gate",182,214, "Passage between rocks",539,200, "Railroad To Military Base",489,221, "Railroad To Port",-143,47, "Railroad To Tarkov",-166,-218, "RUAF Roadblock",-14,-139, "Scavs checkpoint",652,-27, "Smugglers Boat",-43,119, "Sniper Roadblock",15,128, "Trailer Park",-314,-233, "Trailer Park Workers Shack",-249,-233, "Warehouse 17",46,-78, "Warehouse 4",342,-26, "ZB-013",201,-153, "ZB-1011",621,-128, "ZB-1012",459,-111];
+			p1 = [182,214,990,897]; // old road gate
+			p2 = [657,-150,1856,233]; // zb-1011 cache
+			var mapdir = 180;
+			range = [-99,99];
+			arrname = "custom";
+			break
+		case "factory1211-0":
+			def = ["fact0-1211b2.jpg",1408,1424, "Camera Bunker Door",-15,40, "Cellars",78,-29];
+			p1 = [-19,22,480,965]; 
+			p2 = [74,-35,1334,432]; 
+			var mapdir = 90;
+			range = [-4,-1.5];
+			arrname = "fact11";
+			break
+		case "factory1211-g":
+			def = ["factg-1211b.jpg",1408,1424, "Gate 3",59,64, "Gate 0",-64,56, "Med Tent Gates",-18,-60];
+			p1 = [-19,22,480,965]; 
+			p2 = [74,-35,1340,445]; 
+			var mapdir = 90;
+			range = [-1.5,2.5];
+			arrname = "fact11";
+			break
+		case "factory1211-1":
+			var def = ["fact1c-1211b.jpg",1408,1424]; 
+			p1 = [-19,22,480,965]; 
+			p2 = [74,-35,1360,450]; 
+			var mapdir = 90;
+			range = [2.5,6.5];
+			arrname = "fact11";
+			break
+		case "factory1211-2":
+			var def = ["fact2c-1211b.jpg",1408,1424, "Office Window",18,40]; 
+			p1 = [-19,22,435,980]; 
+			p2 = [74,-35,1360,450]; 
+			var mapdir = 90;
+			range = [6.5,99];
+			arrname = "fact11";
+			break
+		case "interchange0":
+			def = ["interchangelg0b.jpg",3230,3156, "Emercom Checkpoint",-317,268, "Railway Exfil",470,-424, "Power Station",-252,-367, "Scav camp",284,-27, "Hole in fence",-224,-41, "Saferoom Exfil",-48,44];
+			p1 = [-317,268,198,2624]; // Emercom Checkpoint
+			p2 = [284,-27,2321,1575]; // Scav camp
+			var mapdir = 180;
+			range = [-99,25];
+			arrname = "inter";
+			break
+		case "interchange1":
+			def = ["interchange1.jpg",1118,1827];
+			p1 = [-140,-77,218,817]; // bird eye
+			p2 = [72,89,980,1412]; // OLI W stairs
+			var mapdir = 180;
+			range = [25,35];
+			arrname = "inter";
+			break
+		case "interchange2":
+			def = ["interchange2b.jpg",691,937];
+			p1 = [-52,15,105,723]; // toilets upper left
+			p2 = [46,-177,452,35]; // trend store
+			var mapdir = 180;
+			range = [35,99];
+			arrname = "inter";
+			break
+		case "lab0": 
+			def = ["lab0rb.jpg",2078,1999, "Vent",-145,-400, "Main elevator", -282,-335,  "Elevator of the medical block",-112,-344, "Sewage conduit",-124,-255];
+			p1 = [-145,-400,1605,289]; // Ventilator Shaft
+			p2 = [-282,-335,54,1033]; // Main elevator
+			var mapdir = 270;
+			range = [-99,-1.5];
+			arrname = "lab";
+			break
+		case "lab1":
+			def = ["lab1rb.jpg",2281,2742, "East of triangle",-140,-343, "East garage entrance",-210,-391, "Parking gate",-232,-435, "Hangar gate",-171,-241];
+			p1 = [-140,-343,1685,1316]; //E of triangle
+			p2 = [-210,-391,894,769]; // E garage entrance
+			var mapdir = 270;
+			range = [1.5,3.5];
+			arrname = "lab";
+			break
+		case "lab2":
+			def = ["lab2rb.jpg",2074,2023, "Cargo elevator",-112,-409];
+			p1 = [-109,-414,2000,340]; //sw stairway
+			p2 = [-202,-274,940,1933]; // ne corner of white hall in nw
+			var mapdir = 270;
+			range = [3.5,99];
+			arrname = "lab";
+			break
+		case "lighthouse":
+			def = ["lighthouse2b.jpg",2081,3424, "Road to military base V-ex",-329, -784, "Side tunnel",-68,318, "Mountain pass",-172,-6, "Path to Shoreline",-364,-121, "Northern checkpoint",112,-992, "South road landslide",-281,421, "Southern road",-296,421, "Armored train",6,-874, "Hideout under the landing stage",133,287, "Scav hideout at the grotto",181,-486, "Industrial zone gates",-153,-794];
+			p1 = [161,287,1380,2662]; // east end of pier
+			p2 = [-325,-784,377,453]; // road to military base (front of bus)
+			var mapdir = 180;
+			range = [-99,99];
+			arrname = "light";
+			break
+		case "reserve0":
+			def = ["reservet0a.jpg",2230,1965, "Depot hermetic door",124,-121];
+			p1 = [-92,163,846,1767]; // upper serpentine left
+			p2 = [192,-257,1951,107]; // SE watchtower
+			var mapdir = 180;
+			range = [-99,-9];
+			arrname = "reserv";
+			break
+		case "reserve1":
+			def = ["reservet1.jpg",2230,1965, "Scavs lands",-125,-145, "Sewer manhole",40,76, "Hole in the fence",-261,48, "The heating pipe",-37,-184, "Depot hermetic door",124,-121, "CP fence",67,138, "Armored train",145,-147];
+			p1 = [-92,163,846,1767]; // upper serpentine left
+			p2 = [192,-257,1951,107]; // SE watchtower
+			var mapdir = 180;
+			range = [-9,99];
+			arrname = "reserv";
+			break
+		case "shoreline":
+			def = ["shoreline.jpg",2302,1488, "Road to Customs",-863,-1, "Lighthouse",-458,567, "Ruined Road",369,335, "Svetliy Dead End",461,121, "Ruined House Fence",478,-67, "Path to Lighthouse",451,-209, "Nroth Fence Passage",-507,-395, "RWing Gym Entrance",-297,-101, "Adm Basement",-258,-150, "Pier Boat",-337,568, "CCP Temporary",-856,477,	"Tunnel",376,319, "Rock Passage",-201,-358, "Cliff descent",-196,-360];
+			p1 = [-863,-1,308,593]; // Road to Customs 
+			p2 = [461,121,2221,770]; // "Svetliy Dead End",
+			var mapdir = 180;
+			range = [-99,99];
+			arrname = "shore";
+			break
+		case "woods":
+			def = ["woodsg.jpg",2778,2797, "Dead Man's Place",196,259, "Eastern rocks",-509,-35, "Factory gate",-364,366, "Mountain Stash",-207,-216, "Old Station",-518,149, "Outskirts",347,360, "RUAF Gate",-134,420, "ZB-016",-389,11, "ZB-014",448,57, "RUAF Roadblock", -137,418, "Scav bridge",91,-855, "Scav bunker",220,-706, "Scav House",413,240, "The Boat",177,216, "UN Roadblock",-534,287, "Bridge extraction",-485,-506, "Northern UN roadblock",-561,-59];
+			p1 = [-462,-388,495,1088]; // duffle bag
+			p2 = [416,237,2292,2377]; // Scav house
+			var mapdir = 180;
+			range = [-99,99];
+			arrname = "woods";
+			break
+	}
+
+	var xfact = Math.abs(p1[0]-p2[0]) / Math.abs(p1[2]-p2[2]);
+	var yfact = Math.abs(p1[1]-p2[1]) / Math.abs(p1[3]-p2[3]);
+	
+	var originX = Math.round(p1[2] - p1[0] / xfact);
+	var originY = Math.round(p1[3] - p1[1] / yfact);
+	var imgsizeX = def[1];
+	var imgsizeY = def[2];
+	
+    var bottomLeft = [-originY*yfact, -originX*xfact];
+	var topRight = [(imgsizeY-originY)*yfact, (imgsizeX-originX)*xfact];
+	var bounds = [bottomLeft, topRight];
+	var radius = xfact * 200;
+
+    var atlas = L.imageOverlay(def[0], bounds).addTo(map);
+    map.fitBounds(bounds);
+    map.setMaxBounds(bounds);
+	if (view.length!=1) {
+		var ll = view[0].replace("LatLng(","[").replace(")","]");
+		map.setView(eval(ll),view[1]);
+	};
+
+	function newmap(oldmap) {
+		var props = '';
+		var mapname = document.getElementById('mapsel').value;
+		if (oldmap.substr(0,3)==mapname.substr(0,3)) {
+			props += "&view=" + map.getCenter() + ";" + map.getZoom();
+		};
+		window.location = "map.html?map=" + mapname + props;
+	}
+
+  </script>
+
+</body>
+</html>
