@@ -12,18 +12,22 @@ using Newtonsoft.Json;
 using System.Linq;
 using BepInEx.Configuration;
 using EFT.InventoryLogic;
+using WebSocketSharp;
 
-namespace SPTH
+namespace STATS
 {
-    [BepInPlugin("spth", "spth", "0.0.1")]
-    public class SPTH : BaseUnityPlugin
+    [BepInPlugin("STATS", "STATS", "0.0.1")]
+    public class STATS : BaseUnityPlugin
     {
         // Framerate
         private float updateInterval = 0.0f;
         private float lastUpdateTime = 0.0f;
 
-        // SPTH
+        // STATS
         public static bool tracking = false;
+        public static string STATS_Server = "ws://127.0.0.1:7828";
+        public static List<TrackingPlayer> trackingPlayers = new List<TrackingPlayer>();
+        public static List<TrackingPlayer> deadPlayers = new List<TrackingPlayer>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
         public static Stopwatch stopwatch = new Stopwatch();
 
@@ -34,7 +38,7 @@ namespace SPTH
         public static IEnumerable<Player> allPlayers;
 
         // BepInEx
-        public static ConfigEntry<string> SPTHServer;
+        public static ConfigEntry<string> STATSServer;
         public static ConfigEntry<bool> PlayerTracking;
         public static ConfigEntry<float> PlayerTrackingInterval;
         public static ConfigEntry<bool> KillTracking;
@@ -44,9 +48,8 @@ namespace SPTH
 
         void Awake()
         {
-            Logger.LogInfo("SPTH :::: INFO :::: Mod Loaded");
+            Logger.LogInfo("STATS :::: INFO :::: Mod Loaded");
 
-            SPTHServer = Config.Bind<string>("Core Settings", "History Server", "http://localhost", "The server that SPTH will send RAID information too.");
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", false, "Enables location tracking of players and bots..");
             PlayerTrackingInterval = Config.Bind<float>("Tracking Settings", "Player Tracking Interval", 5f, new ConfigDescription("Determines how often location data is tracked by FPS.", new AcceptableValueRange<float>(5.0f, 30.0f)));
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of players and bots kills.");
@@ -54,15 +57,17 @@ namespace SPTH
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of players and bots looting activities.");
 
             Hook = new GameObject();
-            Logger.LogInfo("SPTH :::: INFO :::: Config Loaded");
+            Logger.LogInfo("STATS :::: INFO :::: Config Loaded");
 
-            new SPTH_Player_KillPatch().Enable();
-            new SPTH_Player_OnItemAddedOrRemovedPatch().Enable();
-            new SPTH_Player_ManageAggressorPatch().Enable();
-            new SPTH_Player_OnGameSessionEndPatch().Enable();
-            new SPTH_RaidSettings_ClonePatch().Enable();
+            new STATS_Player_KillPatch().Enable();
+            new STATS_Player_OnItemAddedOrRemovedPatch().Enable();
+            new STATS_Player_ManageAggressorPatch().Enable();
+            new STATS_Player_OnGameSessionEndPatch().Enable();
+            new STATS_RaidSettings_ClonePatch().Enable();
+            Logger.LogInfo("STATS :::: INFO :::: Patches Loaded");
 
-            Logger.LogInfo("SPTH :::: INFO :::: Patches Loaded");
+            Telemetry.Connect(STATS_Server);
+            Logger.LogInfo("STATS :::: INFO :::: Connected to backend");
         }
         void Update()
         {
@@ -97,13 +102,7 @@ namespace SPTH
                 if (player == null)
                     continue;
 
-                if (trackingRaid.players == null)
-                    trackingRaid.players = new List<TrackingPlayer>();
-
-                if (trackingRaid.killTimeline == null)
-                    trackingRaid.killTimeline = new List<TrackingRaidKill>();
-
-                var trackingPlayer = trackingRaid.players.Find(registeredPlayer => registeredPlayer.profileId == player.Profile.ProfileId);
+                var trackingPlayer = trackingPlayers.Find(registeredPlayer => registeredPlayer.profileId == player.Profile.ProfileId);
                 if (trackingPlayer == null)
                 {
                     trackingPlayer = new TrackingPlayer();
@@ -113,26 +112,21 @@ namespace SPTH
                     trackingPlayer.level = player.Profile.Info.Level;
                     trackingPlayer.team = player.Side;
                     trackingPlayer.group = player.GroupId;
-                    trackingPlayer.status = PlayerStatus.Alive;
                     trackingPlayer.spawnTime = captureTime;
                     trackingPlayer.type = player.IsAI ? "BOT" : "HUMAN";
 
-                    trackingRaid.players.Add(trackingPlayer);
+                    trackingPlayers.Add(trackingPlayer);
+                    Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
                 }
 
-                // If Player Is Dead
-                if (!player.HealthController.IsAlive && trackingPlayer.status != PlayerStatus.Dead)
-                {
-                    trackingPlayer.status = PlayerStatus.Dead;
-                    trackingPlayer.deathTime = captureTime;
-
-                    var indexOfTrackingPlayer = trackingRaid.players.FindIndex(registeredPlayer => registeredPlayer.profileId == player.ProfileId);
-                    if (indexOfTrackingPlayer > -1)
-                        trackingRaid.players[indexOfTrackingPlayer] = trackingPlayer;
-                } else
+                var deadPlayer = deadPlayers.Find(deadPlayers => deadPlayers.profileId == player.Profile.ProfileId);
+                if (deadPlayer.profileId != null)
                 {
                     if (PlayerTracking.Value)
                         PlayerLocationTracking(captureTime, player);
+
+                    if (!player.HealthController.IsAlive)
+                        deadPlayers.Add(trackingPlayer);
                 }
             }
         }
@@ -141,13 +135,12 @@ namespace SPTH
         {
 
             // Player Health & Body Parts
-            Tuple<float, float>[] health = new Tuple<float, float>[16]; // Assuming there are 16 body parts
+            List<float> health = new List<float>();
             foreach (EBodyPart bodyPart in Enum.GetValues(typeof(EBodyPart)))
             {
                 var bodyPartData = player.PlayerHealthController.GetBodyPartHealth(bodyPart);
-                int index = (int)bodyPart;
-                if (index >= 0 && index < health.Length)
-                    health[index] = new Tuple<float, float>(bodyPartData.Normalized, bodyPartData.Maximum);
+                health.Add(bodyPartData.Normalized);
+                health.Add(bodyPartData.Maximum);
             }
 
 
@@ -175,7 +168,7 @@ namespace SPTH
                     else
                     {
                         dir = 0.0F;
-                        Logger.LogError("SPTH :::: ERROR :::: Vector3.Dot is out of range.");
+                        Logger.LogError("STATS :::: ERROR :::: Vector3.Dot is out of range.");
                     }
                 }
                 else
@@ -190,12 +183,9 @@ namespace SPTH
 
             var trackingPlayerData = new TrackingPlayerData(player.Id, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir, player.HealthController.IsAlive, health);
 
-            string dataToWrite = JsonConvert.SerializeObject(trackingPlayerData) + "|";
-            string filePath = Path.Combine(BepInEx.Paths.PluginPath, "SPTH_LOGS", "SPTH_RAID_" + trackingRaid.id + "_" + trackingRaid.location + "_LOCATIONS.json");
-            using (StreamWriter sw = File.AppendText(filePath))
-                sw.WriteLine(dataToWrite);
+            Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
         }
-        public class SPTH_Player_KillPatch : ModulePatch
+        public class STATS_Player_KillPatch : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
             {
@@ -209,7 +199,7 @@ namespace SPTH
                 {
                     var newKill = new TrackingRaidKill();
 
-                    newKill.time = SPTH.stopwatch.ElapsedMilliseconds;
+                    newKill.time = STATS.stopwatch.ElapsedMilliseconds;
                     newKill.killedId = __instance.Profile.ProfileId;
                     newKill.killerId = aggressor.Profile.ProfileId;
                     newKill.distance = Vector3.Distance(aggressor.Position, __instance.Position);
@@ -217,13 +207,11 @@ namespace SPTH
                     newKill.bodyPart = bodyPart.ToString();
                     newKill.type = lethalDamageType.ToString();
 
-                    var killAlreadyRegistered = trackingRaid.killTimeline.Find(kill => kill.killedId == newKill.killedId && kill.killerId == newKill.killerId);
-                    if (killAlreadyRegistered == null)
-                        trackingRaid.killTimeline.Add(newKill);
+                    Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));
                 }
             }
         }
-        public class SPTH_Player_OnItemAddedOrRemovedPatch : ModulePatch
+        public class STATS_Player_OnItemAddedOrRemovedPatch : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
             {
@@ -238,18 +226,18 @@ namespace SPTH
                     TrackingLootItem newLootItem = new TrackingLootItem();
 
                     newLootItem.playerId = __instance.Profile.ProfileId;
-                    newLootItem.time = SPTH.stopwatch.ElapsedMilliseconds;
+                    newLootItem.time = STATS.stopwatch.ElapsedMilliseconds;
                     newLootItem.id = item.Id;
                     newLootItem.name = item.ShortName;
                     newLootItem.qty = item.StackObjectsCount;
                     newLootItem.type = item.QuestItem ? "QUEST_ITEM" : "LOOT";
                     newLootItem.added = added;
 
-                    trackingRaid.lootTimeline.Add(newLootItem);
+                    Telemetry.Send("LOOT", JsonConvert.SerializeObject(newLootItem));
                 }
             }
         }
-        public class SPTH_Player_ManageAggressorPatch : ModulePatch
+        public class STATS_Player_ManageAggressorPatch : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
             {
@@ -270,11 +258,37 @@ namespace SPTH
                     newAggression.bodyPart = damageInfo.BodyPartColliderType;
                     newAggression.distance = Vector3.Distance(damageInfo.Player.iPlayer.Position, __instance.Position);
 
-                    trackingRaid.aggresionTimeline.Add(newAggression);
+                    Telemetry.Send("AGGRESSION", JsonConvert.SerializeObject(newAggression));
                 }
             }
         }
-        public class SPTH_Player_OnGameSessionEndPatch : ModulePatch
+
+        public class STATS_RaidSettings_ClonePatch : ModulePatch
+        {
+            protected override MethodBase GetTargetMethod()
+            {
+                return typeof(RaidSettings).GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            }
+
+            [PatchPostfix]
+            private static void PatchPostFix(ref RaidSettings __instance)
+            {
+                if (__instance.LocationId == null)
+                    return;
+
+                Logger.LogInfo("STATS :::: INFO :::: RAID Settings Loaded");
+
+                trackingRaid.id = Guid.NewGuid().ToString("D");
+                trackingRaid.time = DateTime.Now;
+                trackingRaid.location = __instance.LocationId;
+                trackingRaid.timeInRaid = stopwatch.IsRunning ? stopwatch.ElapsedMilliseconds : 0;
+
+                Telemetry.Send("START", JsonConvert.SerializeObject(trackingRaid));
+
+                Logger.LogInfo("STATS :::: INFO :::: RAID Information Populated");
+            }
+        }
+        public class STATS_Player_OnGameSessionEndPatch : ModulePatch
         {
             protected override MethodBase GetTargetMethod()
             {
@@ -285,7 +299,7 @@ namespace SPTH
             private static void PatchPostFix(ref Player __instance, ExitStatus exitStatus, float pastTime, string locationId, string exitName)
             {
 
-                Logger.LogInfo("SPTH :::: INFO :::: RAID Completed, Saving Tracking Data");
+                Logger.LogInfo("STATS :::: INFO :::: RAID Completed, Saving Tracking Data");
                 stopwatch.Stop();
                 tracking = false;
 
@@ -293,44 +307,7 @@ namespace SPTH
                 trackingRaid.exitName = exitName;
                 trackingRaid.timeInRaid = stopwatch.ElapsedMilliseconds;
 
-                string dataToWrite = JsonConvert.SerializeObject(trackingRaid);
-
-                // Note: Appending the folder may have broken this...
-                string filePath = Path.Combine(BepInEx.Paths.PluginPath + "/SPTH_LOGS", "SPTH_RAID_" + trackingRaid.id + "_" + trackingRaid.location + "_STATS.json");
-
-                File.WriteAllText(filePath, dataToWrite);
-                if (File.Exists(filePath))
-                {
-                    Logger.LogInfo("SPTH :::: INFO :::: Saved Tracking Data Succesfully");
-                }
-
-                else
-                {
-                    Logger.LogError("SPTH :::: ERROR :::: There was a problem saving the Tracking Data");
-                }
-            }
-        }
-        public class SPTH_RaidSettings_ClonePatch : ModulePatch
-        {
-            protected override MethodBase GetTargetMethod()
-            {
-                return typeof(RaidSettings).GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
-            }
-
-            [PatchPostfix]
-            private static void PatchPostFix(ref RaidSettings __instance)
-            {
-                Logger.LogInfo("SPTH :::: INFO :::: RAID Settings Loaded");
-
-                trackingRaid.id = Guid.NewGuid().ToString("D");
-                trackingRaid.time = DateTime.Now;
-                trackingRaid.location = __instance.LocationId;
-                trackingRaid.timeInRaid = stopwatch.IsRunning ? stopwatch.ElapsedMilliseconds : 0;
-
-                if (stopwatch.IsRunning)
-                    stopwatch.Stop();
-
-                Logger.LogInfo("SPTH :::: INFO :::: RAID Information Populated");
+                Telemetry.Send("END", JsonConvert.SerializeObject(trackingRaid));
             }
         }
     }

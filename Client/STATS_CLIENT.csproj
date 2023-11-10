@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<AssemblyName>SPTH</AssemblyName>
+		<AssemblyName>STATS</AssemblyName>
 		<Copyright>2023 © Talke</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>D:\Games\SPT_3.7.0\BepInEx\plugins\</OutputPath>
@@ -57,9 +57,8 @@
 			<HintPath>dependencies\UnityEngine.InputLegacyModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="System.IO">
-			<HintPath>dependencies\System.Runtime.dll</HintPath>
-			<Private>false</Private>
+		<Reference Include="websocket-sharp">
+		  <HintPath>dependencies\websocket-sharp.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

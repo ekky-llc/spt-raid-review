@@ -5,7 +5,7 @@ using Comfort.Common;
 using System.Collections.Generic;
 using System;
 
-namespace SPTH
+namespace STATS
 {
 
     public class TrackingRaid
@@ -17,10 +17,6 @@ namespace SPTH
 
         public string exitName { get; set; }
         public ExitStatus exitStatus { get; set; }
-        public List<TrackingPlayer> players { get; set; } = new List<TrackingPlayer>();
-        public List<TrackingRaidKill> killTimeline { get; set; } = new List<TrackingRaidKill>();
-        public List<TrackingAggression> aggresionTimeline { get; set; } = new List<TrackingAggression>();
-        public List<TrackingLootItem> lootTimeline { get; set; } = new List<TrackingLootItem>();
     }
 
     public class TrackingPlayer
@@ -33,8 +29,6 @@ namespace SPTH
         public string type { get; set; }
         public string group {  get; set; }
         public long spawnTime { get; set; }
-        public long deathTime { get; set; }
-        public PlayerStatus status { get; set; }
     }
 
     public class TrackingRaidKill
@@ -78,7 +72,7 @@ namespace SPTH
         public float z { get; set; }
         public float dir { get; set; }
         public bool alive { get; set; }
-        public Tuple<float, float>[] health { get; set; }
+        public List<float> health { get; set; }
 
         public TrackingPlayerData(
             int playerId, 
@@ -88,7 +82,7 @@ namespace SPTH
             float z, 
             float dir, 
             bool alive,
-            Tuple<float, float>[] health)
+            List<float> health)
         {
             this.playerId = playerId;
             this.time = time;
@@ -99,18 +93,5 @@ namespace SPTH
             this.alive = alive;
             this.health = health;
         }
-    }
-
-    public class TrackingPlayerBodyPart
-    {
-        public float current { get; set; } = 0F;
-        public float max { get; set; } = 0F;
-    }
-
-    public enum PlayerStatus
-    {
-        Alive,
-        Dead,
-        Extracted
     }
 }
