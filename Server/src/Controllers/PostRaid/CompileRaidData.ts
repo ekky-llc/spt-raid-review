@@ -5,7 +5,7 @@ export interface FileImport {
     data: string;
 }
 
-function CompileRaidData(raid_guid: string) {
+function CompileRaidData(profile_id: string , raid_guid: string) {
     console.log(`[STATS] Starting - Compiling raid data for '${raid_guid}' into '.json' format.`);
 
     const file_suffixes = ['raid', 'players', 'kills', 'aggressions', 'looting'];
@@ -13,7 +13,7 @@ function CompileRaidData(raid_guid: string) {
 
     for (let i = 0; i < file_suffixes.length; i++) {
         const file_suffix = file_suffixes[i];
-        const file_data = fs.readFileSync(`${__dirname}/../../../data/${raid_guid}/${raid_guid}_${file_suffix}.csv`, 'utf-8');
+        const file_data = fs.readFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_${file_suffix}.csv`, 'utf-8');
         files.push({
             datapoint: file_suffix,
             data: file_data
@@ -46,10 +46,14 @@ function CompileRaidData(raid_guid: string) {
             for (let j = 0; j < rows.length; j++) {
                 const row = rows[j];
 
-                let newPlayer = {};
+                let newPlayer = {} as any;
                 for (let k = 0; k < keys.length; k++) {
                     const key = keys[k];
                     newPlayer[key] = row[k];
+                }
+
+                if (newPlayer.type === "HUMAN") {
+                    raid_data.playerId = newPlayer.id;
                 }
 
                 players.push(newPlayer);
@@ -64,7 +68,7 @@ function CompileRaidData(raid_guid: string) {
             for (let j = 0; j < rows.length; j++) {
                 const row = rows[j];
 
-                let newKill = {};
+                let newKill = {} as any;
                 for (let k = 0; k < keys.length; k++) {
                     const key = keys[k];
                     newKill[key] = row[k];
@@ -82,7 +86,7 @@ function CompileRaidData(raid_guid: string) {
             for (let j = 0; j < rows.length; j++) {
                 const row = rows[j];
 
-                let newAggression = {};
+                let newAggression = {} as any;
                 for (let k = 0; k < keys.length; k++) {
                     const key = keys[k];
                     newAggression[key] = row[k];
@@ -100,7 +104,7 @@ function CompileRaidData(raid_guid: string) {
             for (let j = 0; j < rows.length; j++) {
                 const row = rows[j];
 
-                let newLooting = {};
+                let newLooting = {} as any;
                 for (let k = 0; k < keys.length; k++) {
                     const key = keys[k];
                     newLooting[key] = row[k];
@@ -115,9 +119,9 @@ function CompileRaidData(raid_guid: string) {
     }
     console.log(`[STATS] Finished - Compiling raid data for '${raid_guid}' into '.json' format.`);
 
-    fs.writeFileSync(`${__dirname}/../../../data/${raid_guid}/${raid_guid}_data.json`, JSON.stringify(raid_data, null, 2),'utf-8');
+    fs.writeFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_data.json`, JSON.stringify(raid_data, null, 2),'utf-8');
 
-    console.log(`[STATS] Saved file  '${raid_guid}_data.json' to folder '<mod>/data/${raid_guid}'.`);
+    console.log(`[STATS] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/${profile_id}/raids/${raid_guid}'.`);
 };
 
 export default CompileRaidData;

@@ -11,6 +11,7 @@ namespace STATS
     public class TrackingRaid
     {
         public string id { get; set; }
+        public string playerId { get; set; }
         public string location { get; set; }
         public DateTime time { get; set; }
         public long timeInRaid { get; set; }

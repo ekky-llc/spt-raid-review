@@ -16,7 +16,6 @@ namespace STATS
         {
             ws = new WebSocket(host);
             ws.Connect();
-            ws.Send("Connected");
         }
 
         public static void Send(string Action, string Payload)

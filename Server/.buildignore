@@ -13,7 +13,6 @@
 
 build.mjs
 dist
-images
 mod.code-workspace
 package-lock.json
 tsconfig.json

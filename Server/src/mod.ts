@@ -1,32 +1,73 @@
 // @ts-ignore
 import { DependencyContainer } from "tsyringe";
+import { WebSocketServer } from "ws";
+
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { IPostAkiLoadMod } from "@spt-aki/models/external/IPostAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { StaticRouterModService } from "@spt-aki/services/mod/StaticRouter/StaticRouterModService";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper';
 
 import WebServer from "./Web/Server/Express";
-import { WebSocketServer } from "ws";
 import { ExtractKeysAndValues } from "./Utils/utils";
 import { WriteLineToFile } from "./Controllers/PostRaid/DataSaver";
 import CompileRaidData from "./Controllers/PostRaid/CompileRaidData";
 import CompileCoreData from "./Controllers/PostRaid/CompileCoreData";
 
+export let session_id = null;
+export let profile_id = null;
+
+export function setSessionId(sessionId: string) {
+  session_id = sessionId;
+  return;
+}
+
+export function setProfileId(profileId: string) {
+  profile_id = profileId;
+  return;
+}
+
+export function getSessiondata() {
+  return { session_id, profile_id }
+}
 class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
-  wss: null | WebSocketServer;
+  wss: WebSocketServer;
   logger: ILogger;
   raid_id: string;
+  saveServer: SaveServer;
 
   constructor() {
     this.wss = null;
     this.raid_id = "";
   }
 
-  public preAkiLoad(container: DependencyContainer): void {
-    console.log(`[STATS] Mod Loaded`);
+StaticRouter
+
+  public preAkiLoad(container: DependencyContainer):void
+  {
+    const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService")
+
+    staticRouterModService.registerStaticRouter(
+      "GetPlayerInfo",
+      [{
+        url: "/client/game/start",
+        action: (url : string, info : any, sessionId : string, output: string) => 
+        {
+          setSessionId(sessionId);
+          const profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
+          const profile = profileHelper.getFullProfile(sessionId);
+          setProfileId(profile.info.id);
+          return output;
+        }
+      }], "aki"
+    )
   }
 
   public postAkiLoad(container: DependencyContainer): void {
     
+    this.saveServer = container.resolve<SaveServer>("SaveServer");     
+
     this.wss = new WebSocketServer({
       port: 7828,
       perMessageDeflate: {
@@ -55,47 +96,60 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
       ws.on("message", function message(str: string) {
         try {
           let data = JSON.parse(str);
+
           if (data && data.Action && data.Payload) {
             const payload_object = JSON.parse(data.Payload);
             const { keys, values } = ExtractKeysAndValues(payload_object);
-
+          
+            let filename = '';
             switch (data.Action) {
               case "START":
-                this.raid_id = JSON.parse(data.Payload).id;
-                WriteLineToFile(this.raid_id, `${this.raid_id}_raid`, keys, values);
-                WriteLineToFile('core', `raids`, keys, values);
+                this.raid_id = payload_object.id;
+                console.log(`[STATS] RAID IS SET: ${this.raid_id}`);
+                
+                filename = `${this.raid_id}_raid`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
+                WriteLineToFile(profile_id, 'core', null, 'core', keys, values);
                 break;
               case "END":
-                WriteLineToFile(this.raid_id, `${this.raid_id}_raid`, keys, values);
-                WriteLineToFile('core', `raids`, keys, values);
-                
-                CompileRaidData(this.raid_id);
-                CompileCoreData();
-                break;
+                this.raid_id = payload_object.id;
+                console.log(`[STATS] RAID IS SET: ${this.raid_id}`);
 
-              // Game Statistics
+                filename = `${this.raid_id}_raid`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
+                WriteLineToFile(profile_id, 'core', null, 'core', keys, values);
+                
+                CompileRaidData(profile_id, this.raid_id);
+                CompileCoreData(profile_id);
+                break;
               case "PLAYER":
-                WriteLineToFile( this.raid_id, `${this.raid_id}_players`, keys, values);
+                filename = `${this.raid_id}_players`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
               case "KILL":
-                WriteLineToFile(this.raid_id, `${this.raid_id}_kills`, keys, values);
+                filename = `${this.raid_id}_kills`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
               case "AGGRESSION":
-                WriteLineToFile(this.raid_id, `${this.raid_id}_aggressions`, keys, values);
+                filename = `${this.raid_id}_aggressions`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
               case "SHOT":
-                WriteLineToFile(this.raid_id, `${this.raid_id}_shots`, keys, values);
+                filename = `${this.raid_id}_shots`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
               case "POSITION":
-                WriteLineToFile(this.raid_id, `${this.raid_id}_positions`, keys, values);
+                filename = `${this.raid_id}_positions`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
               case "LOOT":
-                WriteLineToFile(this.raid_id, `${this.raid_id}_looting`, keys, values);
+                filename = `${this.raid_id}_looting`;
+                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
               default:
                 break;
             }
-          }
+          }    
         } catch (error) {
           console.log(`[STATS] Message recieved was not valid JSON Object, something broke.`);
           console.log(`[STATS:ERROR]`, error);
@@ -106,8 +160,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
     console.log(`[STATS] Websocket Server Listening on 'ws://127.0.0.1:7828'.`);
 
-    WebServer();
+    WebServer(this.saveServer);
   }
+
 }
 
-module.exports = { mod: new Mod() };
+
+module.exports = { mod: new Mod(),};

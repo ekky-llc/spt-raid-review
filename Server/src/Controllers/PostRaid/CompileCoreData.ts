@@ -5,15 +5,17 @@ export interface FileImport {
     data: string;
 }
 
-function CompileCoreData() {
+function CompileCoreData(profile_id: string) {
     console.log(`[STATS] Starting - Compiling core data into '.json' format.`);
 
-    const target_files = ['raid'];
+    const target_files = ['core'];
     const files = [] as FileImport[];
 
     for (let i = 0; i < target_files.length; i++) {
         const target_file = target_files[i];
-        const file_data = fs.readFileSync(`${__dirname}/../../../data/core/${target_file}.csv`, 'utf-8');
+        const file_data = fs.readFileSync(`${__dirname}/../../../data/${profile_id}/core/${target_file}.csv`, 'utf-8');
+        
+        console.log(`[STATS] Found file '${target_file}.csv' adding data to be processed.`)
         files.push({
             datapoint: target_file,
             data: file_data
@@ -43,15 +45,17 @@ function CompileCoreData() {
                 raids.push(newRaid);
             }
 
+            raids = raids.filter((raid) => Number(raid.timeInRaid) > 0);
+
             core_data.raids = raids;
         }
     }
     
     console.log(`[STATS] Finished - Compiling core data into '.json' format.`);
 
-    fs.writeFileSync(`${__dirname}/../../../data/core/core.json`, JSON.stringify(core_data, null, 2),'utf-8');
+    fs.writeFileSync(`${__dirname}/../../../data/${profile_id}/core/core.json`, JSON.stringify(core_data, null, 2),'utf-8');
 
-    console.log(`[STATS] Saved file  'core.json' to folder '<mod>/data/core.json'.`);
+    console.log(`[STATS] Saved file  'core.json' to folder '<mod_folder>/data/${profile_id}/core/core.json'.`);
 };
 
 export default CompileCoreData;

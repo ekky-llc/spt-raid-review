@@ -11,7 +11,7 @@ namespace STATS
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(Player).GetMethod("ManageAggressor", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            return typeof(Player).GetMethod("ManageAggressor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         }
 
         [PatchPostfix]
@@ -19,14 +19,15 @@ namespace STATS
         {
             if (STATS.AggressionTracking.Value)
             {
-                TrackingAggression newAggression = new TrackingAggression();
-
-                newAggression.time = STATS.stopwatch.ElapsedMilliseconds;
-                newAggression.aggressorId = damageInfo.Player.iPlayer.ProfileId;
-                newAggression.aggresseId = __instance.Profile.ProfileId;
-                newAggression.weapon = damageInfo.Weapon.Name;
-                newAggression.bodyPart = damageInfo.BodyPartColliderType;
-                newAggression.distance = Vector3.Distance(damageInfo.Player.iPlayer.Position, __instance.Position);
+                TrackingAggression newAggression = new TrackingAggression
+                {
+                    time = STATS.stopwatch.ElapsedMilliseconds,
+                    aggressorId = damageInfo.Player.iPlayer.ProfileId,
+                    aggresseId = __instance.Profile.ProfileId,
+                    weapon = damageInfo.Weapon.Name,
+                    bodyPart = damageInfo.BodyPartColliderType,
+                    distance = Vector3.Distance(damageInfo.Player.iPlayer.Position, __instance.Position)
+                };
 
                 Telemetry.Send("AGGRESSION", JsonConvert.SerializeObject(newAggression));
             }

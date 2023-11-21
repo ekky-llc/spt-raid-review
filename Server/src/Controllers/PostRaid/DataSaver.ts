@@ -1,35 +1,42 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-function CreateFolder(targetFolder: string): void {
-    const folderPath = path.join(__dirname + '/../../../', 'data', targetFolder);
+function CreateFolder(parentFolder: string, subFolder: string = '', targetFolder: string = ''): void {
 
-    if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-        console.log(`Folder created: ${folderPath}`);
+    let paths = [__dirname , '../../..', 'data', parentFolder, subFolder, targetFolder];
+    let finalPath = paths.filter(path => path !== '').join('/');
+
+    if (!fs.existsSync(finalPath)) {
+        fs.mkdirSync(finalPath, { recursive: true });
+        console.log(`[STATS] Folder created: ${finalPath}`);
     }
 }
 
-function CreateFile(targetFolder: string, fileName: string, keys: string): void {
-    CreateFolder(targetFolder);
+function CreateFile(parentFolder: string, subFolder: string = '', targetFolder: string, fileName: string, keys: string): void {
+    CreateFolder(parentFolder);
+    CreateFolder(parentFolder, subFolder);
+    CreateFolder(parentFolder, subFolder, targetFolder);
 
-    const filePath = path.join(__dirname + '/../../../', 'data', targetFolder, `${fileName}.csv`);
+    let paths = [__dirname , '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}.csv`];
+    let finalPath = paths.filter(path => path !== '').join('/');
 
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '', 'utf-8');
-        fs.appendFileSync(filePath, keys, 'utf-8');
-        console.log(`File created: ${filePath}`);
+    if (!fs.existsSync(finalPath)) {
+        fs.writeFileSync(finalPath, '', 'utf-8');
+        fs.appendFileSync(finalPath, keys, 'utf-8');
+        console.log(`[STATS] File created: ${finalPath}`);
     }
 }
 
-function WriteLineToFile(targetFolder: string, fileName: string, keys: string, value: string): void {
-    CreateFile(targetFolder, fileName, keys);
+function WriteLineToFile(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string, keys: string, value: string): void {
+    CreateFile(parentFolder, subFolder, targetFolder, fileName, keys);
 
-    const filePath = path.join(__dirname + '/../../../', 'data', targetFolder, `${fileName}.csv`);
+    let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}.csv`];
+    let finalPath = paths.filter(path => path !== '').join('/');
 
-    fs.appendFileSync(filePath, value, 'utf-8');
+    fs.appendFileSync(finalPath, value, 'utf-8');
 }
 
 export {
-    WriteLineToFile
+    WriteLineToFile,
+    CreateFolder
 }

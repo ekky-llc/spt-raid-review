@@ -2,14 +2,13 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Reflection;
-using Aki.Reflection.Patching;
 using BepInEx;
 using UnityEngine;
 using Comfort.Common;
 using Newtonsoft.Json;
 using BepInEx.Configuration;
-using EFT.InventoryLogic;
+using System.IO;
+using System.Reflection;
 
 namespace STATS
 {
@@ -21,6 +20,7 @@ namespace STATS
         private float lastUpdateTime = 0.0f;
 
         // STATS
+        public static bool inRaid = false;
         public static bool tracking = false;
         public static string STATS_WS_Server = "ws://127.0.0.1:7828";
         public static string STATS_HTTP_Server = "http://127.0.0.1:7829";
@@ -36,6 +36,7 @@ namespace STATS
         public static IEnumerable<Player> allPlayers;
 
         // BepInEx
+        public static string PluginFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static ConfigEntry<KeyboardShortcut> LaunchWebpageKey;
         public static ConfigEntry<bool> PlayerTracking;
         public static ConfigEntry<float> PlayerTrackingInterval;
@@ -58,11 +59,11 @@ namespace STATS
             Hook = new GameObject();
             Logger.LogInfo("STATS :::: INFO :::: Config Loaded");
 
-            new STATS_Player_KillPatch().Enable();
+            new STATS_Player_OnBeenKilledByAggressorPatch().Enable();
             new STATS_Player_OnItemAddedOrRemovedPatch().Enable();
             new STATS_Player_ManageAggressorPatch().Enable();
             new STATS_Player_OnGameSessionEndPatch().Enable();
-            new STATS_RaidSettings_ClonePatch().Enable();
+            new STATS_menuTaskBar_setButtonsAvailablePatch().Enable();
             Logger.LogInfo("STATS :::: INFO :::: Patches Loaded");
 
             Telemetry.Connect(STATS_WS_Server);
@@ -86,15 +87,33 @@ namespace STATS
             if (!MapLoaded())
                 return;
 
-            if (!stopwatch.IsRunning)
-                stopwatch.Start();
-
             gameWorld = Singleton<GameWorld>.Instance;
             myPlayer = gameWorld?.MainPlayer;
 
             // IF IN MENU, RETURN
             if (gameWorld == null || myPlayer == null)
                 return;
+
+            // RAID START
+            if (!inRaid && !stopwatch.IsRunning)
+            {
+                Logger.LogInfo("STATS :::: INFO :::: RAID Settings Loaded");
+
+                inRaid = true;
+                stopwatch.Start();
+
+                STATS.trackingRaid.id = Guid.NewGuid().ToString("D");
+                STATS.trackingRaid.playerId = STATS.myPlayer.ProfileId;
+                STATS.trackingRaid.time = DateTime.Now;
+                STATS.trackingRaid.location = STATS.gameWorld.LocationId;
+                STATS.trackingRaid.timeInRaid = STATS.stopwatch.IsRunning ? STATS.stopwatch.ElapsedMilliseconds : 0;
+
+                Telemetry.Send("START", JsonConvert.SerializeObject(STATS.trackingRaid));
+
+                inRaid = true;
+                Logger.LogInfo("STATS :::: INFO :::: RAID Information Populated");
+                return;
+            }
 
             // PLAYER TRACKING LOOP
             allPlayers = gameWorld.AllPlayersEverExisted;

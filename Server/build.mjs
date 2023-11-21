@@ -36,6 +36,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import ignore from "ignore";
 import archiver from "archiver";
+import AdmZip from 'adm-zip';
 import winston from "winston";
 
 // Get the command line arguments to determine whether to use verbose logging.
@@ -89,7 +90,11 @@ async function main() {
     // Defining at this scope because we need to use it in the finally block.
     let projectDir;
 
+    
     try {
+        const gameBaseDirectory = await fs.readFileSync(`${currentDir}/base_directory`, 'utf-8').trim();
+        console.log(gameBaseDirectory)
+
         // Load the .buildignore file to set up an ignore handler for the build process.
         const buildIgnorePatterns = await loadBuildIgnoreFile(currentDir);
 
@@ -127,6 +132,11 @@ async function main() {
         logger.log("success", "Archive successfully moved.");
         logger.log("info", zipFileInProjectDir);
 
+        await fs.copyFile(zipFileInProjectDir, `${gameBaseDirectory}/__build.zip`);
+        let zip = new AdmZip(`${gameBaseDirectory}/__build.zip`);
+        zip.extractAllTo(gameBaseDirectory, true);
+        await fs.remove(`${gameBaseDirectory}/__build.zip`);
+        
         // Move the temporary directory into the distribution directory.
         await fs.move(projectDir, distDir);
         logger.log("success", "Temporary directory successfully moved into project distribution directory.");
@@ -376,6 +386,10 @@ async function createZipFile(directoryToZip, zipFilePath, containerDirName) {
         // data has been written.
         archive.finalize();
     });
+}
+
+async function moveZipFile(copyZipFile, gameBaseDirectory) {
+    fs.copyFileSync()
 }
 
 // Engage!
