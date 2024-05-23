@@ -28,7 +28,7 @@ namespace STATS
         public EPlayerSide team { get; set; }
         public string name { get; set; }
         public string type { get; set; }
-        public string group {  get; set; }
+        public int group {  get; set; }
         public long spawnTime { get; set; }
     }
 
@@ -41,16 +41,6 @@ namespace STATS
         public float distance { get; set; }
         public string bodyPart {  get; set; }
         public string type { get; set; }
-    }
-
-    public class TrackingAggression
-    {
-        public long time { get; set; }
-        public string aggressorId {  get; set; }
-        public string aggresseId { get; set; }
-        public string weapon { get; set; }
-        public float distance { get; set; }
-        public EBodyPartColliderType bodyPart { get; set; }
     }
 
     public class TrackingLootItem

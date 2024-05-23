@@ -4,8 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 import Home, { loader as profilesLoader } from './pages/Home';
-import Profile, { loader as profileLoader } from './pages/Profile'
-import Raid from './pages/Raid';
+import Profile, { loader as coreLoader } from './pages/Profile'
+import Raid, { loader as raidLoader } from './pages/Raid';
 
 const router = createBrowserRouter([
   {
@@ -16,14 +16,11 @@ const router = createBrowserRouter([
   {
     path: "/p/:profileId",
     element: <Profile />,
-    loader: profileLoader,
+    loader: coreLoader,
     children: [
       {
-        path: "/p/:profileId/stats/",
-        element: <>Stats</>
-      },
-      {
-        path: "/p/:profileId/raids/",
+        path: "/p/:profileId/raid/:raidId",
+        loader: raidLoader,
         element: <Raid />
       }
     ]

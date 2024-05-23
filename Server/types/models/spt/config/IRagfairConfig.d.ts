@@ -1,5 +1,5 @@
-import { MinMax } from "../../common/MinMax";
-import { IBaseConfig } from "./IBaseConfig";
+import { MinMax } from "@spt-aki/models/common/MinMax";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface IRagfairConfig extends IBaseConfig {
     kind: "aki-ragfair";
     /** How many seconds should pass before expired offers and procesed + player offers checked if sold */
@@ -19,15 +19,18 @@ export interface Sell {
     time: Time;
     /** Player offer reputation gain/loss settings */
     reputation: Reputation;
-    /** How many hours are simulated to figure out if player offer was sold */
-    simulatedSellHours: number;
     /**Seconds from clicking remove to remove offer from market */
     expireSeconds: number;
 }
 export interface Chance {
+    /** Base chance percent to sell an item */
     base: number;
-    overpriced: number;
-    underpriced: number;
+    /** Value to multiply the sell chance by */
+    sellMultiplier: number;
+    /** Max possible sell chance % for a player listed offer */
+    maxSellChancePercent: number;
+    /** Min possible sell chance % for a player listed offer */
+    minSellChancePercent: number;
 }
 export interface Time extends MinMax {
     base: number;
@@ -129,7 +132,7 @@ export interface Blacklist {
     enableBsgList: boolean;
     /** Should quest items be blacklisted from flea */
     enableQuestList: boolean;
-    /** Should trader items that are blacklisted by bsg */
+    /** Should trader items that are blacklisted by bsg be listed on flea */
     traderItems: boolean;
 }
 export interface IUnreasonableModPrices {

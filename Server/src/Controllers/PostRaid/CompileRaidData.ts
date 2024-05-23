@@ -8,16 +8,20 @@ export interface FileImport {
 function CompileRaidData(profile_id: string , raid_guid: string) {
     console.log(`[STATS] Starting - Compiling raid data for '${raid_guid}' into '.json' format.`);
 
-    const file_suffixes = ['raid', 'players', 'kills', 'aggressions', 'looting'];
+    const file_suffixes = ['raid', 'players', 'kills', 'looting'];
     const files = [] as FileImport[];
 
     for (let i = 0; i < file_suffixes.length; i++) {
         const file_suffix = file_suffixes[i];
-        const file_data = fs.readFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_${file_suffix}.csv`, 'utf-8');
-        files.push({
-            datapoint: file_suffix,
-            data: file_data
-        });
+
+        const fileExists = fs.existsSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_${file_suffix}.csv`)
+        if (fileExists) {
+            const file_data = fs.readFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_${file_suffix}.csv`, 'utf-8');
+            files.push({
+                datapoint: file_suffix,
+                data: file_data
+            });
+        };
     }
 
     let raid_data = {} as any;
@@ -80,24 +84,6 @@ function CompileRaidData(profile_id: string , raid_guid: string) {
             raid_data.kills = kills;
         }
 
-        if (file.datapoint === 'aggressions') {
-            let aggressions = [];
-
-            for (let j = 0; j < rows.length; j++) {
-                const row = rows[j];
-
-                let newAggression = {} as any;
-                for (let k = 0; k < keys.length; k++) {
-                    const key = keys[k];
-                    newAggression[key] = row[k];
-                }
-
-                aggressions.push(newAggression);
-            }
-
-            raid_data.aggressions = aggressions;
-        }
-
         if (file.datapoint === 'looting') {
             let looting = [];
 
@@ -109,7 +95,6 @@ function CompileRaidData(profile_id: string , raid_guid: string) {
                     const key = keys[k];
                     newLooting[key] = row[k];
                 }
-
 
                 looting.push(newLooting);
             }

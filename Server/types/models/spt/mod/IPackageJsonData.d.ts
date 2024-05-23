@@ -1,5 +1,7 @@
 export interface IPackageJsonData {
     incompatibilities?: string[];
+    loadBefore?: string[];
+    loadAfter?: string[];
     dependencies?: Record<string, string>;
     modDependencies?: Record<string, string>;
     name: string;

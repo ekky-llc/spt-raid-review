@@ -3,6 +3,7 @@ using System.Reflection;
 using Aki.Reflection.Patching;
 using UnityEngine;
 using Newtonsoft.Json;
+using System;
 
 namespace STATS
 {
@@ -16,20 +17,28 @@ namespace STATS
         [PatchPostfix]
         private static void PatchPostFix(ref Player __instance, IPlayer aggressor, DamageInfo damageInfo, EBodyPart bodyPart, EDamageType lethalDamageType)
         {
-            if (STATS.KillTracking.Value)
+            try
             {
-                var newKill = new TrackingRaidKill
+                if (STATS.KillTracking.Value)
                 {
-                    time = STATS.stopwatch.ElapsedMilliseconds,
-                    killedId = __instance.Profile.ProfileId,
-                    killerId = aggressor.Profile.ProfileId,
-                    distance = Vector3.Distance(aggressor.Position, __instance.Position),
-                    weapon = damageInfo.Weapon == null ? "?" : damageInfo.Weapon.Name,
-                    bodyPart = bodyPart.ToString(),
-                    type = lethalDamageType.ToString()
-                };
+                    var newKill = new TrackingRaidKill
+                    {
+                        time = STATS.stopwatch.ElapsedMilliseconds,
+                        killedId = __instance.Profile.ProfileId,
+                        killerId = aggressor.Profile.ProfileId,
+                        distance = Vector3.Distance(aggressor.Position, __instance.Position),
+                        weapon = damageInfo.Weapon == null ? "?" : damageInfo.Weapon.Name,
+                        bodyPart = bodyPart.ToString(),
+                        type = lethalDamageType.ToString()
+                    };
 
-                Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));
+                    Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
             }
         }
     }

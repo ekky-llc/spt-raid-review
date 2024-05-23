@@ -1,20 +1,21 @@
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { InsuredItem } from "../models/eft/common/tables/IBotBase";
-import { Item, Repairable } from "../models/eft/common/tables/IItem";
-import { IStaticAmmoDetails } from "../models/eft/common/tables/ILootBase";
-import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { ItemBaseClassService } from "../services/ItemBaseClassService";
-import { LocaleService } from "../services/LocaleService";
-import { LocalisationService } from "../services/LocalisationService";
-import { HashUtil } from "../utils/HashUtil";
-import { JsonUtil } from "../utils/JsonUtil";
-import { MathUtil } from "../utils/MathUtil";
-import { ObjectId } from "../utils/ObjectId";
-import { RandomUtil } from "../utils/RandomUtil";
-import { HandbookHelper } from "./HandbookHelper";
-declare class ItemHelper {
+import { HandbookHelper } from "@spt-aki/helpers/HandbookHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { InsuredItem } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { Item, Repairable } from "@spt-aki/models/eft/common/tables/IItem";
+import { IStaticAmmoDetails } from "@spt-aki/models/eft/common/tables/ILootBase";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { ItemBaseClassService } from "@spt-aki/services/ItemBaseClassService";
+import { ItemFilterService } from "@spt-aki/services/ItemFilterService";
+import { LocaleService } from "@spt-aki/services/LocaleService";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { MathUtil } from "@spt-aki/utils/MathUtil";
+import { ObjectId } from "@spt-aki/utils/ObjectId";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+export declare class ItemHelper {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
     protected jsonUtil: JsonUtil;
@@ -24,10 +25,11 @@ declare class ItemHelper {
     protected databaseServer: DatabaseServer;
     protected handbookHelper: HandbookHelper;
     protected itemBaseClassService: ItemBaseClassService;
+    protected itemFilterService: ItemFilterService;
     protected localisationService: LocalisationService;
     protected localeService: LocaleService;
     protected readonly defaultInvalidBaseTypes: string[];
-    constructor(logger: ILogger, hashUtil: HashUtil, jsonUtil: JsonUtil, randomUtil: RandomUtil, objectId: ObjectId, mathUtil: MathUtil, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, itemBaseClassService: ItemBaseClassService, localisationService: LocalisationService, localeService: LocaleService);
+    constructor(logger: ILogger, hashUtil: HashUtil, jsonUtil: JsonUtil, randomUtil: RandomUtil, objectId: ObjectId, mathUtil: MathUtil, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, itemBaseClassService: ItemBaseClassService, itemFilterService: ItemFilterService, localisationService: LocalisationService, localeService: LocaleService);
     /**
      * Checks if an id is a valid item. Valid meaning that it's an item that be stored in stash
      * @param       {string}    tpl       the template id / tpl
@@ -321,7 +323,7 @@ declare class ItemHelper {
      * Chose a randomly weighted cartridge that fits
      * @param caliber Desired caliber
      * @param staticAmmoDist Cartridges and thier weights
-     * @returns Tpl of cartrdige
+     * @returns Tpl of cartridge
      */
     protected drawAmmoTpl(caliber: string, staticAmmoDist: Record<string, IStaticAmmoDetails[]>): string;
     /**
@@ -353,4 +355,4 @@ declare namespace ItemHelper {
         height: number;
     }
 }
-export { ItemHelper };
+export {};

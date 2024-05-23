@@ -59,15 +59,6 @@ export interface TrackingRaidKill {
   type: string;
 }
 
-export interface TrackingAggression {
-  time: number;
-  aggressorId: string;
-  aggresseId: string;
-  weapon: string;
-  distance: number;
-  bodyPart: EBodyPartColliderType;
-}
-
 export interface TrackingLootItem {
   playerId: string;
   time: number;

@@ -33,7 +33,6 @@ namespace STATS
         public string Id { get; set; }
         public TrackingPlayerData PlayerData { get; set; }
         public TrackingRaidKill KillData { get; set; }
-        public TrackingAggression AggressionData { get; set; }
         public TrackingLootItem LootData { get; set; }
     }
 }

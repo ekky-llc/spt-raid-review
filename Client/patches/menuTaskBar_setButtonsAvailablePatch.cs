@@ -22,8 +22,16 @@ namespace STATS
         [PatchPostfix]
         private static void PatchPostFix(ref MenuTaskBar __instance, bool available)
         {
-            MenuTaskbarMod.Insert();
-            Logger.LogInfo("STATS :::: Inserted Menu Item");
+            try
+            {
+                MenuTaskbarMod.Insert();
+                Logger.LogInfo("STATS :::: Inserted Menu Item");
+            }
+
+            catch (Exception ex)
+            {
+                Logger.LogError($"{ex.Message}");
+            }
         }
     }
 }

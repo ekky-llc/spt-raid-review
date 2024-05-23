@@ -2,8 +2,8 @@
 /// <reference types="node" />
 import fs from "node:fs";
 import "reflect-metadata";
-import { IAsyncQueue } from "../models/spt/utils/IAsyncQueue";
-import { IUUidGenerator } from "../models/spt/utils/IUuidGenerator";
+import { IAsyncQueue } from "@spt-aki/models/spt/utils/IAsyncQueue";
+import { IUUidGenerator } from "@spt-aki/models/spt/utils/IUuidGenerator";
 export declare class VFS {
     protected asyncQueue: IAsyncQueue;
     protected uuidGenerator: IUUidGenerator;

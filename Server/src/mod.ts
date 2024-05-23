@@ -14,6 +14,7 @@ import { ExtractKeysAndValues } from "./Utils/utils";
 import { WriteLineToFile } from "./Controllers/PostRaid/DataSaver";
 import CompileRaidData from "./Controllers/PostRaid/CompileRaidData";
 import CompileCoreData from "./Controllers/PostRaid/CompileCoreData";
+import CompileRaidPositionalData from "./Controllers/PostRaid/CompileRaidPositionalData";
 
 export let session_id = null;
 export let profile_id = null;
@@ -58,6 +59,8 @@ StaticRouter
           const profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
           const profile = profileHelper.getFullProfile(sessionId);
           setProfileId(profile.info.id);
+          console.log(`[STATS] PROFILE_ID: ${profile.info.id}`);
+          console.log(`[STATS] PROFILE_NICKNAME: ${profile.info.username}`);
           return output;
         }
       }], "aki"
@@ -110,6 +113,7 @@ StaticRouter
                 filename = `${this.raid_id}_raid`;
                 WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 WriteLineToFile(profile_id, 'core', null, 'core', keys, values);
+                
                 break;
               case "END":
                 this.raid_id = payload_object.id;
@@ -118,34 +122,33 @@ StaticRouter
                 filename = `${this.raid_id}_raid`;
                 WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 WriteLineToFile(profile_id, 'core', null, 'core', keys, values);
-                
                 CompileRaidData(profile_id, this.raid_id);
+                CompileRaidPositionalData(profile_id, this.raid_id);
                 CompileCoreData(profile_id);
+
+                this.raid_id = "";
                 break;
+
               case "PLAYER":
                 filename = `${this.raid_id}_players`;
                 WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
+
               case "KILL":
                 filename = `${this.raid_id}_kills`;
                 WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
-              case "AGGRESSION":
-                filename = `${this.raid_id}_aggressions`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
-                break;
-              case "SHOT":
-                filename = `${this.raid_id}_shots`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
-                break;
+
               case "POSITION":
                 filename = `${this.raid_id}_positions`;
                 WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
+
               case "LOOT":
                 filename = `${this.raid_id}_looting`;
                 WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
                 break;
+
               default:
                 break;
             }
@@ -166,4 +169,4 @@ StaticRouter
 }
 
 
-module.exports = { mod: new Mod(),};
+module.exports = { mod: new Mod() };

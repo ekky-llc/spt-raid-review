@@ -17,9 +17,7 @@ Once a RAID has been completed; a workflow is started to collate the data into a
 
 - Raid Details
 - Kills
-- Aggressions
 - Looting
-- Shots
 - Position / Health (Experimental)
 
 ## FAQ

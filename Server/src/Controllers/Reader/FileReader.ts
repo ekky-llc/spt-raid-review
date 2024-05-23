@@ -7,13 +7,18 @@ function ReadFileContent(parentFolder: string, subFolder: string, targetFolder: 
         paths = paths.filter(path => path !== '');
     const filePath = path.join(...paths);
 
-    let content = fs.readFileSync(filePath, 'utf-8');
-
-    if (fileName.includes('json')) {
-        content = JSON.parse(content);
+    const fileExists = fs.existsSync(filePath);
+    if (fileExists) {
+        let content = fs.readFileSync(filePath, 'utf-8');
+        
+        if (fileName.includes('json')) {
+            content = JSON.parse(content);
+        }
+        
+        return content;
     }
 
-    return content;
+    return null;
 };
 
 export {

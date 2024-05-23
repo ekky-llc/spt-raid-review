@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import crypto from "node:crypto";
-import { TimeUtil } from "./TimeUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class HashUtil {
     protected timeUtil: TimeUtil;
     constructor(timeUtil: TimeUtil);

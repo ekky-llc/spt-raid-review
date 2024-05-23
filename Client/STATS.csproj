@@ -5,7 +5,7 @@
 		<AssemblyName>STATS</AssemblyName>
 		<Copyright>2023 © Ekky</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<OutputPath>D:\Games\SPT_3.7.0\BepInEx\plugins\</OutputPath>
+		<OutputPath>D:\Games\SPT_3.8.1_DEV\BepInEx\plugins\</OutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

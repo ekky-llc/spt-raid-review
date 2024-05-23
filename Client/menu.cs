@@ -1,4 +1,5 @@
-﻿using EFT.UI; // Assuming EFT is a custom namespace for your project
+﻿using EFT.UI;
+using BepInEx;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,16 +10,13 @@ namespace STATS
 {
     public class MenuTaskbarMod : MonoBehaviour
     {
-        /// <summary>
-        /// Duplicate the "Handbook" ToggleGroup, insert it as a sibling with the name "StatMod,"
-        /// and modify its children components.
-        /// </summary>
+
         public static void Insert()
         {
             List<ToggleGroup> toggleGroups = new List<ToggleGroup>(UnityEngine.Object.FindObjectsOfType<ToggleGroup>());
             ToggleGroup toggleGroupExists = toggleGroups.Find((toggleGroupItem) => toggleGroupItem.name == "StatMod");
 
-            if (toggleGroupExists != null )
+            if (toggleGroupExists != null)
             {
                 return;
             }
@@ -97,11 +95,12 @@ namespace STATS
                     int siblingIndex = toggleGroup.transform.GetSiblingIndex();
 
                     List<ToggleGroup> toggleGroupsReEval = new List<ToggleGroup>(UnityEngine.Object.FindObjectsOfType<ToggleGroup>());
-                    ToggleGroup newToggleGroupExistsReval = toggleGroupsReEval.Find(( toggleGroupItem ) => toggleGroupItem.name == duplicatedToggleGroup.name );
-                    if (newToggleGroupExistsReval == null )
+                    ToggleGroup newToggleGroupExistsReval = toggleGroupsReEval.Find((toggleGroupItem) => toggleGroupItem.name == duplicatedToggleGroup.name);
+                    if (newToggleGroupExistsReval == null)
                     {
                         duplicatedToggleGroup.transform.SetSiblingIndex(siblingIndex + 2);
-                    } else
+                    }
+                    else
                     {
                         newToggleGroupExistsReval.transform.SetSiblingIndex(siblingIndex + 2);
                     }

@@ -1,0 +1,17 @@
+.display-wrapper, .leaflet-map {
+    position: fixed;
+    top: 0;
+    width: 600px;
+    height: 600px;
+    border: 2px solid blue;
+    overflow: hidden;
+}
+
+.leaflet-tile-pane {
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.uiHidden {
+    display: none;
+}

@@ -1,26 +1,24 @@
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { RagfairServerHelper } from "../helpers/RagfairServerHelper";
-import { Item } from "../models/eft/common/tables/IItem";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IRagfairOffer } from "../models/eft/ragfair/IRagfairOffer";
-import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { EventOutputHolder } from "../routers/EventOutputHolder";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { SaveServer } from "../servers/SaveServer";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
-import { RagfairOfferHolder } from "../utils/RagfairOfferHolder";
-import { TimeUtil } from "../utils/TimeUtil";
-import { LocalisationService } from "./LocalisationService";
-import { RagfairCategoriesService } from "./RagfairCategoriesService";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { RagfairServerHelper } from "@spt-aki/helpers/RagfairServerHelper";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IRagfairOffer } from "@spt-aki/models/eft/ragfair/IRagfairOffer";
+import { IRagfairConfig } from "@spt-aki/models/spt/config/IRagfairConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { EventOutputHolder } from "@spt-aki/routers/EventOutputHolder";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
+import { RagfairOfferHolder } from "@spt-aki/utils/RagfairOfferHolder";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class RagfairOfferService {
     protected logger: ILogger;
     protected timeUtil: TimeUtil;
     protected databaseServer: DatabaseServer;
     protected saveServer: SaveServer;
     protected ragfairServerHelper: RagfairServerHelper;
-    protected ragfairCategoriesService: RagfairCategoriesService;
     protected profileHelper: ProfileHelper;
     protected eventOutputHolder: EventOutputHolder;
     protected httpResponse: HttpResponseUtil;
@@ -30,7 +28,7 @@ export declare class RagfairOfferService {
     protected expiredOffers: Record<string, IRagfairOffer>;
     protected ragfairConfig: IRagfairConfig;
     protected ragfairOfferHandler: RagfairOfferHolder;
-    constructor(logger: ILogger, timeUtil: TimeUtil, databaseServer: DatabaseServer, saveServer: SaveServer, ragfairServerHelper: RagfairServerHelper, ragfairCategoriesService: RagfairCategoriesService, profileHelper: ProfileHelper, eventOutputHolder: EventOutputHolder, httpResponse: HttpResponseUtil, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, timeUtil: TimeUtil, databaseServer: DatabaseServer, saveServer: SaveServer, ragfairServerHelper: RagfairServerHelper, profileHelper: ProfileHelper, eventOutputHolder: EventOutputHolder, httpResponse: HttpResponseUtil, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Get all offers
      * @returns IRagfairOffer array

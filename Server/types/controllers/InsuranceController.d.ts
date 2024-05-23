@@ -1,25 +1,25 @@
-import { DialogueHelper } from "../helpers/DialogueHelper";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { TraderHelper } from "../helpers/TraderHelper";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { Item } from "../models/eft/common/tables/IItem";
-import { IGetInsuranceCostRequestData } from "../models/eft/insurance/IGetInsuranceCostRequestData";
-import { IGetInsuranceCostResponseData } from "../models/eft/insurance/IGetInsuranceCostResponseData";
-import { IInsureRequestData } from "../models/eft/insurance/IInsureRequestData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { Insurance, ISystemData } from "../models/eft/profile/IAkiProfile";
-import { IInsuranceConfig } from "../models/spt/config/IInsuranceConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { EventOutputHolder } from "../routers/EventOutputHolder";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { SaveServer } from "../servers/SaveServer";
-import { InsuranceService } from "../services/InsuranceService";
-import { MailSendService } from "../services/MailSendService";
-import { PaymentService } from "../services/PaymentService";
-import { RandomUtil } from "../utils/RandomUtil";
-import { TimeUtil } from "../utils/TimeUtil";
+import { DialogueHelper } from "@spt-aki/helpers/DialogueHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { TraderHelper } from "@spt-aki/helpers/TraderHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { IGetInsuranceCostRequestData } from "@spt-aki/models/eft/insurance/IGetInsuranceCostRequestData";
+import { IGetInsuranceCostResponseData } from "@spt-aki/models/eft/insurance/IGetInsuranceCostResponseData";
+import { IInsureRequestData } from "@spt-aki/models/eft/insurance/IInsureRequestData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { ISystemData, Insurance } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { IInsuranceConfig } from "@spt-aki/models/spt/config/IInsuranceConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { EventOutputHolder } from "@spt-aki/routers/EventOutputHolder";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { InsuranceService } from "@spt-aki/services/InsuranceService";
+import { MailSendService } from "@spt-aki/services/MailSendService";
+import { PaymentService } from "@spt-aki/services/PaymentService";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class InsuranceController {
     protected logger: ILogger;
     protected randomUtil: RandomUtil;
@@ -36,18 +36,19 @@ export declare class InsuranceController {
     protected mailSendService: MailSendService;
     protected configServer: ConfigServer;
     protected insuranceConfig: IInsuranceConfig;
+    protected roubleTpl: string;
     constructor(logger: ILogger, randomUtil: RandomUtil, eventOutputHolder: EventOutputHolder, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, itemHelper: ItemHelper, profileHelper: ProfileHelper, dialogueHelper: DialogueHelper, traderHelper: TraderHelper, paymentService: PaymentService, insuranceService: InsuranceService, mailSendService: MailSendService, configServer: ConfigServer);
     /**
      * Process insurance items of all profiles prior to being given back to the player through the mail service.
      *
      * @returns void
-    */
+     */
     processReturn(): void;
     /**
      * Process insurance items of a single profile prior to being given back to the player through the mail service.
      *
      * @returns void
-    */
+     */
     processReturnByProfile(sessionID: string): void;
     /**
      * Get all insured items that are ready to be processed in a specific profile.

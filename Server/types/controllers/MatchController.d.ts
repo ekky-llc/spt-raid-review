@@ -1,30 +1,31 @@
-import { ApplicationContext } from "../context/ApplicationContext";
-import { LootGenerator } from "../generators/LootGenerator";
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { TraderHelper } from "../helpers/TraderHelper";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { ICreateGroupRequestData } from "../models/eft/match/ICreateGroupRequestData";
-import { IEndOfflineRaidRequestData } from "../models/eft/match/IEndOfflineRaidRequestData";
-import { IGetGroupStatusRequestData } from "../models/eft/match/IGetGroupStatusRequestData";
-import { IGetProfileRequestData } from "../models/eft/match/IGetProfileRequestData";
-import { IGetRaidConfigurationRequestData } from "../models/eft/match/IGetRaidConfigurationRequestData";
-import { IJoinMatchRequestData } from "../models/eft/match/IJoinMatchRequestData";
-import { IJoinMatchResult } from "../models/eft/match/IJoinMatchResult";
-import { IInRaidConfig } from "../models/spt/config/IInRaidConfig";
-import { IMatchConfig } from "../models/spt/config/IMatchConfig";
-import { IPmcConfig } from "../models/spt/config/IPmcConfig";
-import { ITraderConfig } from "../models/spt/config/ITraderConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { SaveServer } from "../servers/SaveServer";
-import { BotGenerationCacheService } from "../services/BotGenerationCacheService";
-import { BotLootCacheService } from "../services/BotLootCacheService";
-import { MailSendService } from "../services/MailSendService";
-import { MatchLocationService } from "../services/MatchLocationService";
-import { ProfileSnapshotService } from "../services/ProfileSnapshotService";
-import { HashUtil } from "../utils/HashUtil";
-import { RandomUtil } from "../utils/RandomUtil";
-import { TimeUtil } from "../utils/TimeUtil";
+import { ApplicationContext } from "@spt-aki/context/ApplicationContext";
+import { LootGenerator } from "@spt-aki/generators/LootGenerator";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { TraderHelper } from "@spt-aki/helpers/TraderHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { ICreateGroupRequestData } from "@spt-aki/models/eft/match/ICreateGroupRequestData";
+import { IEndOfflineRaidRequestData } from "@spt-aki/models/eft/match/IEndOfflineRaidRequestData";
+import { IGetGroupStatusRequestData } from "@spt-aki/models/eft/match/IGetGroupStatusRequestData";
+import { IGetGroupStatusResponse } from "@spt-aki/models/eft/match/IGetGroupStatusResponse";
+import { IGetProfileRequestData } from "@spt-aki/models/eft/match/IGetProfileRequestData";
+import { IGetRaidConfigurationRequestData } from "@spt-aki/models/eft/match/IGetRaidConfigurationRequestData";
+import { IJoinMatchRequestData } from "@spt-aki/models/eft/match/IJoinMatchRequestData";
+import { IJoinMatchResult } from "@spt-aki/models/eft/match/IJoinMatchResult";
+import { IInRaidConfig } from "@spt-aki/models/spt/config/IInRaidConfig";
+import { IMatchConfig } from "@spt-aki/models/spt/config/IMatchConfig";
+import { IPmcConfig } from "@spt-aki/models/spt/config/IPmcConfig";
+import { ITraderConfig } from "@spt-aki/models/spt/config/ITraderConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { BotGenerationCacheService } from "@spt-aki/services/BotGenerationCacheService";
+import { BotLootCacheService } from "@spt-aki/services/BotLootCacheService";
+import { MailSendService } from "@spt-aki/services/MailSendService";
+import { MatchLocationService } from "@spt-aki/services/MatchLocationService";
+import { ProfileSnapshotService } from "@spt-aki/services/ProfileSnapshotService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class MatchController {
     protected logger: ILogger;
     protected saveServer: SaveServer;
@@ -56,7 +57,7 @@ export declare class MatchController {
     /** Handle match/group/start_game */
     joinMatch(info: IJoinMatchRequestData, sessionId: string): IJoinMatchResult;
     /** Handle client/match/group/status */
-    getGroupStatus(info: IGetGroupStatusRequestData): any;
+    getGroupStatus(info: IGetGroupStatusRequestData): IGetGroupStatusResponse;
     /**
      * Handle /client/raid/configuration
      * @param request Raid config request
@@ -79,6 +80,12 @@ export declare class MatchController {
     protected extractWasViaCoop(extractName: string): boolean;
     protected sendCoopTakenFenceMessage(sessionId: string): void;
     /**
+     * Handle when a player extracts using a coop extract - add rep to fence
+     * @param pmcData Profile
+     * @param extractName Name of extract taken
+     */
+    protected handleCoopExtract(pmcData: IPmcData, extractName: string): void;
+    /**
      * Was extract by car
      * @param extractName name of extract
      * @returns true if car extract
@@ -92,10 +99,11 @@ export declare class MatchController {
      */
     protected handleCarExtract(extractName: string, pmcData: IPmcData, sessionId: string): void;
     /**
-     * Update players fence trader standing value in profile
-     * @param pmcData Player profile
-     * @param fenceId Id of fence trader
-     * @param extractName Name of extract used
+     * Get the fence rep gain from using a car or coop extract
+     * @param pmcData Profile
+     * @param baseGain amount gained for the first extract
+     * @param extractCount Number of times extract was taken
+     * @returns Fence standing after taking extract
      */
-    protected updateFenceStandingInProfile(pmcData: IPmcData, fenceId: string, extractName: string): void;
+    protected getFenceStandingAfterExtract(pmcData: IPmcData, baseGain: number, extractCount: number): number;
 }

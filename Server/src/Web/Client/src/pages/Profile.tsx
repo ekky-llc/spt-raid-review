@@ -1,49 +1,122 @@
-import { Link } from "react-router-dom";
-import { useLoaderData } from "react-router-dom";
+import { Link, redirect, Outlet, useLoaderData } from "react-router-dom";
 import api from "../api/api";
 import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
 
-import './Profile.css'
+import "./Profile.css";
+import moment from "moment";
 
-export async function loader(loaderData : any) {
-    const profile = await api.getProfile(loaderData.params.profileId);
-    return { profile }
+export async function loader(loaderData: any) {
+  const profile = await api.getProfile(loaderData.params.profileId);
+  const core = await api.getCore(loaderData.params.profileId);
+
+  if (core.raids === undefined) {
+    return redirect(`/?profileId=${loaderData.params.profileId}&error=core_file_is_corrupt`)
+  }
+
+  return { profile, core };
 }
 
 export default function Profile() {
-    const { profile } = useLoaderData() as { profile : IAkiProfile };
+  const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
 
-    return (
-        <div className="profile__layout p-6 font-mono">
-            <div className="profile__header">
-                <ul>
-                    <li>
-                        <Link to="/">
-                            <button className="bg-eft w-32 px-4 py-1 text-xl font-black flex hover:opacity-75">
-                                <svg className="mr-2" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9.0625 19.8013L4.0625 14.8013L9.0625 9.80127M18.0625 4.80127V14.8013H5.0625" stroke="black" strokeWidth="2"/>
-                                </svg>
-                                <span>Return</span>
-                            </button>
-                        </Link>
-                    </li>
-                    <li>
-                        <button>
-                            Overall
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div className="profile__sidebar bg-black/75 p-6">
-                <div className="border-eft p-2">
-                    <h2 className="text-xl font-black text-eft mb-2">Raid Selection</h2>
-                </div>
-            </div>
-            <div className="profile__body bg-black/75 p-6">
-            <div className="border-eft p-2">
-                    { profile.characters.pmc.Info.Nickname } Overall Statistics
-                </div>
-            </div>
+  function msToHMS( ms: number ) : string {
+    return new Date(ms).toISOString().slice(11,19);
+  }
+
+  async function trigger_compile_core() {
+    await api.recompileCoreFile(profile.info.id);
+    return redirect(`/p/${profile.info.id}`);
+  }
+
+  const locations = {
+    "bigmap": "Customs",
+    "develop": "Ground Zero",
+    "factory4_day": "Factory",
+    "factory4_night": "Factory",
+    "hideout": "Hideout",
+    "Interchange": "Interchange",
+    "laboratory": "Laboratory",
+    "Lighthouse": "Lighthouse",
+    "privatearea": "Private Area",
+    "RezervBase": "Reserve",
+    "shoreline": "Shoreline",
+    "suburbs": "Suburbs",
+    "TarkovStreets": "Streets",
+    "terminal": "Terminal",
+    "town": "Town",
+    "woods": "Woods",
+    "base": "Base"
+  };
+
+  return (
+    <div className="profile__layout p-6 font-mono">
+      <div className="profile__header">
+        <ul className="flex justify-between">
+          <li>
+            <Link to="/">
+              <button className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
+                <svg
+                  className="mr-2"
+                  width="25"
+                  height="25"
+                  viewBox="0 0 25 25"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.0625 19.8013L4.0625 14.8013L9.0625 9.80127M18.0625 4.80127V14.8013H5.0625"
+                    stroke="black"
+                    strokeWidth="2"
+                  />
+                </svg>
+                <span>Return</span>
+              </button>
+            </Link>
+          </li>
+          <li>
+              <button className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75" onClick={() => trigger_compile_core()}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="25"
+                  fill="none"
+                  stroke="#000"
+                  className="mr-2"
+                  viewBox="0 0 25 25"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z"></path>
+                  <path d="M20 11A8.1 8.1 0 004.5 9M4 5v4h4M4 13a8.1 8.1 0 0015.5 2m.5 4v-4h-4"></path>
+                </svg>
+                <span>Compile</span>
+              </button>
+          </li>
+        </ul>
+      </div>
+      <div className="profile__sidebar bg-black/75 p-6">
+        <div className="border-eft p-2">
+          <h2 className="text-xl font-black text-eft mb-2">Raid Selection</h2>
         </div>
-    )
+        {core.raids.map((raid: any) => RaidSelector(profile, raid, locations, msToHMS))}
+      </div>
+      <div className="profile__body bg-black/75 p-6">
+        <div className="border-eft p-2">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
 }
+
+function RaidSelector(profile: IAkiProfile, raid: any, locations: { [ key :string ] : string }, msToHMS: (ms: number) => string) {
+  return <Link to={`/p/${profile.info.id}/raid/${raid.id}`} key={raid.id} className="raid__selector bg-eft w-full px-4 py-1 text-xl font-black flex flex-col hover:opacity-75 cursor-pointer">
+    <div className="w-full flex items-center">
+      {locations[raid.location] !== undefined ? locations[raid.location] : raid.location}
+      <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(raid.timeInRaid)} </span>
+    </div>
+    <div className="font-light flex justify-between text-sm opacity-75">
+      <div>{raid.exitStatus}</div>
+      <div>{moment(raid.time).calendar()}</div>
+    </div>
+  </Link>;
+}
+
