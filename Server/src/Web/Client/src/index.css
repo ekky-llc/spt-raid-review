@@ -1,0 +1,24 @@
+@import url('https://fonts.cdnfonts.com/css/bender');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Bender', sans-serif;
+  /* background-image: url('/images/background.png'); */
+  background-color: #0f0f0d;
+  background-size: cover;
+  height: 100%;
+  background-repeat: no-repeat;
+}
+
+.bg-eft {
+  background-color: #9a8866;
+}
+
+.text-eft {
+  color: #9a8866;
+}
+
+.border-eft {
+  border-color: #9a8866;
+}

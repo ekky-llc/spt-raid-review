@@ -1,0 +1,90 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<AssemblyName>STATS</AssemblyName>
+		<Copyright>2023 © Ekky</Copyright>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>D:\Games\SPT_3.8.1_DEV\BepInEx\plugins\</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="Aki.Common">
+			<HintPath>dependencies\Aki.Common.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Aki.Reflection">
+			<HintPath>dependencies\Aki.Reflection.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>dependencies\Assembly-CSharp.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="BepInEx">
+			<HintPath>dependencies\BepInEx.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Comfort">
+			<HintPath>dependencies\Comfort.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>dependencies\Newtonsoft.Json.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="SAIN">
+		  <HintPath>dependencies\SAIN.dll</HintPath>
+		</Reference>
+		<Reference Include="System.ComponentModel.DataAnnotations">
+		  <HintPath>dependencies\System.ComponentModel.DataAnnotations.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="System.Runtime" />
+		<Reference Include="UnityEngine">
+			<HintPath>dependencies\UnityEngine.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.AssetBundleModule">
+			<HintPath>dependencies\UnityEngine.AssetBundleModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>dependencies\UnityEngine.CoreModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.AudioModule">
+			<HintPath>dependencies\UnityEngine.AudioModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.InputModule">
+			<HintPath>dependencies\UnityEngine.InputModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.InputLegacyModule">
+			<HintPath>dependencies\UnityEngine.InputLegacyModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>dependencies\UnityEngine.UI.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UIModule">
+			<HintPath>dependencies\UnityEngine.UIModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="websocket-sharp">
+			<HintPath>dependencies\websocket-sharp.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="Sirenix.Serialization">
+			<HintPath>dependencies\Sirenix.Serialization.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
+</Project>

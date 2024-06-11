@@ -5,22 +5,20 @@ using Comfort.Common;
 using System.Collections.Generic;
 using System;
 
-namespace SPTH
+namespace STATS
 {
 
     public class TrackingRaid
     {
         public string id { get; set; }
+        public string playerId { get; set; }
         public string location { get; set; }
+        public string detectedMods { get; set; }
         public DateTime time { get; set; }
         public long timeInRaid { get; set; }
 
         public string exitName { get; set; }
         public ExitStatus exitStatus { get; set; }
-        public List<TrackingPlayer> players { get; set; } = new List<TrackingPlayer>();
-        public List<TrackingRaidKill> killTimeline { get; set; } = new List<TrackingRaidKill>();
-        public List<TrackingAggression> aggresionTimeline { get; set; } = new List<TrackingAggression>();
-        public List<TrackingLootItem> lootTimeline { get; set; } = new List<TrackingLootItem>();
     }
 
     public class TrackingPlayer
@@ -31,39 +29,39 @@ namespace SPTH
         public EPlayerSide team { get; set; }
         public string name { get; set; }
         public string type { get; set; }
-        public string group {  get; set; }
+        public int group {  get; set; }
         public long spawnTime { get; set; }
-        public long deathTime { get; set; }
-        public PlayerStatus status { get; set; }
+    }
+
+    public class TrackingExtractedPlayer
+    {
+        public string BotNickname { get; set; }
+        public string ProfileID { get; set; }
+        public string Reason { get; set; }
+        public string ExtractPoint { get; set; }
+        public float TimeExtracted { get; set; }
+
     }
 
     public class TrackingRaidKill
     {
         public long time { get; set; }
-        public string killerId { get; set; }
+        public string profileId { get; set; }
         public string killedId { get; set; }
         public string weapon {  get; set; }
         public float distance { get; set; }
         public string bodyPart {  get; set; }
         public string type { get; set; }
-    }
-
-    public class TrackingAggression
-    {
-        public long time { get; set; }
-        public string aggressorId {  get; set; }
-        public string aggresseId { get; set; }
-        public string weapon { get; set; }
-        public float distance { get; set; }
-        public EBodyPartColliderType bodyPart { get; set; }
+        public string positionKiller { get; set; }
+        public string positionKilled { get; set; }
     }
 
     public class TrackingLootItem
     {
-        public string playerId { get; set; }
+        public string profileId { get; set; }
         public long time { get; set; }
-        public string id { get; set; }
-        public string name { get; set; }
+        public string itemId { get; set; }
+        public string itemName { get; set; }
         public int qty { get; set; }
         public string type { get; set; }
         public bool added {  get; set; }
@@ -71,46 +69,27 @@ namespace SPTH
 
     public class TrackingPlayerData
     {
-        public int playerId { get; set; }
+        public string profileId { get; set; }
         public long time { get; set; }
         public float x { get; set; }
         public float y { get; set; }
         public float z { get; set; }
         public float dir { get; set; }
-        public bool alive { get; set; }
-        public Tuple<float, float>[] health { get; set; }
 
         public TrackingPlayerData(
-            int playerId, 
+            string profileId, 
             long time, 
             float x, 
             float y, 
             float z, 
-            float dir, 
-            bool alive,
-            Tuple<float, float>[] health)
+            float dir)
         {
-            this.playerId = playerId;
+            this.profileId = profileId;
             this.time = time;
             this.x = x;
             this.y = y;
             this.z = z;
             this.dir = dir;
-            this.alive = alive;
-            this.health = health;
         }
-    }
-
-    public class TrackingPlayerBodyPart
-    {
-        public float current { get; set; } = 0F;
-        public float max { get; set; } = 0F;
-    }
-
-    public enum PlayerStatus
-    {
-        Alive,
-        Dead,
-        Extracted
     }
 }
