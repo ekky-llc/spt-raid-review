@@ -267,6 +267,55 @@ function calculateProportionalRadius(mapBounds) {
     return baseRadius * scalingFactor;
 };
   
+const colors = [
+    "#3357FF", // Blue
+    "#FF5733", // Red-Orange
+    "#33FF57", // Green
+    "#FF33A1", // Pink
+    "#33FFF3", // Cyan
+    "#FF33E9", // Magenta
+    "#FFD433", // Yellow
+    "#8D33FF", // Purple
+    "#33FF8D", // Light Green
+    "#FF9633", // Orange
+    "#3366FF", // Royal Blue
+    "#FF3380", // Hot Pink
+    "#FFA533", // Light Orange
+    "#33FFAF", // Mint Green
+    "#5733FF", // Indigo
+    "#FF33D4", // Light Magenta
+    "#33FFCC", // Teal
+    "#FF5733", // Coral
+    "#5733FF", // Dark Violet
+    "#FFD433", // Gold
+    "#B833FF", // Violet
+    "#33FF57", // Lime
+    "#33FF57", // Forest Green
+    "#FF3333", // Red
+    "#3399FF", // Sky Blue
+    "#FF33B8", // Rose
+    "#8CFF33", // Lime Green
+    "#33FFD5", // Turquoise
+    "#FF6F33", // Dark Orange
+    "#FF3333", // Crimson
+    "#FF5733", // Tomato
+    "#33D4FF", // Deep Sky Blue
+    "#FF5733", // Salmon
+    "#FF3380", // Deep Pink
+    "#33FF57", // Spring Green
+    "#33FF57", // Medium Sea Green
+    "#FF33E9", // Orchid
+    "#FFD433", // Khaki
+    "#FF33A1", // Hot Pink
+    "#FF33D4", // Light Pink
+    "#8D33FF", // Plum
+    "#33FFF3", // Light Cyan
+    "#FF9633", // Dark Salmon
+    "#33FF8D", // Pale Green
+    "#FF33A1", // Deep Pink
+    "#33FF8D", // Sea Green
+    "#33FFF3", // Aqua
+];
 
 export default function Map({ raidData, profileId, raidId, positions }) {
     const navigate = useNavigate();
@@ -277,6 +326,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     const [ availableLayers, setAvailableLayers ] = useState([]);
     const [ selectedLayer, setSelectedLayer ] = useState('');
     const [ followPlayer, setFollowPlayer ] = useState(9999);
+    const [ playerFocus, setPlayerFocus ] = useState(null);
     const [ proportionalScale, setProportionalScale ] = useState(0);
 
     // Player
@@ -287,6 +337,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     const [ timeEndLimit, setTimeEndLimit ] = useState(0);
     const [ sliderTimes, setSliderTimes ] = useState([]);
     const [ hideSettings, setHideSettings ] = useState(true);
+    const [ hidePlayers, setHidePlayers ] = useState(false);
     const [ hideEvents, setHideEvents ] = useState(false);
     const [ preserveHistory, setPreserveHistory ] = useState(false);
     const [ hideNerdStats, setHideNerdStats ] = useState(true);
@@ -382,6 +433,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         return allMaps[currentMap];
     }, [allMaps, currentMap]);
 
+    // Map Renderer
     useEffect(() => {
         if (!mapData || mapData.projection !== 'interactive') {
             return;
@@ -531,57 +583,8 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
     }, [mapData, mapRef, navigate, mapViewRef, selectedLayer]);
 
-    useEffect(() => {
-        const colors = [
-            "#FF5733", // Red-Orange
-            "#33FF57", // Green
-            "#3357FF", // Blue
-            "#FF33A1", // Pink
-            "#33FFF3", // Cyan
-            "#FF33E9", // Magenta
-            "#FFD433", // Yellow
-            "#8D33FF", // Purple
-            "#33FF8D", // Light Green
-            "#FF9633", // Orange
-            "#3366FF", // Royal Blue
-            "#FF3380", // Hot Pink
-            "#FFA533", // Light Orange
-            "#33FFAF", // Mint Green
-            "#5733FF", // Indigo
-            "#FF33D4", // Light Magenta
-            "#33FFCC", // Teal
-            "#FF5733", // Coral
-            "#5733FF", // Dark Violet
-            "#FFD433", // Gold
-            "#B833FF", // Violet
-            "#33FF57", // Lime
-            "#33FF57", // Forest Green
-            "#FF3333", // Red
-            "#3399FF", // Sky Blue
-            "#FF33B8", // Rose
-            "#8CFF33", // Lime Green
-            "#33FFD5", // Turquoise
-            "#FF6F33", // Dark Orange
-            "#FF3333", // Crimson
-            "#FF5733", // Tomato
-            "#33D4FF", // Deep Sky Blue
-            "#FF5733", // Salmon
-            "#FF3380", // Deep Pink
-            "#33FF57", // Spring Green
-            "#33FF57", // Medium Sea Green
-            "#FF33E9", // Orchid
-            "#FFD433", // Khaki
-            "#FF33A1", // Hot Pink
-            "#FF33D4", // Light Pink
-            "#8D33FF", // Plum
-            "#33FFF3", // Light Cyan
-            "#FF9633", // Dark Salmon
-            "#33FF8D", // Pale Green
-            "#FF33A1", // Deep Pink
-            "#33FF8D", // Sea Green
-            "#33FFF3", // Aqua
-        ];
-             
+    // Positon Renderer
+    useEffect(() => {             
 
         let times = [];
 
@@ -614,16 +617,41 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
             }
 
-            if (MAP && cleanPositions.length > 0) {
-                L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
-                if (!isPlayerDead) {
+            // Hide player movement if enabled
+            if (!hidePlayers && MAP && cleanPositions.length > 0) {
+
+                // If player is focused, opacques out all other players
+                if (playerFocus !== null && playerFocus === i) {
+                    L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); console.log(i, followPlayer);});
                     L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: colors[i], fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
-                    if (followPlayer === i) {
-                        MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
-                    }
                 } else {
-                    // L.circle(cleanPositions[cleanPositions.length - 1], { radius: 0.75, color: 'red', fillOpacity: 1 }).addTo(MAP);
+                    L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
+                    if (!isPlayerDead) {
+
+                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: colors[i], opacity: isPlayerDead ? 0 : 0.1, fillOpacity: 1, fillRule: 'nonzero' })
+                        .addTo(MAP);
+
+                        if (followPlayer === i) {
+                            MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                        }
+                    }
                 }
+                
+                // Normal rendering
+                if (playerFocus === null) {
+                    L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
+                    if (!isPlayerDead) {
+
+                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: colors[i], fillOpacity: 1, fillRule: 'nonzero' })
+                        .addTo(MAP);
+
+                        if (followPlayer === i) {
+                            MAP.setZoom(3)
+                            MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                        }
+                    }
+                }
+
             }
         }
 
@@ -632,8 +660,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             
             const toBeIndex = findInsertIndex(e.time, sliderTimes);
             if (toBeIndex < timeCurrentIndex) {
-                if (MAP) {
-                    
+                if (!hideEvents && MAP) {
                     if (preserveHistory || toBeIndex > (timeCurrentIndex - 200)) {
                         var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
                         L.marker([e.source.z, e.source.x], {icon: killerIcon}).addTo(MAP);
@@ -652,6 +679,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             setSliderTimes(times);
             setTimeStartLimit(times[0]);
             setTimeEndLimit(times[times.length - 1]);
+            setTimeCurrentIndex(times.length - 1);
         }
 
         if (preserveHistory) {
@@ -669,17 +697,9 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             }
         }
 
-    }, [mapData, mapRef, navigate, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, followPlayer]);
+    }, [mapData, mapRef, navigate, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus]);
 
-    function playPositions() {
-        if (timeCurrentIndex === sliderTimes.length - 1) {
-            setTimeEndLimit(sliderTimes[0])
-            setTimeStartLimit(sliderTimes[0]);
-            setTimeCurrentIndex(0);
-        }
-        setPlaying(prevPlaying => !prevPlaying);
-    }
-    
+    // Slider Updater
     useEffect(() => {
         if (!playing || sliderTimes.length === 0) {
             return;
@@ -715,6 +735,15 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         return () => clearInterval(interval);
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory]);
     
+    function playPositions() {
+        if (timeCurrentIndex === sliderTimes.length - 1) {
+            setTimeEndLimit(sliderTimes[0])
+            setTimeStartLimit(sliderTimes[0]);
+            setTimeCurrentIndex(0);
+        }
+        setPlaying(prevPlaying => !prevPlaying);
+    }
+    
     function highlight(coords, time) {
         if (!MAP) return; 
         const frameIndex = findInsertIndex(time, sliderTimes) + 1;
@@ -723,6 +752,14 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         setTimeStartLimit(sliderTimes[frameIndex - 200]);
         MAP.flyToBounds(coords, { maxZoom: 4,  animate: true });
         return 
+    }
+
+    function playerWasKilled(playerId: string, time: number): boolean {
+        if (raidData && raidData.kills) {
+          return !!raidData.kills.find((kill) => kill.killedId === playerId && kill.time < time);
+        } else {
+          return false;
+        }
     }
 
     return (
@@ -736,8 +773,27 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     </div>
                     <Link to={`/p/${profileId}/raid/${raidId}`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto'>Close</Link>
                 </nav>
-                <aside className='sidebar border border-eft mr-3'>
-                    test
+                <aside className='sidebar border border-eft mr-3 p-3 overflow-x-auto'>
+                    <div className="playerfeed text-eft">
+                        <strong>Legend</strong>
+                        <ul>
+                            { raidData.players.filter(p => p.spawnTime < timeEndLimit).map((player, index) => 
+                                <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => setFollowPlayer(followPlayer === index ? 999999 : index)}>
+                                    <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
+                                        <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : colors[index]}}></span>
+                                        <span>
+                                            {player.name}
+                                        </span>
+                                    </div>
+                                    { followPlayer === index ? 
+                                        <span className='text-xs'>
+                                            [FOLLOWING]
+                                        </span> : ''
+                                    }
+                                </li>
+                            )}
+                        </ul>
+                    </div>
                 </aside>
                 <div className="map-wrapper border border-eft map">
                     <TransformWrapper
@@ -776,6 +832,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             setTimeStartLimit={setTimeStartLimit}
                             setTimeEndLimit={setTimeEndLimit}
                             preserveHistory={preserveHistory}
+                            playerFocus={playerFocus}
                         />
                         <input className='w-full hidden' type="range" min={sliderTimes[0]} max={sliderTimes[sliderTimes.length - 1]} value={timeEndLimit} onChange={e => setTimeEndLimit(e.target.value)} />
                         <input className='w-full hidden' type="range" min={sliderTimes[0]} max={sliderTimes[sliderTimes.length - 1]} value={timeStartLimit} onChange={e => setTimeStartLimit(e.target.value)} />
@@ -795,6 +852,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                         <button className={`text-sm p-2 py-1 text-sm ${!hideSettings ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideSettings(!hideSettings)}>⚙️</button>
                         <div className={`border border-eft p-1 flex gap-1 ${hideSettings ? 'invisible' : ''}`}>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${hideEvents ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideEvents(!hideEvents)}>Hide Events</button>
+                            <button className={`text-xs p-1 text-sm cursor-pointer ${hidePlayers ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHidePlayers(!hidePlayers)}>Hide Players</button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${preserveHistory ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft tooltip info`} onClick={() => setPreserveHistory(!preserveHistory)}>
                                 Preserve
                                 <span class="tooltiptext info">If enabled, keeps all activity visible throughout playback, otherwise, only recent activity is kept visible.</span>

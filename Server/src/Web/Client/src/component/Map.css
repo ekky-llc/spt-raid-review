@@ -183,6 +183,16 @@
     background: #00000094;
   }
 
+  .player-legend-item:hover {
+    color: black;
+    background-color: #9a8866;
+    cursor: pointer;
+  }
+
+  .player-legend-item:hover * {
+    opacity: 1;
+  }
+
   .kill-stream .event:first-child {
 	-webkit-animation: slide-in-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;
 	        animation: slide-in-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards;

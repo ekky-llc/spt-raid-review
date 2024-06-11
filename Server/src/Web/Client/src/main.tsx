@@ -7,6 +7,7 @@ import Home, { loader as profilesLoader } from './pages/Home';
 import Profile, { loader as coreLoader } from './pages/Profile'
 import Raid, { loader as raidLoader } from './pages/Raid';
 import MapView, { loader as mapLoader } from './pages/MapView';
+import About from "./pages/About";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,11 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "/p/:profileId/about",
+        // loader: raidLoader,
+        element: <About />,
+      }
     ],
   },
 ]);

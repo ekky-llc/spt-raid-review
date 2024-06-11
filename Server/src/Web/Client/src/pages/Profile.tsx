@@ -9,6 +9,10 @@ export async function loader(loaderData: any) {
   const profile = await api.getProfile(loaderData.params.profileId);
   const core = await api.getCore(loaderData.params.profileId);
 
+  if (!loaderData.request.url.includes('about') && !core.length) {
+    return redirect(`/p/${profile.info.id}/about`);
+  }
+
   return { profile, core };
 }
 
@@ -43,11 +47,6 @@ export function msToHMS( ms: number ) : string {
 export default function Profile() {
   const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
 
-
-  async function trigger_compile_core() {
-    return redirect(`/p/${profile.info.id}`);
-  }
-
   return (
     <div className="profile__layout p-6 font-mono">
       <div className="profile__header">
@@ -74,21 +73,9 @@ export default function Profile() {
             </Link>
           </li>
           <li>
-              <button className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75" onClick={() => trigger_compile_core()}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="25"
-                  height="25"
-                  fill="none"
-                  stroke="#000"
-                  className="mr-2"
-                  viewBox="0 0 25 25"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z"></path>
-                  <path d="M20 11A8.1 8.1 0 004.5 9M4 5v4h4M4 13a8.1 8.1 0 0015.5 2m.5 4v-4h-4"></path>
-                </svg>
-                <span>Compile</span>
-              </button>
+              <Link to={`/p/${profile.info.id}/about`} className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
+                <span>About</span>
+              </Link>
           </li>
         </ul>
       </div>
