@@ -1,6 +1,6 @@
-# STATS Mod - SPT Server Backend
+# RAID-REVIEW Mod - SPT Server Backend
 
-This is the `Stats Mod Backend` for `SPT-AKI`; used to collect information from the `STATS Mod Client`.
+This is the `Stats Mod Backend` for `SPT-AKI`; used to collect information from the `RAID-REVIEW Mod Client`.
 
 This runs it's own `Websocket Server` for capturing telemetry from the game; and a `HTTP Server` which serves both the API and client application to display the collected in-game data.
 

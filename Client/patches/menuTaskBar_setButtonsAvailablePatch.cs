@@ -2,7 +2,7 @@
 using EFT;
 using EFT.UI;
 using Newtonsoft.Json;
-using STATS;
+using RAID_REVIEW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +10,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace STATS
+namespace RAID_REVIEW
 {
-    internal class STATS_menuTaskBar_setButtonsAvailablePatch : ModulePatch
+    internal class RAID_REVIEW_menuTaskBar_setButtonsAvailablePatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -27,7 +27,7 @@ namespace STATS
                 Boolean result = MenuTaskbarMod.Insert();
                 if (result)
                 {
-                    Logger.LogInfo("STATS :::: Inserted Menu Item");
+                    Logger.LogInfo("RAID_REVIEW :::: Inserted Menu Item");
                 }
 
                 Telemetry.Send("MAIN_MENU", "{\"data\":\"\"}");

@@ -120,7 +120,7 @@ function StartWebServer(saveServer: SaveServer, db: Database<sqlite3.Database, s
   });
 
   app.listen(port, () => {
-    return console.log(`[STATS] Web Server is running at 'http://127.0.0.1:${port}'`);
+    return console.log(`[RAID-REVIEW] Web Server is running at 'http://127.0.0.1:${port}'`);
   });
 
 }

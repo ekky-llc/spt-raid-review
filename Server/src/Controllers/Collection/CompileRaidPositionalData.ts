@@ -7,7 +7,7 @@ export interface FileImport {
 }
 
 function CompileRaidPositionalData(raid_guid: string) {
-    console.log(`[STATS] Starting - Compiling positional data for '${raid_guid}' into '.json' format.`);
+    console.log(`[RAID-REVIEW] Starting - Compiling positional data for '${raid_guid}' into '.json' format.`);
 
     const file_suffixes = ['positions'];
     const files = [] as FileImport[];
@@ -60,11 +60,11 @@ function CompileRaidPositionalData(raid_guid: string) {
 
 
     }
-    console.log(`[STATS] Finished - Compiling positional data for '${raid_guid}' into '.json' format.`);
+    console.log(`[RAID-REVIEW] Finished - Compiling positional data for '${raid_guid}' into '.json' format.`);
 
     fs.writeFileSync(`${__dirname}/../../../data/positions/${raid_guid}_positions.json`, JSON.stringify(positional_data), 'utf-8');
 
-    console.log(`[STATS] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/positions'.`);
+    console.log(`[RAID-REVIEW] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/positions'.`);
 };
 
 export default CompileRaidPositionalData;

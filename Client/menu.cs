@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using System;
 using System.Reflection;
 
-namespace STATS
+namespace RAID_REVIEW
 {
     public class MenuTaskbarMod : MonoBehaviour
     {
@@ -40,7 +40,7 @@ namespace STATS
                             {
                                 if (value)
                                 {
-                                    Application.OpenURL(STATS.STATS_HTTP_Server);
+                                    Application.OpenURL(RAID_REVIEW.RAID_REVIEW_HTTP_Server);
                                     childAnimatedToggle.isOn = false;
                                 }
                             });
@@ -56,7 +56,7 @@ namespace STATS
 
                                     if (subChildEftText.LocalizationKey == "HANDBOOK")
                                     {
-                                        subChildEftText.LocalizationKey = "STATS MOD";
+                                        subChildEftText.LocalizationKey = "RAID_REVIEW MOD";
                                     }
 
                                     // Use reflection to update all public string fields and properties
@@ -71,7 +71,7 @@ namespace STATS
                                             string value = (string)property.GetValue(subChildEftText);
                                             if (value == "HANDBOOK")
                                             {
-                                                property.SetValue(subChildEftText, "STATS MOD");
+                                                property.SetValue(subChildEftText, "RAID_REVIEW MOD");
                                             }
                                         }
                                     }
@@ -83,7 +83,7 @@ namespace STATS
                                             string value = (string)field.GetValue(subChildEftText);
                                             if (value == "HANDBOOK")
                                             {
-                                                field.SetValue(subChildEftText, "STATS MOD");
+                                                field.SetValue(subChildEftText, "RAID_REVIEW MOD");
                                             }
                                         }
                                     }

@@ -19,7 +19,7 @@ export interface TrackingCoreDataRaids {
 }
 
 function CompileCoreData(profile_id: string) {
-  console.log(`[STATS] Starting - Compiling core data into '.json' format.`);
+  console.log(`[RAID-REVIEW] Starting - Compiling core data into '.json' format.`);
 
   const target_files = ["core"];
   const files = [] as FileImport[];
@@ -32,7 +32,7 @@ function CompileCoreData(profile_id: string) {
     );
 
     console.log(
-      `[STATS] Found file '${target_file}.csv' adding data to be processed.`
+      `[RAID-REVIEW] Found file '${target_file}.csv' adding data to be processed.`
     );
     files.push({
       datapoint: target_file,
@@ -74,7 +74,7 @@ function CompileCoreData(profile_id: string) {
     }
   }
 
-  console.log(`[STATS] Finished - Compiling core data into '.json' format.`);
+  console.log(`[RAID-REVIEW] Finished - Compiling core data into '.json' format.`);
 
   fs.writeFileSync(
     `${__dirname}/../../../data/${profile_id}/core/core.json`,
@@ -83,7 +83,7 @@ function CompileCoreData(profile_id: string) {
   );
 
   console.log(
-    `[STATS] Saved file  'core.json' to folder '<mod_folder>/data/${profile_id}/core/core.json'.`
+    `[RAID-REVIEW] Saved file  'core.json' to folder '<mod_folder>/data/${profile_id}/core/core.json'.`
   );
 }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 
-namespace STATS
+namespace RAID_REVIEW
 {
     public class Telemetry
     {
