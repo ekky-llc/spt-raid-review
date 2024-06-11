@@ -22,11 +22,7 @@ export default function Home() {
         const error_mapping = {
             "core_file_is_corrupt" : ": It appears the 'core.json' file was corrupted for this profifle, recompiling data, try again."
         }
-
-        if (error === "core_file_is_corrupt" && affected_profile === profileId) {
-            api.recompileCoreFile(profileId);
-        }
-
+        
         if (error && affected_profile === profileId) {
             return <div className="border border-red-700 bg-red-300 text-red-700 m-2 p-2">
             <strong>ERROR</strong>

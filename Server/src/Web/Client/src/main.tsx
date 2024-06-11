@@ -6,6 +6,7 @@ import "./index.css";
 import Home, { loader as profilesLoader } from './pages/Home';
 import Profile, { loader as coreLoader } from './pages/Profile'
 import Raid, { loader as raidLoader } from './pages/Raid';
+import MapView, { loader as mapLoader } from './pages/MapView';
 
 const router = createBrowserRouter([
   {
@@ -19,12 +20,19 @@ const router = createBrowserRouter([
     loader: coreLoader,
     children: [
       {
-        path: "/p/:profileId/raid/:raidId",
+        path: "/p/:profileId/raid/:raidId/",
         loader: raidLoader,
-        element: <Raid />
-      }
-    ]
-  }
+        element: <Raid />,
+        children: [
+          {
+            path: "/p/:profileId/raid/:raidId/map",
+            loader: mapLoader,
+            element: <MapView />,
+          },
+        ],
+      },
+    ],
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as Element).render(

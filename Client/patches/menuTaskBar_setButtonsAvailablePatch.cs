@@ -24,8 +24,13 @@ namespace STATS
         {
             try
             {
-                MenuTaskbarMod.Insert();
-                Logger.LogInfo("STATS :::: Inserted Menu Item");
+                Boolean result = MenuTaskbarMod.Insert();
+                if (result)
+                {
+                    Logger.LogInfo("STATS :::: Inserted Menu Item");
+                }
+
+                Telemetry.Send("MAIN_MENU", "{\"data\":\"\"}");
             }
 
             catch (Exception ex)

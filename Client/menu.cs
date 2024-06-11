@@ -11,14 +11,14 @@ namespace STATS
     public class MenuTaskbarMod : MonoBehaviour
     {
 
-        public static void Insert()
+        public static Boolean Insert()
         {
             List<ToggleGroup> toggleGroups = new List<ToggleGroup>(UnityEngine.Object.FindObjectsOfType<ToggleGroup>());
             ToggleGroup toggleGroupExists = toggleGroups.Find((toggleGroupItem) => toggleGroupItem.name == "StatMod");
 
             if (toggleGroupExists != null)
             {
-                return;
+                return false;
             }
 
             foreach (var toggleGroup in toggleGroups)
@@ -108,6 +108,8 @@ namespace STATS
                     break;
                 }
             }
+
+            return true;
         }
     }
 }

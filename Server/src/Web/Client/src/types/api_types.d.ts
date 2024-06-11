@@ -11,17 +11,31 @@ export interface TrackingCoreDataRaids {
   exitStatus: string;
 }
 
+export interface TrackingPositionalData {
+  id: Number
+  raidId: String
+  profileId: String
+  time: Number
+  x: Number
+  y: Number
+  z: Number
+  dir: Number
+  created_at: Date
+}
+
+
 export interface TrackingRaidData {
-  id: string
-  playerId: string
+  id: string;
+  raidId: string;
+  profileId: string
   location: string
   time: string
   timeInRaid: string
   exitName: string
   exitStatus: string
-  players: TrackingRaidDataPlayers[]
-  kills: TrackingRaidDataKills[]
-  looting: TrackingRaidDataLoot[]
+  players?: TrackingRaidDataPlayers[]
+  kills?: TrackingRaidDataKills[]
+  looting?: TrackingRaidDataLoot[]
 }
 
 export interface TrackingRaidDataPlayers {

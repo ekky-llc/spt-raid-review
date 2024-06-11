@@ -23,10 +23,10 @@ namespace STATS
                 {
                     TrackingLootItem newLootItem = new TrackingLootItem();
 
-                    newLootItem.playerId = __instance.Profile.ProfileId;
+                    newLootItem.profileId = __instance.Profile.ProfileId;
                     newLootItem.time = STATS.stopwatch.ElapsedMilliseconds;
-                    newLootItem.id = item.Id;
-                    newLootItem.name = item.ShortName;
+                    newLootItem.itemId = item.Id;
+                    newLootItem.itemName = item.ShortName;
                     newLootItem.qty = item.StackObjectsCount;
                     newLootItem.type = item.QuestItem ? "QUEST_ITEM" : "LOOT";
                     newLootItem.added = added;

@@ -1,0 +1,9 @@
+#raid_summary {
+    margin-top: 16px;
+    display: grid; 
+    grid-auto-flow: row dense; 
+    grid-template-columns: 1fr 1fr 1fr 1fr; 
+    grid-template-rows: 1fr 1fr; 
+    gap: 12px 8px;
+    max-width: 1250px;
+}

@@ -24,12 +24,14 @@ namespace STATS
                     var newKill = new TrackingRaidKill
                     {
                         time = STATS.stopwatch.ElapsedMilliseconds,
+                        profileId = aggressor.Profile.ProfileId,
                         killedId = __instance.Profile.ProfileId,
-                        killerId = aggressor.Profile.ProfileId,
                         distance = Vector3.Distance(aggressor.Position, __instance.Position),
                         weapon = damageInfo.Weapon == null ? "?" : damageInfo.Weapon.Name,
                         bodyPart = bodyPart.ToString(),
-                        type = lethalDamageType.ToString()
+                        type = lethalDamageType.ToString(),
+                        positionKiller = aggressor.Position.ToJson(),
+                        positionKilled = __instance.Position.ToJson(),
                     };
 
                     Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));

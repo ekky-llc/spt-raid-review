@@ -9,44 +9,44 @@ export async function loader(loaderData: any) {
   const profile = await api.getProfile(loaderData.params.profileId);
   const core = await api.getCore(loaderData.params.profileId);
 
-  if (core.raids === undefined) {
-    return redirect(`/?profileId=${loaderData.params.profileId}&error=core_file_is_corrupt`)
-  }
-
   return { profile, core };
+}
+
+export const locations = {
+  "bigmap": "Customs",
+  "Sandbox": "Ground Zero",
+  "develop": "Ground Zero",
+  "factory4_day": "Factory",
+  "factory4_night": "Factory",
+  "hideout": "Hideout",
+  "Interchange": "Interchange",
+  "laboratory": "Laboratory",
+  "Lighthouse": "Lighthouse",
+  "privatearea": "Private Area",
+  "RezervBase": "Reserve",
+  "shoreline": "Shoreline",
+  "suburbs": "Suburbs",
+  "TarkovStreets": "Streets",
+  "terminal": "Terminal",
+  "town": "Town",
+  "woods": "Woods",
+  "base": "Base"
+};
+
+export function msToHMS( ms: number ) : string {
+  if (ms !== null) {
+    return new Date(Number(ms)).toISOString().slice(11,19);
+  }
+  return ''
 }
 
 export default function Profile() {
   const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
 
-  function msToHMS( ms: number ) : string {
-    return new Date(ms).toISOString().slice(11,19);
-  }
 
   async function trigger_compile_core() {
-    await api.recompileCoreFile(profile.info.id);
     return redirect(`/p/${profile.info.id}`);
   }
-
-  const locations = {
-    "bigmap": "Customs",
-    "develop": "Ground Zero",
-    "factory4_day": "Factory",
-    "factory4_night": "Factory",
-    "hideout": "Hideout",
-    "Interchange": "Interchange",
-    "laboratory": "Laboratory",
-    "Lighthouse": "Lighthouse",
-    "privatearea": "Private Area",
-    "RezervBase": "Reserve",
-    "shoreline": "Shoreline",
-    "suburbs": "Suburbs",
-    "TarkovStreets": "Streets",
-    "terminal": "Terminal",
-    "town": "Town",
-    "woods": "Woods",
-    "base": "Base"
-  };
 
   return (
     <div className="profile__layout p-6 font-mono">
@@ -96,7 +96,7 @@ export default function Profile() {
         <div className="border-eft p-2">
           <h2 className="text-xl font-black text-eft mb-2">Raid Selection</h2>
         </div>
-        {core.raids.map((raid: any) => RaidSelector(profile, raid, locations, msToHMS))}
+        {core.length > 0 ? core.map((raid: any) => RaidSelector(profile, raid, locations, msToHMS)) : <div className="text-eft text-center h-full flex justify-center items-center">No Raids Found.<br/>Load into some raids!</div>}
       </div>
       <div className="profile__body bg-black/75 p-6">
         <div className="border-eft p-2">
@@ -108,10 +108,10 @@ export default function Profile() {
 }
 
 function RaidSelector(profile: IAkiProfile, raid: any, locations: { [ key :string ] : string }, msToHMS: (ms: number) => string) {
-  return <Link to={`/p/${profile.info.id}/raid/${raid.id}`} key={raid.id} className="raid__selector bg-eft w-full px-4 py-1 text-xl font-black flex flex-col hover:opacity-75 cursor-pointer">
+  return <Link to={`/p/${profile.info.id}/raid/${raid.raidId}`} key={raid.raidId} className="raid__selector bg-eft w-full px-4 py-1 text-xl font-black flex flex-col hover:opacity-75 cursor-pointer">
     <div className="w-full flex items-center">
       {locations[raid.location] !== undefined ? locations[raid.location] : raid.location}
-      <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(raid.timeInRaid)} </span>
+      <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(Number(raid.timeInRaid))} </span>
     </div>
     <div className="font-light flex justify-between text-sm opacity-75">
       <div>{raid.exitStatus}</div>

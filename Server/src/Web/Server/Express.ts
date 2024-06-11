@@ -1,20 +1,35 @@
 import express, { Express, Request, Response } from 'express';
 import path from 'path';
 import cors from 'cors';
+import fs from 'fs';
+import _ from 'lodash';
 
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile';
-import { ReadFileContent } from '../../Controllers/Reader/FileReader';
-import CompileCoreData from '../../Controllers/PostRaid/CompileCoreData';
 
 const app: Express = express();
 const port = 7829;
 
 import { getSessiondata } from '../../mod';
-import CompileRaidData from '../../Controllers/PostRaid/CompileRaidData';
-import CompileRaidPositionalData from '../../Controllers/PostRaid/CompileRaidPositionalData';
+import { Database } from 'sqlite';
+import sqlite3 from 'sqlite3'
+import { ReadFile } from '../../Controllers/Collection/DataSaver';
+import CompileRaidPositionalData from '../../Controllers/Collection/CompileRaidPositionalData';
+import { generateInterpolatedFramesBezier } from '../../Utils/utils';
 
-function StartWebServer(saveServer: SaveServer) {
+export interface TrackingPositionalData {
+    id: Number
+    raidId: String
+    profileId: String
+    time: Number
+    x: Number
+    y: Number
+    z: Number
+    dir: Number
+    created_at: Date
+}
+
+function StartWebServer(saveServer: SaveServer, db: Database<sqlite3.Database, sqlite3.Statement>) {
 
   app.use(cors())
 
@@ -27,53 +42,77 @@ function StartWebServer(saveServer: SaveServer) {
   
   app.get('/api/profile/active', (req: Request, res: Response) => {
     let { session_id, profile_id } = getSessiondata();
-
     if (!session_id && !profile_id) return res.json({ profileId: null, sessionId: session_id });
-
     return res.json({ profileId: profile_id, sessionId: session_id  });
   });
 
   app.get('/api/profile/all', (req: Request, res: Response) => {
     const profiles = saveServer.getProfiles() as Record<string, IAkiProfile>;
+
     return res.json(profiles);
   });
 
   app.get('/api/profile/:profileId', (req: Request, res: Response) => {
     const profiles = saveServer.getProfiles() as Record<string, IAkiProfile>;
+
     return res.json(profiles[req.params.profileId]);
   });
 
-  app.get('/api/profile/:profileId/compile_core', async (req: Request, res: Response) => {
-    CompileCoreData(req.params.profileId);
-  });
-
-  app.get('/api/profile/:profileId/raids/all', (req: Request, res: Response) => {
+  app.get('/api/profile/:profileId/raids/all', async (req: Request, res: Response) => {
     let { profileId } = req.params;
-    let profileRaidData = ReadFileContent(profileId, '', 'core', 'core.json');
-    res.json(profileRaidData);
+
+    const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = ? AND timeInRaid > 10 ORDER BY id DESC`;
+    const sqlRaidValues = [ profileId ];
+    const data = await db.all(sqlRaidQuery, sqlRaidValues).catch((e: Error) => console.error(e));
+
+    res.json(data);
   })
 
-  app.get('/api/profile/:profileId/raids/:raidId', (req: Request, res: Response) => {
+  app.get('/api/profile/:profileId/raids/:raidId', async (req: Request, res: Response) => {
     let { profileId, raidId } = req.params;
-    let raidData = ReadFileContent(profileId, 'raids', raidId, `${raidId}_data.json`);
-    res.json(raidData);
+
+    // Need to fix this; N+1 Problem
+    const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = ? AND timeInRaid > 10 AND raidId = ?`;
+    const sqlRaidValues = [ profileId, raidId ];
+    const raid = await db.get(sqlRaidQuery, sqlRaidValues).catch((e: Error) => console.error(e));
+
+    const keys = ["kills","looting","player"];
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const sqlKeyQuery = `SELECT * FROM ${key} WHERE raidId = ?`;
+      const sqlKeyValues = [ raidId ];
+      raid[key] = await db.all(sqlKeyQuery, sqlKeyValues).catch((e: Error) => console.error(e)); 
+    }
+
+    // Quick Fix
+    raid.players = raid.player;
+    delete raid.player;
+
+    res.json(raid);
   })
 
-  app.get('/api/profile/:profileId/raids/:raidId', (req: Request, res: Response) => {
-    let { profileId, raidId } = req.params;
-    let raidData = ReadFileContent(profileId, 'raids', raidId, `${raidId}_data.json`);
-    res.json(raidData);
+  app.get('/api/profile/:profileId/raids/:raidId/positions', async (req: Request, res: Response) => {
+    let { raidId } = req.params;
+    
+    const positionalDataRaw = ReadFile('positions', '', '', `${raidId}_positions.json`);
+    if (positionalDataRaw) {
+      const positionalData = JSON.parse(positionalDataRaw);
+
+      for (let i = 0; i < positionalData.length; i++) {
+        let playerPositions = positionalData[i];
+        positionalData[i] = generateInterpolatedFramesBezier(playerPositions, 5, 24);
+      }
+
+      return res.json(positionalData);
+    }
+
+    return [];
   })
 
-  app.get('/api/profile/:profileId/raids/:raidId/positions', (req: Request, res: Response) => {
-    let { profileId, raidId } = req.params;
-    let positionalData = ReadFileContent(profileId, 'raids', raidId, `${raidId}_positions.json`);
-    res.json(positionalData);
-  })
-
-  app.get('/api/profile/:profileId/raids/:raidId/compile', async (req: Request, res: Response) => {
-    CompileRaidData(req.params.profileId, req.params.raidId);
-    CompileRaidPositionalData(req.params.profileId, req.params.raidId);
+  app.get('/api/profile/:profileId/raids/:raidId/positions/compile', async (req: Request, res: Response) => {
+    let { raidId } = req.params;
+    CompileRaidPositionalData(raidId);
+    res.json({ message: "OK"})
   });
 
   app.get('*', (req: Request, res: Response) => {

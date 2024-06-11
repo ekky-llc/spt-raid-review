@@ -13,6 +13,7 @@ namespace STATS
         public string id { get; set; }
         public string playerId { get; set; }
         public string location { get; set; }
+        public string detectedMods { get; set; }
         public DateTime time { get; set; }
         public long timeInRaid { get; set; }
 
@@ -32,23 +33,35 @@ namespace STATS
         public long spawnTime { get; set; }
     }
 
+    public class TrackingExtractedPlayer
+    {
+        public string BotNickname { get; set; }
+        public string ProfileID { get; set; }
+        public string Reason { get; set; }
+        public string ExtractPoint { get; set; }
+        public float TimeExtracted { get; set; }
+
+    }
+
     public class TrackingRaidKill
     {
         public long time { get; set; }
-        public string killerId { get; set; }
+        public string profileId { get; set; }
         public string killedId { get; set; }
         public string weapon {  get; set; }
         public float distance { get; set; }
         public string bodyPart {  get; set; }
         public string type { get; set; }
+        public string positionKiller { get; set; }
+        public string positionKilled { get; set; }
     }
 
     public class TrackingLootItem
     {
-        public string playerId { get; set; }
+        public string profileId { get; set; }
         public long time { get; set; }
-        public string id { get; set; }
-        public string name { get; set; }
+        public string itemId { get; set; }
+        public string itemName { get; set; }
         public int qty { get; set; }
         public string type { get; set; }
         public bool added {  get; set; }
@@ -56,33 +69,27 @@ namespace STATS
 
     public class TrackingPlayerData
     {
-        public int playerId { get; set; }
+        public string profileId { get; set; }
         public long time { get; set; }
         public float x { get; set; }
         public float y { get; set; }
         public float z { get; set; }
         public float dir { get; set; }
-        public bool alive { get; set; }
-        public List<float> health { get; set; }
 
         public TrackingPlayerData(
-            int playerId, 
+            string profileId, 
             long time, 
             float x, 
             float y, 
             float z, 
-            float dir, 
-            bool alive,
-            List<float> health)
+            float dir)
         {
-            this.playerId = playerId;
+            this.profileId = profileId;
             this.time = time;
             this.x = x;
             this.y = y;
             this.z = z;
             this.dir = dir;
-            this.alive = alive;
-            this.health = health;
         }
     }
 }

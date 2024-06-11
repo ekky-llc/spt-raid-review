@@ -6,7 +6,7 @@ export interface FileImport {
     data: string;
 }
 
-function CompileRaidPositionalData(profile_id: string , raid_guid: string) {
+function CompileRaidPositionalData(raid_guid: string) {
     console.log(`[STATS] Starting - Compiling positional data for '${raid_guid}' into '.json' format.`);
 
     const file_suffixes = ['positions'];
@@ -15,9 +15,9 @@ function CompileRaidPositionalData(profile_id: string , raid_guid: string) {
     for (let i = 0; i < file_suffixes.length; i++) {
         const file_suffix = file_suffixes[i];
 
-        const fileExists = fs.existsSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_${file_suffix}.csv`)
+        const fileExists = fs.existsSync(`${__dirname}/../../../data/positions/${raid_guid}_positions`);
         if (fileExists) {
-            const file_data = fs.readFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_${file_suffix}.csv`, 'utf-8');
+            const file_data = fs.readFileSync(`${__dirname}/../../../data/positions/${raid_guid}_positions`, 'utf-8');
             files.push({
                 datapoint: file_suffix,
                 data: file_data
@@ -25,7 +25,7 @@ function CompileRaidPositionalData(profile_id: string , raid_guid: string) {
         };
     }
 
-    let positional_data = {} as any;
+    let positional_data = [] as any;
     for (let i = 0; i < files.length; i++) {
         
         const file = files[i];
@@ -43,21 +43,28 @@ function CompileRaidPositionalData(profile_id: string , raid_guid: string) {
                 for (let k = 0; k < keys.length; k++) {
                     const key = keys[k];
                     position[key] = row[k];
+
+                    if (['time', 'x', 'y', 'z', 'dir'].includes(key)) {
+                        position[key] = Number(row[k])
+                    }
                 }
 
                 allPositions.push(position);
             }
 
-            positional_data = _.groupBy(allPositions, 'playerId');
+            let groupedByPlayerId = _.chain(allPositions).orderBy('time', 'asc').groupBy('profileId').value();
+            Object.keys(groupedByPlayerId).forEach(key => {
+                positional_data.push(groupedByPlayerId[key])
+            });
         }
 
 
     }
     console.log(`[STATS] Finished - Compiling positional data for '${raid_guid}' into '.json' format.`);
 
-    fs.writeFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_positions.json`, JSON.stringify(positional_data, null, 2),'utf-8');
+    fs.writeFileSync(`${__dirname}/../../../data/positions/${raid_guid}_positions.json`, JSON.stringify(positional_data), 'utf-8');
 
-    console.log(`[STATS] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/${profile_id}/raids/${raid_guid}'.`);
+    console.log(`[STATS] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/positions'.`);
 };
 
 export default CompileRaidPositionalData;

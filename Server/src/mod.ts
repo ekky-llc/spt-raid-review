@@ -7,14 +7,17 @@ import type { IPostAkiLoadMod } from "@spt-aki/models/external/IPostAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { StaticRouterModService } from "@spt-aki/services/mod/StaticRouter/StaticRouterModService";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
-import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper';
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { MailSendService } from "@spt-aki/services/MailSendService";
 
 import WebServer from "./Web/Server/Express";
 import { ExtractKeysAndValues } from "./Utils/utils";
-import { WriteLineToFile } from "./Controllers/PostRaid/DataSaver";
-import CompileRaidData from "./Controllers/PostRaid/CompileRaidData";
-import CompileCoreData from "./Controllers/PostRaid/CompileCoreData";
-import CompileRaidPositionalData from "./Controllers/PostRaid/CompileRaidPositionalData";
+import { WriteLineToFile } from "./Controllers/Collection/DataSaver";
+import { database } from "./Controllers/Database/sqlite";
+import sqlite3 from "sqlite3";
+import { Database } from "sqlite";
+import _ from 'lodash';
+import CompileRaidPositionalData from "./Controllers/Collection/CompileRaidPositionalData";
 
 export let session_id = null;
 export let profile_id = null;
@@ -30,46 +33,85 @@ export function setProfileId(profileId: string) {
 }
 
 export function getSessiondata() {
-  return { session_id, profile_id }
+  return { session_id, profile_id };
 }
 class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   wss: WebSocketServer;
   logger: ILogger;
   raid_id: string;
+  post_process: boolean;
   saveServer: SaveServer;
+  mailSendService: MailSendService;
+  database: Database<sqlite3.Database, sqlite3.Statement>;
 
   constructor() {
     this.wss = null;
     this.raid_id = "";
+    this.database = null;
+    this.post_process = true;
   }
 
-StaticRouter
+  public preAkiLoad(container: DependencyContainer): void {
+    const staticRouterModService = container.resolve<StaticRouterModService>(
+      "StaticRouterModService"
+    );
 
-  public preAkiLoad(container: DependencyContainer):void
-  {
-    const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService")
+    staticRouterModService.registerStaticRouter(
+      "EnablePostProcess",
+      [
+        {
+          url : "/client/hideout/areas",
+          action : (
+            url: string,
+            info: any,
+            sessionId: string,
+            output: string
+          ) => {
+            if (!this.raid_id && !this.post_process){
+              console.log(`[STATS] Enabling Post Processing`);
+              this.post_process = true;
+            }
+            return output;
+          },
+        }
+      ],
+      "aki"
+    );
 
     staticRouterModService.registerStaticRouter(
       "GetPlayerInfo",
-      [{
-        url: "/client/game/start",
-        action: (url : string, info : any, sessionId : string, output: string) => 
+      [
         {
-          setSessionId(sessionId);
-          const profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
-          const profile = profileHelper.getFullProfile(sessionId);
-          setProfileId(profile.info.id);
-          console.log(`[STATS] PROFILE_ID: ${profile.info.id}`);
-          console.log(`[STATS] PROFILE_NICKNAME: ${profile.info.username}`);
-          return output;
+          url: "/client/game/start",
+          action: (
+            url: string,
+            info: any,
+            sessionId: string,
+            output: string
+          ) => {
+            setSessionId(sessionId);
+            const profileHelper =
+              container.resolve<ProfileHelper>("ProfileHelper");
+            const profile = profileHelper.getFullProfile(sessionId);
+            setProfileId(profile.info.id);
+            console.log(`[STATS] PROFILE_ID: ${profile.info.id}`);
+            console.log(`[STATS] PROFILE_NICKNAME: ${profile.info.username}`);
+            return output;
+          },
         }
-      }], "aki"
-    )
+      ],
+      "aki"
+    );
+    
   }
 
-  public postAkiLoad(container: DependencyContainer): void {
-    
-    this.saveServer = container.resolve<SaveServer>("SaveServer");     
+  public async postAkiLoad(container: DependencyContainer): Promise<void> {
+    this.database = await database();
+    console.log(`[STATS] Database Connected`);
+
+    this.saveServer = container.resolve<SaveServer>("SaveServer");
+    this.mailSendService = container.resolve<MailSendService>("MailSendService");
+    console.log(`[STATS] SPT-AKI Server Connected`);
 
     this.wss = new WebSocketServer({
       port: 7828,
@@ -90,71 +132,143 @@ StaticRouter
       },
     });
 
-    this.wss.on("connection", function connection(ws) {
-      ws.on("error", function (error) {
+    this.wss.on("connection", async (ws) => {
+
+      ws.on("error", async (error) => {
         console.log(`[STATS] Websocket Error.`);
         console.log(`[STATS:ERROR]`, error);
       });
 
-      ws.on("message", function message(str: string) {
+      ws.on("message", async (str: string) => {
         try {
           let data = JSON.parse(str);
+          let filename = '';
 
           if (data && data.Action && data.Payload) {
             const payload_object = JSON.parse(data.Payload);
+
+            if (this.raid_id) {
+              payload_object.raid_id = this.raid_id
+            }
+
             const { keys, values } = ExtractKeysAndValues(payload_object);
-          
-            let filename = '';
+
             switch (data.Action) {
               case "START":
+                this.post_process = false;
+                console.log(`[STATS] Disabling Post Processing`);
+
                 this.raid_id = payload_object.id;
                 console.log(`[STATS] RAID IS SET: ${this.raid_id}`);
-                
-                filename = `${this.raid_id}_raid`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
-                WriteLineToFile(profile_id, 'core', null, 'core', keys, values);
-                
+
+                const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                this.database.run(start_raid_sql, [
+                  this.raid_id,
+                  payload_object.playerId,
+                  payload_object.location,
+                  payload_object.time,
+                  payload_object.timeInRaid,
+                  payload_object.exitName || '',
+                  payload_object.exitStatus || -1,
+                  payload_object.detectedMods || '',
+                ]);
+
                 break;
+
               case "END":
                 this.raid_id = payload_object.id;
                 console.log(`[STATS] RAID IS SET: ${this.raid_id}`);
 
-                filename = `${this.raid_id}_raid`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
-                WriteLineToFile(profile_id, 'core', null, 'core', keys, values);
-                CompileRaidData(profile_id, this.raid_id);
-                CompileRaidPositionalData(profile_id, this.raid_id);
-                CompileCoreData(profile_id);
+                const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                this.database
+                  .run(end_raid_sql, [
+                    this.raid_id,
+                    payload_object.playerId,
+                    payload_object.location,
+                    payload_object.time,
+                    payload_object.timeInRaid,
+                    payload_object.exitName || '',
+                    payload_object.exitStatus || -1,
+                    payload_object.detectedMods || '',
+                  ])
+                  .catch((e: Error) => console.error(e));
+
+                CompileRaidPositionalData(this.raid_id);
 
                 this.raid_id = "";
-                break;
+                console.log(`[STATS] Clearing Raid Id`);
 
+                this.post_process = true;
+                console.log(`[STATS] Enabling Post Processing`);
+                break;
+                
               case "PLAYER":
-                filename = `${this.raid_id}_players`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
+                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                this.database
+                  .run(player_sql, [
+                    this.raid_id,
+                    payload_object.profileId,
+                    payload_object.level,
+                    payload_object.team,
+                    payload_object.name,
+                    payload_object.group,
+                    payload_object.spawnTime,
+                  ])
+                  .catch((e: Error) => console.error(e));
+
                 break;
 
               case "KILL":
-                filename = `${this.raid_id}_kills`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
+                const kill_sql = `INSERT INTO kills (raidId, time, profileId, killedId, weapon, distance, bodyPart, positionKiller, positionKilled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                this.database
+                  .run(kill_sql, [
+                    this.raid_id,
+                    payload_object.time,
+                    payload_object.profileId,
+                    payload_object.killedId,
+                    payload_object.weapon,
+                    payload_object.distance,
+                    payload_object.bodyPart,
+                    payload_object.positionKiller,
+                    payload_object.positionKilled
+                  ])
+                  .catch((e: Error) => console.error(e));
+
                 break;
 
               case "POSITION":
+
                 filename = `${this.raid_id}_positions`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
+                WriteLineToFile('positions', '', '', filename, keys, values);
+
                 break;
 
               case "LOOT":
-                filename = `${this.raid_id}_looting`;
-                WriteLineToFile(profile_id, 'raids', this.raid_id, filename, keys, values);
+
+                const loot_sql = `INSERT INTO looting (raidId, profileId, time, qty, itemId, itemName, added) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                this.database
+                  .run(loot_sql, [
+                    this.raid_id,
+                    payload_object.profileId,
+                    payload_object.time,
+                    payload_object.qty,
+                    payload_object.itemId,
+                    payload_object.itemName,
+                    payload_object.added,
+                  ])
+                  .catch((e: Error) => console.error(e));
+
+
                 break;
 
               default:
                 break;
             }
-          }    
+          }
         } catch (error) {
-          console.log(`[STATS] Message recieved was not valid JSON Object, something broke.`);
+          console.log(
+            `[STATS] Message recieved was not valid JSON Object, something broke.`
+          );
           console.log(`[STATS:ERROR]`, error);
           console.log(`[STATS:DUMP]`, str);
         }
@@ -163,10 +277,8 @@ StaticRouter
 
     console.log(`[STATS] Websocket Server Listening on 'ws://127.0.0.1:7828'.`);
 
-    WebServer(this.saveServer);
+    WebServer(this.saveServer, this.database);
   }
-
 }
-
 
 module.exports = { mod: new Mod() };

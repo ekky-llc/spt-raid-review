@@ -47,29 +47,17 @@ const api = {
             return profile;
         }
     },
-    getCore : async function(profileId: string) : Promise<TrackingCoreData> {
-        let core = {
-            raids : []
-        } as TrackingCoreData;
+    getCore : async function(profileId: string) : Promise<TrackingCoreData[]> {
+        let core = [] as TrackingCoreData[];
         try {
             const response = await fetch(hostname + `/api/profile/${profileId}/raids/all`);
-            const data = await response.json() as TrackingCoreData;
+            const data = await response.json() as TrackingCoreData[];
             core = data;
             return core
         } 
         
         catch (error) {
             return core;
-        }
-    },
-    recompileCoreFile : async function(profileId: string) : Promise<void> {
-        try {
-            await fetch(hostname + `/api/profile/${profileId}/compile_core`);
-            return;
-        } 
-        
-        catch (error) {
-            return;
         }
     },
     getRaid : async function(profileId: string, raidId: string) : Promise<TrackingRaidData> {
@@ -85,6 +73,16 @@ const api = {
             return raid;
         }
     },
+    getRaidPositionalData : async function(profileId: string, raidId: string, groupByPlayer : boolean = false) : Promise<any> {
+        let positions = [] as any;
+        try {
+            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
+            positions = await response.json() as any;
+            return positions;
+        } catch (error) {
+            return positions;
+        }
+    }
 }
 
 export default api
