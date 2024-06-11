@@ -2,7 +2,7 @@
 
 An experimental way for the SPT Community to review raid data such as kills and looting, with the ability for positional replay after Escaping.
 
-![test](/Examples/PREVIEW.png)
+![test](/Examples/preview_0.0.1.png)
 
 ### Installation
 Download your compatible version from the 'Releases' tab
