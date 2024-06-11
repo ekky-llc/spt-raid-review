@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<AssemblyName>STATS</AssemblyName>
-		<Copyright>2023 © Ekky</Copyright>
+		<AssemblyName>RAID_REVIEW__0.0.1</AssemblyName>
+		<Copyright>2024 © Ekky</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>D:\Games\SPT_3.8.1_DEV\BepInEx\plugins\</OutputPath>
 	</PropertyGroup>

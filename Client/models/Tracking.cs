@@ -5,7 +5,7 @@ using Comfort.Common;
 using System.Collections.Generic;
 using System;
 
-namespace STATS
+namespace RAID_REVIEW
 {
 
     public class TrackingRaid

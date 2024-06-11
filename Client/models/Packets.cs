@@ -1,7 +1,7 @@
 ﻿using EFT;
 using System;
 
-namespace STATS
+namespace RAID_REVIEW
 {
 
     public class WsPayload

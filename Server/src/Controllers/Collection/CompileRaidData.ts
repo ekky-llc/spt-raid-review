@@ -6,7 +6,7 @@ export interface FileImport {
 }
 
 function CompileRaidData(profile_id: string , raid_guid: string) {
-    console.log(`[STATS] Starting - Compiling raid data for '${raid_guid}' into '.json' format.`);
+    console.log(`[RAID-REVIEW] Starting - Compiling raid data for '${raid_guid}' into '.json' format.`);
 
     const file_suffixes = ['raid', 'players', 'kills', 'looting'];
     const files = [] as FileImport[];
@@ -102,11 +102,11 @@ function CompileRaidData(profile_id: string , raid_guid: string) {
             raid_data.looting = looting;
         }
     }
-    console.log(`[STATS] Finished - Compiling raid data for '${raid_guid}' into '.json' format.`);
+    console.log(`[RAID-REVIEW] Finished - Compiling raid data for '${raid_guid}' into '.json' format.`);
 
     fs.writeFileSync(`${__dirname}/../../../data/${profile_id}/raids/${raid_guid}/${raid_guid}_data.json`, JSON.stringify(raid_data, null, 2),'utf-8');
 
-    console.log(`[STATS] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/${profile_id}/raids/${raid_guid}'.`);
+    console.log(`[RAID-REVIEW] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/${profile_id}/raids/${raid_guid}'.`);
 };
 
 export default CompileRaidData;

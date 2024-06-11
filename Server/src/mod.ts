@@ -68,7 +68,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
             output: string
           ) => {
             if (!this.raid_id && !this.post_process){
-              console.log(`[STATS] Enabling Post Processing`);
+              console.log(`[RAID-REVIEW] Enabling Post Processing`);
               this.post_process = true;
             }
             return output;
@@ -94,8 +94,8 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
               container.resolve<ProfileHelper>("ProfileHelper");
             const profile = profileHelper.getFullProfile(sessionId);
             setProfileId(profile.info.id);
-            console.log(`[STATS] PROFILE_ID: ${profile.info.id}`);
-            console.log(`[STATS] PROFILE_NICKNAME: ${profile.info.username}`);
+            console.log(`[RAID-REVIEW] PROFILE_ID: ${profile.info.id}`);
+            console.log(`[RAID-REVIEW] PROFILE_NICKNAME: ${profile.info.username}`);
             return output;
           },
         }
@@ -107,11 +107,11 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
   public async postAkiLoad(container: DependencyContainer): Promise<void> {
     this.database = await database();
-    console.log(`[STATS] Database Connected`);
+    console.log(`[RAID-REVIEW] Database Connected`);
 
     this.saveServer = container.resolve<SaveServer>("SaveServer");
     this.mailSendService = container.resolve<MailSendService>("MailSendService");
-    console.log(`[STATS] SPT-AKI Server Connected`);
+    console.log(`[RAID-REVIEW] SPT-AKI Server Connected`);
 
     this.wss = new WebSocketServer({
       port: 7828,
@@ -135,8 +135,8 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     this.wss.on("connection", async (ws) => {
 
       ws.on("error", async (error) => {
-        console.log(`[STATS] Websocket Error.`);
-        console.log(`[STATS:ERROR]`, error);
+        console.log(`[RAID-REVIEW] Websocket Error.`);
+        console.log(`[RAID-REVIEW:ERROR]`, error);
       });
 
       ws.on("message", async (str: string) => {
@@ -156,10 +156,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
             switch (data.Action) {
               case "START":
                 this.post_process = false;
-                console.log(`[STATS] Disabling Post Processing`);
+                console.log(`[RAID-REVIEW] Disabling Post Processing`);
 
                 this.raid_id = payload_object.id;
-                console.log(`[STATS] RAID IS SET: ${this.raid_id}`);
+                console.log(`[RAID-REVIEW] RAID IS SET: ${this.raid_id}`);
 
                 const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database.run(start_raid_sql, [
@@ -177,7 +177,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
               case "END":
                 this.raid_id = payload_object.id;
-                console.log(`[STATS] RAID IS SET: ${this.raid_id}`);
+                console.log(`[RAID-REVIEW] RAID IS SET: ${this.raid_id}`);
 
                 const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database
@@ -196,10 +196,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 CompileRaidPositionalData(this.raid_id);
 
                 this.raid_id = "";
-                console.log(`[STATS] Clearing Raid Id`);
+                console.log(`[RAID-REVIEW] Clearing Raid Id`);
 
                 this.post_process = true;
-                console.log(`[STATS] Enabling Post Processing`);
+                console.log(`[RAID-REVIEW] Enabling Post Processing`);
                 break;
                 
               case "PLAYER":
@@ -267,15 +267,15 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
           }
         } catch (error) {
           console.log(
-            `[STATS] Message recieved was not valid JSON Object, something broke.`
+            `[RAID-REVIEW] Message recieved was not valid JSON Object, something broke.`
           );
-          console.log(`[STATS:ERROR]`, error);
-          console.log(`[STATS:DUMP]`, str);
+          console.log(`[RAID-REVIEW:ERROR]`, error);
+          console.log(`[RAID-REVIEW:DUMP]`, str);
         }
       });
     });
 
-    console.log(`[STATS] Websocket Server Listening on 'ws://127.0.0.1:7828'.`);
+    console.log(`[RAID-REVIEW] Websocket Server Listening on 'ws://127.0.0.1:7828'.`);
 
     WebServer(this.saveServer, this.database);
   }

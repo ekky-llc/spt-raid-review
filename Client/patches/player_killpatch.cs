@@ -5,9 +5,9 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System;
 
-namespace STATS
+namespace RAID_REVIEW
 {
-    public class STATS_Player_OnBeenKilledByAggressorPatch : ModulePatch
+    public class RAID_REVIEW_Player_OnBeenKilledByAggressorPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -19,11 +19,11 @@ namespace STATS
         {
             try
             {
-                if (STATS.KillTracking.Value)
+                if (RAID_REVIEW.KillTracking.Value)
                 {
                     var newKill = new TrackingRaidKill
                     {
-                        time = STATS.stopwatch.ElapsedMilliseconds,
+                        time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
                         profileId = aggressor.Profile.ProfileId,
                         killedId = __instance.Profile.ProfileId,
                         distance = Vector3.Distance(aggressor.Position, __instance.Position),

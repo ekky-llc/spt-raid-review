@@ -8,7 +8,7 @@ function CreateFolder(parentFolder: string, subFolder: string = '', targetFolder
 
     if (!fs.existsSync(finalPath)) {
         fs.mkdirSync(finalPath, { recursive: true });
-        console.log(`[STATS] Folder created: ${finalPath}`);
+        console.log(`[RAID-REVIEW] Folder created: ${finalPath}`);
     }
 }
 
@@ -23,7 +23,7 @@ function CreateFile(parentFolder: string, subFolder: string = '', targetFolder: 
     if (!fs.existsSync(finalPath)) {
         fs.writeFileSync(finalPath, '', 'utf-8');
         fs.appendFileSync(finalPath, keys, 'utf-8');
-        console.log(`[STATS] File created: ${finalPath}`);
+        console.log(`[RAID-REVIEW] File created: ${finalPath}`);
     }
 }
 

@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System;
 
-namespace STATS
+namespace RAID_REVIEW
 {
-    public class STATS_Player_OnItemAddedOrRemovedPatch : ModulePatch
+    public class RAID_REVIEW_Player_OnItemAddedOrRemovedPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -19,12 +19,12 @@ namespace STATS
         {
             try
             {
-                if (STATS.LootTracking.Value)
+                if (RAID_REVIEW.LootTracking.Value)
                 {
                     TrackingLootItem newLootItem = new TrackingLootItem();
 
                     newLootItem.profileId = __instance.Profile.ProfileId;
-                    newLootItem.time = STATS.stopwatch.ElapsedMilliseconds;
+                    newLootItem.time = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
                     newLootItem.itemId = item.Id;
                     newLootItem.itemName = item.ShortName;
                     newLootItem.qty = item.StackObjectsCount;

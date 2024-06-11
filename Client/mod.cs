@@ -18,21 +18,21 @@ using SAIN.Plugin;
 using SAIN.SAINComponent;
 using SAIN.Preset.GlobalSettings.Categories;
 
-namespace STATS
+namespace RAID_REVIEW
 {
-    [BepInPlugin("STATS", "STATS", "0.0.1")]
-    public class STATS : BaseUnityPlugin
+    [BepInPlugin("RAID_REVIEW", "RAID_REVIEW", "0.0.1")]
+    public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
         public static float updateInterval = 0.0f;
         public static float lastUpdateTime = 0.0f;
 
-        // STATS
+        // RAID_REVIEW
         public static bool inRaid = false;
         public static bool tracking = false;
-        public static string STATS_WS_Server = "ws://127.0.0.1:7828";
-        public static string STATS_HTTP_Server = "http://127.0.0.1:7829";
-        public static List<string> STATS__DETECTED_MODS = new List<string>();
+        public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
+        public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
+        public static List<string> RAID_REVIEW__DETECTED_MODS = new List<string>();
         public static Dictionary<string ,TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
         public static Dictionary<string, TrackingPlayer> deadPlayers = new Dictionary<string, TrackingPlayer>();
         public static Dictionary<string, Vector3> lastPlayerPosition = new Dictionary<string, Vector3>();
@@ -60,7 +60,7 @@ namespace STATS
 
         void Awake()
         {
-            Logger.LogInfo("STATS :::: INFO :::: Mod Loaded");
+            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Mod Loaded");
 
             LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the 'Stats Mod' webpage in your default browser.");
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", false, "Enables location tracking of players and bots.");
@@ -69,25 +69,25 @@ namespace STATS
 
             Hook = new GameObject();
 
-            Logger.LogInfo("STATS :::: INFO :::: Config Loaded");
-            new STATS_menuTaskBar_setButtonsAvailablePatch().Enable();
-            new STATS_Player_OnBeenKilledByAggressorPatch().Enable();
-            new STATS_Player_OnItemAddedOrRemovedPatch().Enable();
-            new STATS_Player_OnGameSessionEndPatch().Enable();
-            Logger.LogInfo("STATS :::: INFO :::: Patches Loaded");
+            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Config Loaded");
+            new RAID_REVIEW_menuTaskBar_setButtonsAvailablePatch().Enable();
+            new RAID_REVIEW_Player_OnBeenKilledByAggressorPatch().Enable();
+            new RAID_REVIEW_Player_OnItemAddedOrRemovedPatch().Enable();
+            new RAID_REVIEW_Player_OnGameSessionEndPatch().Enable();
+            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Patches Loaded");
 
-            Telemetry.Connect(STATS_WS_Server);
-            Logger.LogInfo("STATS :::: INFO :::: Connected to backend");
+            Telemetry.Connect(RAID_REVIEW_WS_Server);
+            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Connected to backend");
 
-            Logger.LogInfo("STATS :::: INFO :::: Searching For Supported Mods");
+            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Searching For Supported Mods");
             if (Chainloader.PluginInfos.ContainsKey("me.sol.sain"))
             {
-                Logger.LogInfo("STATS :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
+                Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
                 SOLARINT_SAIN__DETECTED = true;
-                STATS__DETECTED_MODS.Add("SAIN");
+                RAID_REVIEW__DETECTED_MODS.Add("SAIN");
                 ExtractTracking = Config.Bind<bool>("Tracking Settings", "Extract Tracking", true, "Enables location tracking of players and bots extraction activities.");
             }
-            Logger.LogInfo("STATS :::: INFO :::: Finished Searching For Supported Mods");
+            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
         }
         void Update()
         {
@@ -102,7 +102,7 @@ namespace STATS
 
                 if (Input.GetKey(LaunchWebpageKey.Value.MainKey))
                 {
-                    Application.OpenURL(STATS_HTTP_Server);
+                    Application.OpenURL(RAID_REVIEW_HTTP_Server);
                 }
 
                 // IF MAP NOT LOADED, RETURN
@@ -119,23 +119,23 @@ namespace STATS
                 // RAID START
                 if (!inRaid && !stopwatch.IsRunning)
                 {
-                    Logger.LogInfo("STATS :::: INFO :::: RAID Settings Loaded");
+                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
 
                     inRaid = true;
                     stopwatch.Reset();
                     stopwatch.Start();
 
-                    STATS.trackingRaid = new TrackingRaid
+                    RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
                         id = Guid.NewGuid().ToString("D"),
-                        playerId = STATS.myPlayer.ProfileId,
+                        playerId = RAID_REVIEW.myPlayer.ProfileId,
                         time = DateTime.Now,
-                        detectedMods = STATS__DETECTED_MODS.Count > 0 ? string.Join(",", STATS__DETECTED_MODS) : "",
-                        location = STATS.gameWorld.LocationId,
-                        timeInRaid = STATS.stopwatch.IsRunning ? STATS.stopwatch.ElapsedMilliseconds : 0
+                        detectedMods = RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW__DETECTED_MODS) : "",
+                        location = RAID_REVIEW.gameWorld.LocationId,
+                        timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
                     };
 
-                    Telemetry.Send("START", JsonConvert.SerializeObject(STATS.trackingRaid));
+                    Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
 
                     // Reset Playerlist
                     trackingPlayers = new Dictionary<string, TrackingPlayer>();
@@ -153,7 +153,7 @@ namespace STATS
                     Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));
 
                     inRaid = true;
-                    Logger.LogInfo("STATS :::: INFO :::: RAID Information Populated");
+                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Information Populated");
                     return;
                 }
 
@@ -196,7 +196,7 @@ namespace STATS
                         }
 
                         // Checks a player position if they are still alive...
-                        if (STATS.PlayerTracking.Value)
+                        if (RAID_REVIEW.PlayerTracking.Value)
                         {
                             if (player == null || gameWorld == null)
                             {

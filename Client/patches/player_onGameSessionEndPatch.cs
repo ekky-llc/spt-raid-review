@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 using System;
 using System.Reflection;
 
-namespace STATS
+namespace RAID_REVIEW
 {
-    public class STATS_Player_OnGameSessionEndPatch : ModulePatch
+    public class RAID_REVIEW_Player_OnGameSessionEndPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -17,20 +17,20 @@ namespace STATS
         private static void PatchPostFix(ref Player __instance, ExitStatus exitStatus, float pastTime, string locationId, string exitName)
         {
             try { 
-                Logger.LogInfo("STATS :::: INFO :::: RAID Completed, Saving Tracking Data");
+                Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Completed, Saving Tracking Data");
 
-                STATS.tracking = false;
-                STATS.inRaid = false;
+                RAID_REVIEW.tracking = false;
+                RAID_REVIEW.inRaid = false;
 
-                STATS.stopwatch.Stop();
-                STATS.trackingRaid.playerId = __instance.ProfileId;
-                STATS.trackingRaid.exitStatus = exitStatus;
-                STATS.trackingRaid.exitName = exitName;
-                STATS.trackingRaid.time = DateTime.Now;
-                STATS.trackingRaid.timeInRaid = STATS.stopwatch.ElapsedMilliseconds;
-                STATS.stopwatch.Reset();
+                RAID_REVIEW.stopwatch.Stop();
+                RAID_REVIEW.trackingRaid.playerId = __instance.ProfileId;
+                RAID_REVIEW.trackingRaid.exitStatus = exitStatus;
+                RAID_REVIEW.trackingRaid.exitName = exitName;
+                RAID_REVIEW.trackingRaid.time = DateTime.Now;
+                RAID_REVIEW.trackingRaid.timeInRaid = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
+                RAID_REVIEW.stopwatch.Reset();
 
-                Telemetry.Send("END", JsonConvert.SerializeObject(STATS.trackingRaid));
+                Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
             }
 
             catch (Exception ex)
