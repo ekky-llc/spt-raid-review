@@ -326,6 +326,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     const [ availableLayers, setAvailableLayers ] = useState([]);
     const [ selectedLayer, setSelectedLayer ] = useState('');
     const [ followPlayer, setFollowPlayer ] = useState(9999);
+    const [ followPlayerZoomed, setFollowPlayerZoomed ] = useState(false);
     const [ playerFocus, setPlayerFocus ] = useState(null);
     const [ proportionalScale, setProportionalScale ] = useState(0);
 
@@ -349,6 +350,12 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     const mapViewRef = useRef({});
 
     useEffect(() => {
+        if (window.location.pathname.includes('map')) {
+            document.querySelector('body').style = "overflow: hidden;";
+        }
+    },[])
+
+    useEffect(() => {
 
         const locations = {
             "bigmap": "customs",
@@ -367,6 +374,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             "TarkovStreets": "streets-of-tarkov",
             "terminal": "terminal",
             "town": "town",
+            "woods": "woods",
             "Woods": "woods",
             "base": "base"
         };
@@ -439,8 +447,10 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             return;
         }
 
-        let newAvailableLayers = mapData.layers.map(x => { return { name: x.name, value: x.name } });
-        setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
+        if (mapData.layers !== undefined) {
+            let newAvailableLayers = mapData.layers.map(x => { return { name: x.name, value: x.name } });
+            setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
+        }
 
         let mapCenter = [0, 0];
         let mapZoom = mapData.minZoom+1;
@@ -543,23 +553,28 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         let baseLayer = svgLayer ? svgLayer : tileLayer;
         baseLayer.addTo(map);
 
-        for (const layer of mapData.layers) {
+        if (mapData.layer) {
+          for (const layer of mapData.layers) {
             let heightLayer;
 
             const layerOptions = {
-                name: layer.name,
-                extents: layer.extents || baseLayer.options?.extents,
-                type: 'map-layer',
-                overlay: Boolean(layer.extents),
+              name: layer.name,
+              extents: layer.extents || baseLayer.options?.extents,
+              type: "map-layer",
+              overlay: Boolean(layer.extents),
             };
-        
+
             heightLayer = L.imageOverlay(layer.svgPath, bounds, layerOptions);
 
-            if (selectedLayer === layer.name || mapViewRef.current.layer === layer.name) {
-                heightLayer.addTo(map);
+            if (
+              selectedLayer === layer.name ||
+              mapViewRef.current.layer === layer.name
+            ) {
+              heightLayer.addTo(map);
             } else if (!selectedLayer && layer.show) {
-                heightLayer.addTo(map);
+              heightLayer.addTo(map);
             }
+          }
         }
 
         // Set default zoom level
@@ -617,18 +632,20 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
             }
 
+            const pickedColor = colors[i % colors.length];
+
             // Hide player movement if enabled
             if (!hidePlayers && MAP && cleanPositions.length > 0) {
 
                 // If player is focused, opacques out all other players
                 if (playerFocus !== null && playerFocus === i) {
-                    L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); console.log(i, followPlayer);});
-                    L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: colors[i], fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
+                    L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                    L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
                 } else {
-                    L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
+                    L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
                     if (!isPlayerDead) {
 
-                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: colors[i], opacity: isPlayerDead ? 0 : 0.1, fillOpacity: 1, fillRule: 'nonzero' })
+                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, opacity: isPlayerDead ? 0 : 0.1, fillOpacity: 1, fillRule: 'nonzero' })
                         .addTo(MAP);
 
                         if (followPlayer === i) {
@@ -639,14 +656,19 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 
                 // Normal rendering
                 if (playerFocus === null) {
-                    L.polyline(cleanPositions, { color: colors[i], weight: 4, opacity: preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); console.log(i, followPlayer);});
+                    L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
                     if (!isPlayerDead) {
 
-                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: colors[i], fillOpacity: 1, fillRule: 'nonzero' })
+                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' })
                         .addTo(MAP);
 
                         if (followPlayer === i) {
-                            MAP.setZoom(3)
+                            if (!followPlayerZoomed) {
+                                MAP.setZoom(3)
+
+                                // This is here to make sure the user can adjust zoom as a player is followed
+                                setFollowPlayerZoomed(true);
+                            }
                             MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
                         }
                     }
@@ -771,14 +793,14 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             <button key={layer.value} className={`text-sm p-2 mr-2 py-1 text-sm ${layer.value === selectedLayer ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`} onClick={() => setSelectedLayer(layer.value)}>{layer.name}</button>
                         ))}
                     </div>
-                    <Link to={`/p/${profileId}/raid/${raidId}`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto'>Close</Link>
+                    <Link to={`/p/${profileId}/raid/${raidId}?return=1`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto' reloadDocument>Close</Link>
                 </nav>
-                <aside className='sidebar border border-eft mr-3 p-3 overflow-x-auto'>
+                <aside className='sidebar bg-black border border-eft mr-3 p-3 overflow-x-auto'>
                     <div className="playerfeed text-eft">
                         <strong>Legend</strong>
                         <ul>
                             { raidData.players.filter(p => p.spawnTime < timeEndLimit).map((player, index) => 
-                                <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => setFollowPlayer(followPlayer === index ? 999999 : index)}>
+                                <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => {setFollowPlayer(followPlayer === index ? 999999 : index); setFollowPlayerZoomed(false);}}>
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : colors[index]}}></span>
                                         <span>
@@ -813,8 +835,8 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             .filter(e => findInsertIndex(e.time, sliderTimes) < timeCurrentIndex)
                             .reverse()
                             .slice(0, 4)
-                            .map(e => (
-                                <div className="text-eft" key={e.id}>
+                            .map((e, i) => (
+                                <div className="text-eft" key={`${e.profileId}_${i}`}>
                                     <span className="tooltiptext event">
                                         <strong>{e.profileNickname}</strong> killed <strong>{e.killedNickname}</strong> [<a className="underline cursor-pointer" onClick={() => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time)}>VIEW</a>]
                                     </span>
@@ -834,8 +856,6 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             preserveHistory={preserveHistory}
                             playerFocus={playerFocus}
                         />
-                        <input className='w-full hidden' type="range" min={sliderTimes[0]} max={sliderTimes[sliderTimes.length - 1]} value={timeEndLimit} onChange={e => setTimeEndLimit(e.target.value)} />
-                        <input className='w-full hidden' type="range" min={sliderTimes[0]} max={sliderTimes[sliderTimes.length - 1]} value={timeStartLimit} onChange={e => setTimeStartLimit(e.target.value)} />
                     <div className="text-eft mb-2 flex justify-between">
                         <span>{ msToHMS(timeEndLimit) }</span>
                         <span className={`${hideNerdStats ? 'invisible' : ''}`}>{ ((timeCurrentIndex / sliderTimes.length) * 100).toFixed(0) }% | {24 * playbackSpeed}fps | Frame: {timeCurrentIndex} / { sliderTimes.length - 1 }  | Cut In/Out (ms): { timeStartLimit } / { timeEndLimit }</span>
@@ -855,7 +875,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             <button className={`text-xs p-1 text-sm cursor-pointer ${hidePlayers ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHidePlayers(!hidePlayers)}>Hide Players</button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${preserveHistory ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft tooltip info`} onClick={() => setPreserveHistory(!preserveHistory)}>
                                 Preserve
-                                <span class="tooltiptext info">If enabled, keeps all activity visible throughout playback, otherwise, only recent activity is kept visible.</span>
+                                <span className="tooltiptext info">If enabled, keeps all activity visible throughout playback, otherwise, only recent activity is kept visible.</span>
                             </button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${!hideNerdStats ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideNerdStats(!hideNerdStats)}>Debug</button>
                         </div>

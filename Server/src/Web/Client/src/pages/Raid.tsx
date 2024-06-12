@@ -216,7 +216,7 @@ export default function Raid() {
                   <span className="opacity-75">{msToHMS(tli.time)} - </span>
                   <strong>{looter ? looter.name : "Unknown"}</strong>
                   <span className="opacity-75">
-                    {tli.added === "true" ? " looted " : " dropped "}
+                    {Number(tli.added) ? " looted " : " dropped "}
                   </span>{" "}
                   <strong>
                     {/* @ts-ignore */}

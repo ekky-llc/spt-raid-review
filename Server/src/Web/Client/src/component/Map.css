@@ -4,6 +4,7 @@
     grid-template-rows: auto repeat(3, 1fr) auto;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
+    max-height: 100vh;
 }
     
 .top { grid-area: 1 / 2 / 2 / 6; }
