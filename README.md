@@ -5,13 +5,7 @@ An experimental way for the SPT Community to review raid data such as kills and 
 ![test](/Examples/preview_0.0.1.png)
 
 ### Installation
-Download your compatible version from the 'Releases' tab
-
-1. Copy `user` and `BepInEx` folders into the SPT Installation just like any other mod.
-2. Open the `core.json` file, which can be found here `<SPT-Install>/Aki_Data/Server/configs/core.json`
-3. Change the `autoInstallModDependencies` under `features` from `false` to `true`.
-4. Save
-5. Launch SPT Server
+Download your compatible version from the 'Releases' tab, and see the instructions for that version in the description of the release.
 
 ### Features
 - Review information for raids such as kills, looting, players, bots, and positional information.
