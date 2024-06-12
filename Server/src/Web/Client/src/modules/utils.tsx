@@ -9,8 +9,6 @@
  */
 export function calculateNewPosition(z: number, x: number, direction: number, distance: number) {
     // Convert direction to radians
-
-    console.log(direction)
     const radians = direction * (Math.PI / 180);
 
     // Calculate new positions

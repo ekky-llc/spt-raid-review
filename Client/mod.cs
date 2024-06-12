@@ -20,7 +20,7 @@ using SAIN.Preset.GlobalSettings.Categories;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("RAID_REVIEW", "RAID_REVIEW", "0.0.2")]
+    [BepInPlugin("RAID_REVIEW", "RAID_REVIEW", "0.0.3")]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate

@@ -93,7 +93,6 @@ async function main() {
     
     try {
         const gameBaseDirectory = await fs.readFileSync(`${currentDir}/base_directory`, 'utf-8').trim();
-        console.log(gameBaseDirectory)
 
         // Load the .buildignore file to set up an ignore handler for the build process.
         const buildIgnorePatterns = await loadBuildIgnoreFile(currentDir);
