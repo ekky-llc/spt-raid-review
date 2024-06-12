@@ -28,12 +28,12 @@ export const locations = {
   "Lighthouse": "Lighthouse",
   "privatearea": "Private Area",
   "RezervBase": "Reserve",
-  "shoreline": "Shoreline",
+  "Shoreline": "Shoreline",
   "suburbs": "Suburbs",
   "TarkovStreets": "Streets",
   "terminal": "Terminal",
   "town": "Town",
-  "woods": "Woods",
+  "Woods": "Woods",
   "base": "Base"
 };
 

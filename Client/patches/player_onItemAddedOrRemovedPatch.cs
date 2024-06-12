@@ -23,7 +23,7 @@ namespace RAID_REVIEW
                 {
                     TrackingLootItem newLootItem = new TrackingLootItem();
 
-                    newLootItem.profileId = __instance.Profile.ProfileId;
+                    newLootItem.profileId = __instance.ProfileId;
                     newLootItem.time = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
                     newLootItem.itemId = item.Id;
                     newLootItem.itemName = item.ShortName;

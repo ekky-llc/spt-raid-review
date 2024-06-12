@@ -18,10 +18,10 @@ export default function About() {
                 </p>
                 <div className='flex gap-8 p-2 border border-eft'>
                     <p>
-                        <strong>Current Version</strong>: v0.0.1
+                        <strong>Current Version</strong>: v0.0.2
                     </p>
                     <p>
-                        Compatibility: SPT v3.8.x
+                        <strong>Compatibility</strong>: SPT v3.8.x
                     </p>
                 </div>
             </div>

@@ -233,7 +233,7 @@ async function loadPackageJson(currentDir) {
  */
 function createProjectName(packageJson) {
     // Remove any non-alphanumeric characters from the author and name.
-    const name = packageJson.name.replace(/\W/g, "");
+    const name = packageJson.name.replace(/\W/g, "_");
     const version = packageJson.version;
 
     // Ensure the name is lowercase, as per the package.json specification.

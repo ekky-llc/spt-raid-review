@@ -24,13 +24,14 @@ namespace RAID_REVIEW
         {
             try
             {
-                Boolean result = MenuTaskbarMod.Insert();
-                if (result)
+                if (RAID_REVIEW.InsertMenuItem.Value)
                 {
-                    Logger.LogInfo("RAID_REVIEW :::: Inserted Menu Item");
+                    Boolean result = MenuTaskbarMod.Insert();
+                    if (result)
+                    {
+                        Logger.LogInfo("RAID_REVIEW :::: Inserted Menu Item");
+                    }
                 }
-
-                Telemetry.Send("MAIN_MENU", "{\"data\":\"\"}");
             }
 
             catch (Exception ex)

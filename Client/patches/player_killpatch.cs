@@ -24,8 +24,8 @@ namespace RAID_REVIEW
                     var newKill = new TrackingRaidKill
                     {
                         time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
-                        profileId = aggressor.Profile.ProfileId,
-                        killedId = __instance.Profile.ProfileId,
+                        profileId = aggressor.ProfileId,
+                        killedId = __instance.ProfileId,
                         distance = Vector3.Distance(aggressor.Position, __instance.Position),
                         weapon = damageInfo.Weapon == null ? "?" : damageInfo.Weapon.Name,
                         bodyPart = bodyPart.ToString(),

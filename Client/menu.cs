@@ -56,7 +56,7 @@ namespace RAID_REVIEW
 
                                     if (subChildEftText.LocalizationKey == "HANDBOOK")
                                     {
-                                        subChildEftText.LocalizationKey = "RAID_REVIEW MOD";
+                                        subChildEftText.LocalizationKey = "RAID REVIEW MOD";
                                     }
 
                                     // Use reflection to update all public string fields and properties
@@ -71,7 +71,7 @@ namespace RAID_REVIEW
                                             string value = (string)property.GetValue(subChildEftText);
                                             if (value == "HANDBOOK")
                                             {
-                                                property.SetValue(subChildEftText, "RAID_REVIEW MOD");
+                                                property.SetValue(subChildEftText, "RAID REVIEW MOD");
                                             }
                                         }
                                     }
@@ -83,7 +83,7 @@ namespace RAID_REVIEW
                                             string value = (string)field.GetValue(subChildEftText);
                                             if (value == "HANDBOOK")
                                             {
-                                                field.SetValue(subChildEftText, "RAID_REVIEW MOD");
+                                                field.SetValue(subChildEftText, "RAID REVIEW MOD");
                                             }
                                         }
                                     }

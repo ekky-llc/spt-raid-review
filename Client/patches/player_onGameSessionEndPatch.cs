@@ -23,7 +23,7 @@ namespace RAID_REVIEW
                 RAID_REVIEW.inRaid = false;
 
                 RAID_REVIEW.stopwatch.Stop();
-                RAID_REVIEW.trackingRaid.playerId = __instance.ProfileId;
+                RAID_REVIEW.trackingRaid.profileId = __instance.ProfileId;
                 RAID_REVIEW.trackingRaid.exitStatus = exitStatus;
                 RAID_REVIEW.trackingRaid.exitName = exitName;
                 RAID_REVIEW.trackingRaid.time = DateTime.Now;

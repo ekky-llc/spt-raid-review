@@ -47,15 +47,22 @@ function DeleteFile(parentFolder: string, subFolder: string = '', targetFolder: 
 }
 
 function RenameFile(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string, newFilename: string): void {
-    let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
-    let finalPath = paths.filter(path => path !== '').join('/');
+    try {
+        let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
+        let finalPath = paths.filter(path => path !== '').join('/');
 
-    let rename_paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${newFilename}`];
-    let renameFinalPath = rename_paths.filter(path => path !== '').join('/');
+        let rename_paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${newFilename}`];
+        let renameFinalPath = rename_paths.filter(path => path !== '').join('/');
 
-    let exists = fs.existsSync(finalPath);
-    if (exists) {
-        fs.renameSync(finalPath, renameFinalPath);
+        let exists = fs.existsSync(finalPath);
+        if (exists) {
+            fs.renameSync(finalPath, renameFinalPath);
+        }
+    } 
+
+    catch (error) {
+        console.log(`[RAID-REVIEW]`, error)
+        return null;
     }
 }
 
@@ -67,14 +74,31 @@ function ReadFile(parentFolder: string, subFolder: string = '', targetFolder: st
     } 
     
     catch (error) {
-        return null;
+        console.log(`[RAID-REVIEW]`, error)
+        return '';
     }
 }
+
+function FileExists(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string): boolean {
+    try {
+        let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
+        let finalPath = paths.filter(path => path !== '').join('/');
+        let exists = fs.existsSync(finalPath);
+        return exists;
+    } 
+    
+    catch (error) {
+        console.log(`[RAID-REVIEW]`, error)
+        return false;
+    }
+}
+
 
 export {
     WriteLineToFile,
     CreateFolder,
     DeleteFile,
     RenameFile,
-    ReadFile
+    ReadFile,
+    FileExists
 }
