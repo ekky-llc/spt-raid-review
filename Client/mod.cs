@@ -20,7 +20,7 @@ using SAIN.Preset.GlobalSettings.Categories;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("RAID_REVIEW", "RAID_REVIEW", "0.0.1")]
+    [BepInPlugin("RAID_REVIEW", "RAID_REVIEW", "0.0.2")]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
@@ -50,6 +50,7 @@ namespace RAID_REVIEW
         public static string PluginFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static ConfigEntry<KeyboardShortcut> LaunchWebpageKey;
         public static ConfigEntry<bool> PlayerTracking;
+        public static ConfigEntry<bool> InsertMenuItem;
         public static ConfigEntry<bool> KillTracking;
         public static ConfigEntry<bool> LootTracking;
         public static ConfigEntry<bool> ExtractTracking;
@@ -63,7 +64,8 @@ namespace RAID_REVIEW
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Mod Loaded");
 
             LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the 'Stats Mod' webpage in your default browser.");
-            PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", false, "Enables location tracking of players and bots.");
+            InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item insertion to launch the reviewer.");
+            PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of players and bots kills.");
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of players and bots looting activities.");
 
@@ -128,7 +130,7 @@ namespace RAID_REVIEW
                     RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
                         id = Guid.NewGuid().ToString("D"),
-                        playerId = RAID_REVIEW.myPlayer.ProfileId,
+                        profileId = RAID_REVIEW.myPlayer.ProfileId,
                         time = DateTime.Now,
                         detectedMods = RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW__DETECTED_MODS) : "",
                         location = RAID_REVIEW.gameWorld.LocationId,
@@ -141,7 +143,7 @@ namespace RAID_REVIEW
                     trackingPlayers = new Dictionary<string, TrackingPlayer>();
 
                     var newTrackingPlayer = new TrackingPlayer();
-                    newTrackingPlayer.profileId = myPlayer.Profile.ProfileId;
+                    newTrackingPlayer.profileId = myPlayer.ProfileId;
                     newTrackingPlayer.name = myPlayer.Profile.Nickname;
                     newTrackingPlayer.level = myPlayer.Profile.Info.Level;
                     newTrackingPlayer.team = myPlayer.Side;
@@ -168,11 +170,11 @@ namespace RAID_REVIEW
 
                     // Checks if a new player / bot has spawned into the raid...
                     TrackingPlayer trackingPlayer = new TrackingPlayer();
-                    bool isBeingTracking = trackingPlayers.TryGetValue(player.Profile.ProfileId, out trackingPlayer);
+                    bool isBeingTracking = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
                     if (!isBeingTracking)
                     {
                         trackingPlayer = new TrackingPlayer();
-                        trackingPlayer.profileId = player.Profile.ProfileId;
+                        trackingPlayer.profileId = player.ProfileId;
                         trackingPlayer.name = player.Profile.Nickname;
                         trackingPlayer.level = player.Profile.Info.Level;
                         trackingPlayer.team = player.Side;
@@ -186,12 +188,12 @@ namespace RAID_REVIEW
 
                     // Checks if a player / bot has died since the last check...
                     TrackingPlayer deadPlayer = new TrackingPlayer();
-                    bool isDead = deadPlayers.TryGetValue(player.Profile.ProfileId, out deadPlayer);
+                    bool isDead = deadPlayers.TryGetValue(player.ProfileId, out deadPlayer);
                     if (!isDead)
                     {
                         if (!player.HealthController.IsAlive)
                         {
-                            deadPlayers[player.Profile.ProfileId] = trackingPlayer;
+                            deadPlayers[player.ProfileId] = trackingPlayer;
                             continue;
                         }
 

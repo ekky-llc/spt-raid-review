@@ -13,7 +13,7 @@ const port = 7829;
 import { getSessiondata } from '../../mod';
 import { Database } from 'sqlite';
 import sqlite3 from 'sqlite3'
-import { ReadFile } from '../../Controllers/Collection/DataSaver';
+import { FileExists, ReadFile } from '../../Controllers/Collection/DataSaver';
 import CompileRaidPositionalData from '../../Controllers/Collection/CompileRaidPositionalData';
 import { generateInterpolatedFramesBezier } from '../../Utils/utils';
 
@@ -47,7 +47,15 @@ function StartWebServer(saveServer: SaveServer, db: Database<sqlite3.Database, s
   });
 
   app.get('/api/profile/all', (req: Request, res: Response) => {
-    const profiles = saveServer.getProfiles() as Record<string, IAkiProfile>;
+    let profiles = saveServer.getProfiles() as Record<string, IAkiProfile>;
+
+    for (const profile_k in profiles) {
+      let profile = profiles[profile_k];
+      if (typeof profile?.characters?.pmc?.Info?.Side !== "string") {
+        console.log(`[RAID-REVIEW] It appears that profile id '${profile_k}' is using an old data structure not compatible with RAID-REVIEW.`);
+        delete profiles[profile_k]
+      }
+    }
 
     return res.json(profiles);
   });
@@ -83,6 +91,9 @@ function StartWebServer(saveServer: SaveServer, db: Database<sqlite3.Database, s
       const sqlKeyValues = [ raidId ];
       raid[key] = await db.all(sqlKeyQuery, sqlKeyValues).catch((e: Error) => console.error(e)); 
     }
+
+    // Positions check
+    raid.positionsTracked = FileExists('positions', '', '', `${raidId}_positions.json`);
 
     // Quick Fix
     raid.players = raid.player;

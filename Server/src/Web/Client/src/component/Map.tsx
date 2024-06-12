@@ -362,12 +362,12 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             "Lighthouse": "lighthouse",
             "privatearea": "private-area",
             "RezervBase": "reserve",
-            "shoreline": "shoreline",
+            "Shoreline": "shoreline",
             "suburbs": "suburbs",
             "TarkovStreets": "streets-of-tarkov",
             "terminal": "terminal",
             "town": "town",
-            "woods": "woods",
+            "Woods": "woods",
             "base": "base"
         };
 
@@ -823,7 +823,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     </div>
                     <div id="leaflet-map" ref={onMapContainerRefChange} className={'leaflet-map-container'}/>
                 </div>
-                <div className="dev__time_sliders bg-white p-3 border border-eft mt-4 timeline">
+                <div className="dev__time_sliders p-3 border border-eft mt-4 timeline">
                         <PlayerSlider
                             events={hideEvents ? [] : events}
                             sliderTimes={sliderTimes}

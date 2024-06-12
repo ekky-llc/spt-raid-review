@@ -151,6 +151,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
               payload_object.raid_id = this.raid_id
             }
 
+            if (!payload_object.profileId) {
+              payload_object.profileId = profile_id;
+            }
+
             const { keys, values } = ExtractKeysAndValues(payload_object);
 
             switch (data.Action) {
@@ -164,7 +168,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database.run(start_raid_sql, [
                   this.raid_id,
-                  payload_object.playerId,
+                  profile_id || payload_object.profileId,
                   payload_object.location,
                   payload_object.time,
                   payload_object.timeInRaid,
@@ -183,7 +187,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 this.database
                   .run(end_raid_sql, [
                     this.raid_id,
-                    payload_object.playerId,
+                    profile_id || payload_object.profileId,
                     payload_object.location,
                     payload_object.time,
                     payload_object.timeInRaid,
