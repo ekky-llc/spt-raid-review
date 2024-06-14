@@ -1,13 +1,13 @@
 import { IAkiProfile } from '../../../../../types/models/eft/profile/IAkiProfile';
 import { TrackingCoreData, TrackingRaidData } from '../types/api_types';
 
-let hostname = 'http://127.0.0.1:7829'
+// let hostname = 'http://127.0.0.1:7829'
 
 const api = {
     getActiveProfile: async function() : Promise<string> {
         let profile = '' as string;
         try {
-            const response = await fetch(hostname + `/api/profile/active`);
+            const response = await fetch(`/api/profile/active`);
             const { data } : { data: { profileId: string } } = await response.json();
             return data.profileId;
         } 
@@ -19,7 +19,7 @@ const api = {
     getProfiles: async function() : Promise<IAkiProfile[]> {
         let profiles = [] as IAkiProfile[];
         try {
-            const response = await fetch(hostname + '/api/profile/all');
+            const response = await fetch('/api/profile/all');
             const data = await response.json() as IAkiProfile[];
 
             Object.keys(data).forEach((profile : string) => {
@@ -37,7 +37,7 @@ const api = {
     getProfile : async function(profileId: string) : Promise<IAkiProfile> {
         let profile = {} as IAkiProfile;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}`);
+            const response = await fetch(`/api/profile/${profileId}`);
             const data = await response.json() as IAkiProfile;
             profile = data;
             return profile
@@ -50,7 +50,7 @@ const api = {
     getCore : async function(profileId: string) : Promise<TrackingCoreData[]> {
         let core = [] as TrackingCoreData[];
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/all`);
+            const response = await fetch(`/api/profile/${profileId}/raids/all`);
             const data = await response.json() as TrackingCoreData[];
             core = data;
             return core
@@ -63,7 +63,7 @@ const api = {
     getRaid : async function(profileId: string, raidId: string) : Promise<TrackingRaidData> {
         let raid = {} as TrackingRaidData;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}`);
+            const response = await fetch(`/api/profile/${profileId}/raids/${raidId}`);
             const data = await response.json() as TrackingRaidData;
             raid = data;
             return raid
@@ -76,7 +76,7 @@ const api = {
     getRaidPositionalData : async function(profileId: string, raidId: string, groupByPlayer : boolean = false) : Promise<any> {
         let positions = [] as any;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
+            const response = await fetch(`/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
             positions = await response.json() as any;
             return positions;
         } catch (error) {

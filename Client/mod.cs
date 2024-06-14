@@ -1,4 +1,4 @@
-﻿using EFT;
+using EFT;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -54,6 +54,9 @@ namespace RAID_REVIEW
         public static ConfigEntry<bool> KillTracking;
         public static ConfigEntry<bool> LootTracking;
         public static ConfigEntry<bool> ExtractTracking;
+        public static ConfigEntry<string> ServerAddress;
+        public static ConfigEntry<string> ServerWsPort;
+        public static ConfigEntry<string> ServerHttpPort;
         public static GameObject Hook;
 
         // Other Mods
@@ -65,9 +68,15 @@ namespace RAID_REVIEW
 
             LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the 'Stats Mod' webpage in your default browser.");
             InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item insertion to launch the reviewer.");
+            ServerAddress = Config.Bind<string>("Main", "Server Ip", "127.0.0.1", "Ip address of the server."); 
+            ServerWsPort = Config.Bind<string>("Main", "Server WS Port", "7828", "Listen port of the raid review websocket server.");
+            ServerHttpPort = Config.Bind<string>("Main", "Server Http Port", "7829", "Listen port of the raid review http server.");
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of players and bots kills.");
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of players and bots looting activities.");
+            
+            RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
+            RAID_REVIEW_HTTP_Server = "ws://" + ServerAddress.Value + ":" + ServerHttpPort.Value;
 
             Hook = new GameObject();
 
