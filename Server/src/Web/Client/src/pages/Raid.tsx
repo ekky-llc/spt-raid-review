@@ -1,4 +1,4 @@
-import { Link, Outlet, useLoaderData } from "react-router-dom";
+import { Link, Outlet, redirect, useLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
 import _ from 'lodash';
 
@@ -11,10 +11,16 @@ import { locations } from "./Profile";
 
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
+  const raidId = loaderData.params.raidId as string;
+
   const raidData = (await api.getRaid(
     profileId,
-    loaderData.params.raidId
+    raidId
   )) as TrackingRaidData;
+
+  if (!raidData) {
+    return redirect(`/p/${profileId}`);
+  }
 
   return { profileId, raidData };
 }
@@ -234,7 +240,7 @@ export default function Raid() {
 
   return (
     <>
-      <section className="border border-eft py-4 px-6 mb-5">
+      <section className="border border-eft py-4 px-6 mb-5 relative">
         <h2 className="text-xl font-black text-eft">Raid Summary</h2>
         <div id="raid_summary">
           { raidSummary.map( raidSum => <div key={raidSum.title} className="text text-eft">
@@ -242,6 +248,9 @@ export default function Raid() {
             <p>{ raidSum.value }</p>
           </div>) }
         </div>
+        <Link to={`/p/${profileId}/raid/${raidData.raidId}/settings`} className="raid_more_settings cursor-pointer bg-eft p-1 text-xs font-black flex hover:opacity-75">
+            Settings
+        </Link>
       </section>
       <section className="flex w-100 gap-4">
         <div className="border border-eft w-2/6 py-4 px-6">

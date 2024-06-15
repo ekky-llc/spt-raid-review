@@ -6,4 +6,11 @@
     grid-template-rows: 1fr 1fr; 
     gap: 12px 8px;
     max-width: 1250px;
+    position: relative;
+}
+
+.raid_more_settings {
+    position: absolute;
+    right: 12px;
+    top: 12px;
 }

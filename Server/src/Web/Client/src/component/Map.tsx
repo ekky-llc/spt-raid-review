@@ -114,89 +114,6 @@ function getBounds(bounds) {
     //return [[bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]];
 }
 
-function markerIsOnLayer(marker, layer) {
-    if (!layer.options.extents) {
-        return true;
-    }
-    var top = marker.options.top || marker.options.position.y;
-    var bottom = marker.options.bottom || marker.options.position.y;
-    for (const extent of layer.options.extents) {
-        if (top >= extent.height[0] && bottom < extent.height[1]) {
-            let containedType = 'partial';
-            if (bottom >= extent.height[0] && top <= extent.height[1]) {
-                containedType = 'full';
-            }
-            if (extent.bounds) {
-                for (const boundsArray of extent.bounds) {
-                    const bounds = getBounds(boundsArray);
-                    if (bounds.contains(pos(marker.options.position))) {
-                        return containedType;
-                    }
-                }
-            } else {
-                return containedType;
-            }
-        }
-    }
-    return false;
-}
-
-function markerIsOnActiveLayer(marker) {
-    if (!marker.options.position) {
-        return true;
-    }
-
-    const map = marker._map;
-
-    // check if marker is completely contained by inactive layer
-    const overlays = map.layerControl._layers.map(l => l.layer).filter(l => Boolean(l.options.extents) && l.options.overlay);
-    for (const layer of overlays) {
-        for (const extent of layer.options.extents) {
-            if (markerIsOnLayer(marker, layer) === 'full' && !map.hasLayer(layer) && extent.bounds) {
-                return false;
-            }
-        }
-    }
-
-    // check if marker is on active overlay
-    const activeOverlay = Object.values(map._layers).find(l => l.options?.extents && l.options?.overlay);
-    if (activeOverlay && markerIsOnLayer(marker, activeOverlay)) {
-        return true;
-    }
-
-    // check if marker is on base layer
-    const baseLayer = Object.values(map._layers).find(l => l.options?.extents && !L.options?.overlay);
-    if (!activeOverlay && markerIsOnLayer(marker, baseLayer)) {
-        return true;
-    }
-
-    return false;
-}
-
-function checkMarkerForActiveLayers(event) {
-    const marker = event.target || event;
-    const outline = marker.options.outline;
-    const onLevel = markerIsOnActiveLayer(marker);
-    if (onLevel) {
-        marker._icon?.classList.remove('off-level');
-        if (outline) {
-            outline._path?.classList.remove('off-level');
-        }
-    } else {
-        marker._icon?.classList.add('off-level');
-        if (outline) {
-            outline._path?.classList.add('off-level');
-        }
-    }
-    /*if (marker.options.activeQuest === true) {
-        marker._icon.classList.add('active-quest-marker');
-        marker._icon.classList.remove('inactive-quest-marker');
-    } else if (marker.options.activeQuest === false) {
-        marker._icon.classList.remove('active-quest-marker');
-        marker._icon.classList.add('inactive-quest-marker');
-    }*/
-}
-
 function mouseHoverOutline(event) {
     const outline = event.target.options.outline;
     if (event.originalEvent.type === 'mouseover') {
@@ -213,41 +130,6 @@ function toggleForceOutline(event) {
         outline._path.classList.remove('not-shown');
     }
     activateMarkerLayer(event);
-}
-
-function activateMarkerLayer(event) {
-    const marker = event.target || event;
-    if (markerIsOnActiveLayer(marker)) {
-        return;
-    }
-    const activeLayers = Object.values(marker._map._layers).filter(l => l.options?.extents && l.options?.overlay);
-    for (const layer of activeLayers) {
-        layer.removeFrom(marker._map);
-    }
-    const heightLayers = marker._map.layerControl._layers.filter(l => l.layer.options.extents && l.layer.options.overlay).map(l => l.layer);
-    for (const layer of heightLayers) {
-        if (markerIsOnLayer(marker, layer)) {
-            layer.addTo(marker._map);
-            break;
-        }
-    }
-}
-
-function outlineToPoly(outline) {
-    if (!outline) return [];
-    return outline.map(vector => [vector.z, vector.x]);
-}
-
-function addElevation(item, popup) {
-    if (!showElevation) {
-        return;
-    }
-    const elevationContent = L.DomUtil.create('div', undefined, popup);
-    elevationContent.textContent = `Elevation: ${item.position.y.toFixed(2)}`;
-    if (item.top && item.bottom && item.top !== item.position.y && item.bottom !== item.position.y) {
-        const heightContent = L.DomUtil.create('div', undefined, popup);
-        heightContent.textContent = `Top ${item.top.toFixed(2)}, bottom: ${item.bottom.toFixed(2)}`;
-    }
 }
 
 function calculateProportionalRadius(mapBounds) {
@@ -324,6 +206,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
     // Map
     const [ availableLayers, setAvailableLayers ] = useState([]);
+    const [ selectedStyle, setSelectedStyle ] = useState('');
     const [ selectedLayer, setSelectedLayer ] = useState('');
     const [ followPlayer, setFollowPlayer ] = useState(9999);
     const [ followPlayerZoomed, setFollowPlayerZoomed ] = useState(false);
@@ -379,7 +262,8 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             "base": "base"
         };
 
-        setCurrentMap(locations[raidData.location]);
+        // setCurrentMap(locations[raidData.location]);
+        setCurrentMap("interchange");
 
         const newEvents = []
         for (let i = 0; i < raidData.kills.length; i++) {
@@ -438,24 +322,28 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     let allMaps = useMapImages();
 
     const mapData = useMemo(() => {
-        return allMaps[currentMap];
+        const map = allMaps[currentMap];
+
+        if (map && map.layers) {
+            let newAvailableLayers = map.layers.map(x => ({ name: x.name, value: x.name }));
+            setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
+        }
+
+        return map;
     }, [allMaps, currentMap]);
 
     // Map Renderer
+
     useEffect(() => {
         if (!mapData || mapData.projection !== 'interactive') {
             return;
         }
-
-        if (mapData.layers !== undefined) {
-            let newAvailableLayers = mapData.layers.map(x => { return { name: x.name, value: x.name } });
-            setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
-        }
-
+    
         let mapCenter = [0, 0];
-        let mapZoom = mapData.minZoom+1;
+        let mapZoom = mapData.minZoom + 1;
         let mapViewRestored = false;
         const maxZoom = Math.max(7, mapData.maxZoom);
+        
         if (mapRef.current?._leaflet_id) {
             if (mapRef.current.options.id === mapData.id) {
                 if (mapViewRef.current.center) {
@@ -473,9 +361,9 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             }
             mapRef.current.remove();
         }
-
+    
         setProportionalScale(calculateProportionalRadius(mapData.bounds));
-
+    
         const map = L.map('leaflet-map', {
             maxBounds: getScaledBounds(mapData.bounds, 1.5),
             center: mapCenter,
@@ -489,41 +377,19 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             attributionControl: false,
             id: mapData.id,
         });
-
+    
         SET_MAP(map);
-        
-        map.on('zoom', (e) => {
+    
+        map.on('zoom', () => {
             mapViewRef.current.zoom = map.getZoom();
         });
-
-        map.on('move', (e) => {
+    
+        map.on('move', () => {
             mapViewRef.current.center = map.getCenter();
         });
-
-        const addLayer = (layer, layerKey, groupKey, layerName) => {
-            layer.key = layerKey;
-            const layerOptions = getLayerOptions(layerKey, groupKey, layerName);
-            if (!layerOptions.layerHidden) {
-                layer.addTo(map);
-            }
-            layerControl.addOverlay(layer, layerOptions.layerName, layerOptions);
-        };
-
-        L.control.coordinates({
-            decimals: 2,
-            labelTemplateLat: 'z: {y}',
-            labelTemplateLng: 'x: {x}',
-            enableUserInput: false,
-            wrapCoordinate: false,
-            position: 'bottomright',
-
-            customLabelFcn: (latLng, opts) => {
-                return `x: ${latLng.lng.toFixed(2)} z: ${latLng.lat.toFixed(2)}`;
-            }
-        }).addTo(map);
-
+    
         const bounds = getBounds(mapData.bounds);
-        const layerOptions = {
+        const baseLayerOptions = {
             maxZoom: maxZoom,
             maxNativeZoom: mapData.maxZoom,
             extents: [
@@ -534,70 +400,362 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             ],
             type: 'map-layer',
         };
-
-        if (selectedLayer === '') {
-            layerOptions.opacity = 1;
-        } else {
-            layerOptions.opacity = 0.3;
-        }
-
-        let tileLayer = false;
-        const baseLayers = [];
+    
         const tileSize = mapData.tileSize || 256;
-        let svgLayer = true;
+    
+        // Create separate layer groups for base layers and overlay layers
+        const baseLayerGroup = L.layerGroup().addTo(map);
+        const overlayLayerGroup = L.layerGroup().addTo(map);
+    
+        // Add base layers
+        if (mapData.tilePath) {
+            const tileLayer = L.tileLayer(mapData.tilePath, {
+                tileSize,
+                bounds,
+                ...baseLayerOptions,
+            });
+            baseLayerGroup.addLayer(tileLayer);
+        }
+    
         if (mapData.svgPath) {
             const svgBounds = mapData.svgBounds ? getBounds(mapData.svgBounds) : bounds;
-            svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, layerOptions);
-            baseLayers.push(svgLayer);
+            const svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, baseLayerOptions);
+            baseLayerGroup.addLayer(svgLayer);
         }
-        let baseLayer = svgLayer ? svgLayer : tileLayer;
-        baseLayer.addTo(map);
-
-        if (mapData.layer) {
-          for (const layer of mapData.layers) {
-            let heightLayer;
-
-            const layerOptions = {
-              name: layer.name,
-              extents: layer.extents || baseLayer.options?.extents,
-              type: "map-layer",
-              overlay: Boolean(layer.extents),
-            };
-
-            heightLayer = L.imageOverlay(layer.svgPath, bounds, layerOptions);
-
-            if (
-              selectedLayer === layer.name ||
-              mapViewRef.current.layer === layer.name
-            ) {
-              heightLayer.addTo(map);
-            } else if (!selectedLayer && layer.show) {
-              heightLayer.addTo(map);
+    
+        // Add overlay layers
+        if (mapData.layers) {
+            for (let i = 0; i < mapData.layers.length; i++) {
+                const layer = mapData.layers[i];
+                const layerOptions = {
+                    ...baseLayerOptions,
+                    name: layer.name,
+                    extents: layer.extents || baseLayerOptions.extents,
+                    type: "map-layer",
+                    overlay: Boolean(layer.extents),
+                };
+        
+                if (layer.tilePath) {
+                    const tileLayer = L.tileLayer(layer.tilePath, {
+                        tileSize,
+                        bounds,
+                        ...layerOptions,
+                    });
+                    overlayLayerGroup.addLayer(tileLayer);
+                }
+        
+                if (layer.svgPath) {
+                    const svgBounds = layer.svgBounds ? getBounds(layer.svgBounds) : bounds;
+                    const svgLayer = L.imageOverlay(layer.svgPath, svgBounds, layerOptions);
+                    overlayLayerGroup.addLayer(svgLayer);
+                }
             }
-          }
         }
-
-        // Set default zoom level
-        // map.fitBounds(bounds);
-        // map.fitWorld({ maxZoom: Math.max(mapData.maxZoom, mapData.minZoom) });
-
-        // maxBounds are bigger than the map and the map center is not in 0,0 so we need to move the view to real center
-        // console.log("Center:", L.latLngBounds(bounds).getCenter(true));
-        if (!mapViewRestored) {
-            map.setView(L.latLngBounds(bounds).getCenter(true), undefined, {animate: false});
+        // Set initial visibility based on selectedLayer
+        if (selectedLayer === '') {
+            baseLayerGroup.addTo(map);
+        } else {
+            overlayLayerGroup.addTo(map);
         }
+    
+        // Function to handle layer visibility and opacity based on selectedLayer
+        const toggleLayers = () => {
+            // Set opacity for base layers
+            baseLayerGroup.eachLayer(layer => {
+                if (selectedLayer === '') {
+                    layer.setOpacity(1); // Active layer
+                } else {
+                    layer.setOpacity(0.3); // Inactive layers
+                }
+            });
 
+            // Set opacity for overlay layers
+            overlayLayerGroup.eachLayer(layer => {
+                if (selectedLayer === layer.options.name) {
+                    layer.setOpacity(1); // Active layer
+                } else {
+                    layer.setOpacity(0); // Inactive layers
+                }
+            });
+        };
+
+    
+        // Toggle layers when selectedLayer changes
+        toggleLayers();
+    
+        if (map && !mapViewRestored) {
+            map.setView(L.latLngBounds(bounds).getCenter(true), undefined, { animate: false });
+        }
+    
         mapRef.current = map;
+    }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
+    
 
-        const mapDiv = document.getElementById('leaflet-map');
-        const resizeObserver = new ResizeObserver(() => {
-            map.invalidateSize();
-            window.dispatchEvent(new Event('resize'));
-        });
-        resizeObserver.observe(mapDiv);
+    // useEffect(() => {
+    //     if (!mapData || mapData.projection !== 'interactive') {
+    //         return;
+    //     }
+    
+    //     let mapCenter = [0, 0];
+    //     let mapZoom = mapData.minZoom + 1;
+    //     let mapViewRestored = false;
+    //     const maxZoom = Math.max(7, mapData.maxZoom);
+        
+    //     if (mapRef.current?._leaflet_id) {
+    //         if (mapRef.current.options.id === mapData.id) {
+    //             if (mapViewRef.current.center) {
+    //                 mapCenter = [mapViewRef.current.center.lat, mapViewRef.current.center.lng];
+    //                 mapViewRestored = true;
+    //             }
+    //             if (typeof mapViewRef.current.zoom !== 'undefined') {
+    //                 mapZoom = mapViewRef.current.zoom;
+    //                 mapViewRestored = true;
+    //             }
+    //         } else {
+    //             mapViewRef.current.center = undefined;
+    //             mapViewRef.current.zoom = undefined;
+    //             mapViewRef.current.layer = undefined;
+    //         }
+    //         mapRef.current.remove();
+    //     }
+    
+    //     setProportionalScale(calculateProportionalRadius(mapData.bounds));
+    
+    //     const map = L.map('leaflet-map', {
+    //         maxBounds: getScaledBounds(mapData.bounds, 1.5),
+    //         center: mapCenter,
+    //         zoom: mapZoom,
+    //         minZoom: mapData.minZoom,
+    //         maxZoom: maxZoom,
+    //         zoomSnap: 0.1,
+    //         scrollWheelZoom: true,
+    //         wheelPxPerZoomLevel: 120,
+    //         crs: getCRS(mapData),
+    //         attributionControl: false,
+    //         id: mapData.id,
+    //     });
+    
+    //     SET_MAP(map);
+    
+    //     map.on('zoom', () => {
+    //         mapViewRef.current.zoom = map.getZoom();
+    //     });
+    
+    //     map.on('move', () => {
+    //         mapViewRef.current.center = map.getCenter();
+    //     });
+    
+    //     const bounds = getBounds(mapData.bounds);
+    //     const layerOptions = {
+    //         maxZoom: maxZoom,
+    //         maxNativeZoom: mapData.maxZoom,
+    //         extents: [
+    //             {
+    //                 height: mapData.heightRange || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
+    //                 bounds: [mapData.bounds],
+    //             }
+    //         ],
+    //         type: 'map-layer',
+    //     };
+    
+    //     if (selectedLayer === '') {
+    //         layerOptions.opacity = 1;
+    //     } else {
+    //         layerOptions.opacity = 0.3;
+    //     }
+    
+    //     const tileSize = mapData.tileSize || 256;
+    
+    //     const baseLayers = [];
+    //     if (mapData.tilePath) {
+    //         const tileLayer = L.tileLayer(mapData.tilePath, {
+    //             tileSize,
+    //             bounds,
+    //             ...layerOptions,
+    //         });
+    //         baseLayers.push(tileLayer);
+    //     }
+    
+    //     if (mapData.svgPath) {
+    //         const svgBounds = mapData.svgBounds ? getBounds(mapData.svgBounds) : bounds;
+    //         const svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, layerOptions);
+    //         baseLayers.push(svgLayer);
+    //     }
 
-    }, [mapData, mapRef, navigate, mapViewRef, selectedLayer]);
+    //     for (let i = 0; i < mapData.layers.length; i++) {
+    //         const layer = mapData.layers[i];
+            
+    //         if (layer.tilePath) {
+    //             const tileLayer = L.tileLayer(layer.tilePath, {
+    //                 tileSize,
+    //                 bounds,
+    //                 ...layerOptions,
+    //             });
+    //             baseLayers.push(tileLayer);
+    //         }
+        
+    //         if (layer.svgPath) {
+    //             const svgBounds = layer.svgBounds ? getBounds(layer.svgBounds) : bounds;
+    //             const svgLayer = L.imageOverlay(layer.svgPath, svgBounds, layerOptions);
+    //             baseLayers.push(svgLayer);
+    //         }
 
+    //     }        
+
+    //     const layerGroup = L.layerGroup(baseLayers).addTo(map);
+    
+    //     if (map && !mapViewRestored) {
+    //         map.setView(L.latLngBounds(bounds).getCenter(true), undefined, { animate: false });
+    //     }
+    
+    //     mapRef.current = map;
+    // }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
+    
+
+    // useEffect(() => {
+    //     if (!mapData || mapData.projection !== 'interactive') {
+    //         return;
+    //     }
+    
+    //     if (mapData.layers !== undefined) {
+    //         let newAvailableLayers = mapData.layers.map(x => ({ name: x.name, value: x.name }));
+    //         setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
+    //     }
+    
+    //     let mapCenter = [0, 0];
+    //     let mapZoom = mapData.minZoom + 1;
+    //     let mapViewRestored = false;
+    //     const maxZoom = Math.max(7, mapData.maxZoom);
+        
+    //     if (mapRef.current?._leaflet_id) {
+    //         if (mapRef.current.options.id === mapData.id) {
+    //             if (mapViewRef.current.center) {
+    //                 mapCenter = [mapViewRef.current.center.lat, mapViewRef.current.center.lng];
+    //                 mapViewRestored = true;
+    //             }
+    //             if (typeof mapViewRef.current.zoom !== 'undefined') {
+    //                 mapZoom = mapViewRef.current.zoom;
+    //                 mapViewRestored = true;
+    //             }
+    //         } else {
+    //             mapViewRef.current.center = undefined;
+    //             mapViewRef.current.zoom = undefined;
+    //             mapViewRef.current.layer = undefined;
+    //         }
+    //         mapRef.current.remove();
+    //     }
+    
+    //     setProportionalScale(calculateProportionalRadius(mapData.bounds));
+    
+    //     const map = L.map('leaflet-map', {
+    //         maxBounds: getScaledBounds(mapData.bounds, 1.5),
+    //         center: mapCenter,
+    //         zoom: mapZoom,
+    //         minZoom: mapData.minZoom,
+    //         maxZoom: maxZoom,
+    //         zoomSnap: 0.1,
+    //         scrollWheelZoom: true,
+    //         wheelPxPerZoomLevel: 120,
+    //         crs: getCRS(mapData),
+    //         attributionControl: false,
+    //         id: mapData.id,
+    //     });
+    
+    //     SET_MAP(map);
+    
+    //     map.on('zoom', () => {
+    //         mapViewRef.current.zoom = map.getZoom();
+    //     });
+    
+    //     map.on('move', () => {
+    //         mapViewRef.current.center = map.getCenter();
+    //     });
+    
+    //     const bounds = getBounds(mapData.bounds);
+    //     const layerOptions = {
+    //         maxZoom: maxZoom,
+    //         maxNativeZoom: mapData.maxZoom,
+    //         extents: [
+    //             {
+    //                 height: mapData.heightRange || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
+    //                 bounds: [mapData.bounds],
+    //             }
+    //         ],
+    //         type: 'map-layer',
+    //     };
+    
+    //     if (selectedLayer === '') {
+    //         layerOptions.opacity = 1;
+    //     } else {
+    //         layerOptions.opacity = 0.3;
+    //     }
+    
+    //     const tileSize = mapData.tileSize || 256;
+
+    //     const baseLayers = [];
+    //     if (mapData.tilePath) {
+    //         const tileLayer = L.tileLayer(mapData.tilePath, {
+    //             tileSize,
+    //             bounds,
+    //             ...layerOptions,
+    //         });
+    //         baseLayers.push(tileLayer);
+    //         tileLayer.addTo(map);
+    //     }
+    
+    //     if (mapData.svgPath) {
+    //         const svgBounds = mapData.svgBounds ? getBounds(mapData.svgBounds) : bounds;
+    //         const svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, layerOptions);
+    //         baseLayers.push(svgLayer);
+    //         svgLayer.addTo(map);
+    //     }
+    
+    //     let baseLayer = baseLayers[0];
+
+        
+    //     if (mapData.layers.length > 0) {
+    //         for (const layer of mapData.layers) {
+    //             let heightLayer;
+    //             console.log(selectedLayer, layer.name)
+    
+    //             const layerOptions = {
+    //                 name: layer.name,
+    //                 extents: layer.extents || baseLayer.options?.extents,
+    //                 type: "map-layer",
+    //                 overlay: Boolean(layer.extents),
+    //             };
+    
+    //             // Check the selected style and layer name
+    //             if (selectedStyle === 'tile' && selectedLayer === layer.name) {
+    //                 heightLayer = L.tileLayer(layer.tilePath, {
+    //                     tileSize,
+    //                     bounds,
+    //                     ...layerOptions,
+    //                 });
+    //                 heightLayer.addTo(map);
+    //             } else if (selectedStyle === 'svg' && selectedLayer === layer.name) {
+    //                 heightLayer = L.imageOverlay(layer.svgPath, bounds, layerOptions);
+    //                 heightLayer.addTo(map);
+    //             }
+
+    
+    //             // Only create the layer group if heightLayer is defined
+    //             if (heightLayer) {
+    //                 L.layerGroup([heightLayer], {
+    //                     attribution: layer.name
+    //                 }).addTo(map);
+    //             }
+
+    //         }
+    //     }
+    
+    //     if (map && !mapViewRestored) {
+    //         map.setView(L.latLngBounds(bounds).getCenter(true), undefined, {animate: false});
+    //     }
+    
+    //     mapRef.current = map;
+    // }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
+    
     // Positon Renderer
     useEffect(() => {             
 

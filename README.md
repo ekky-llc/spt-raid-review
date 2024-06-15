@@ -7,6 +7,12 @@ An experimental way for the SPT Community to review raid data such as kills and 
 ### Installation
 Download your compatible version from the 'Releases' tab, and see the instructions for that version in the description of the release.
 
+### Contributions / Development
+
+Please see [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can help contribute to this project.
+
+Please see [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
+
 ### Features
 - Review information for raids such as kills, looting, players, bots, and positional information.
 - Basic toggle filters/grouping features to view raid information after the fact.

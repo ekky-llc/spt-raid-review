@@ -1,0 +1,7 @@
+{
+    "00_comment" : "If you change this port, please ensure match client settings using the F12 menu.",
+    "web_client_port": 7829,
+
+    "01_comment" : "If you change this port, please ensure match client settings using the F12 menu.",
+    "web_socket_port" : 7828
+}

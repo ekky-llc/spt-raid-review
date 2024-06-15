@@ -70,7 +70,10 @@ function ReadFile(parentFolder: string, subFolder: string = '', targetFolder: st
     try {
         let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
         let finalPath = paths.filter(path => path !== '').join('/');
-        return fs.readFileSync(finalPath, 'utf-8');
+        if (fs.existsSync(finalPath)) {
+            return fs.readFileSync(finalPath, 'utf-8');
+        }
+        return ''; 
     } 
     
     catch (error) {

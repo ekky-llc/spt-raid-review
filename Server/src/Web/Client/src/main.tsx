@@ -8,6 +8,7 @@ import Profile, { loader as coreLoader } from './pages/Profile'
 import Raid, { loader as raidLoader } from './pages/Raid';
 import MapView, { loader as mapLoader } from './pages/MapView';
 import About from "./pages/About";
+import RaidSettings, { loader as raidSettingsLoader } from './pages/RaidSettings';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
   {
     path: "/p/:profileId",
     element: <Profile />,
+    shouldRevalidate : () => true, 
     loader: coreLoader,
     children: [
       {
@@ -29,6 +31,11 @@ const router = createBrowserRouter([
             path: "/p/:profileId/raid/:raidId/map",
             loader: mapLoader,
             element: <MapView />,
+          },
+          {
+            path: "/p/:profileId/raid/:raidId/settings",
+            loader: raidSettingsLoader,
+            element: <RaidSettings />,
           },
         ],
       },

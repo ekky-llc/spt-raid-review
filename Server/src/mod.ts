@@ -1,6 +1,9 @@
 // @ts-ignore
 import { DependencyContainer } from "tsyringe";
 import { WebSocketServer } from "ws";
+import sqlite3 from "sqlite3";
+import { Database } from "sqlite";
+import _ from 'lodash';
 
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { IPostAkiLoadMod } from "@spt-aki/models/external/IPostAkiLoadMod";
@@ -10,13 +13,11 @@ import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
 import { MailSendService } from "@spt-aki/services/MailSendService";
 
+import config from '../config.json';
 import WebServer from "./Web/Server/Express";
 import { ExtractKeysAndValues } from "./Utils/utils";
 import { WriteLineToFile } from "./Controllers/Collection/DataSaver";
 import { database } from "./Controllers/Database/sqlite";
-import sqlite3 from "sqlite3";
-import { Database } from "sqlite";
-import _ from 'lodash';
 import CompileRaidPositionalData from "./Controllers/Collection/CompileRaidPositionalData";
 
 export let session_id = null;
@@ -114,7 +115,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     console.log(`[RAID-REVIEW] SPT-AKI Server Connected`);
 
     this.wss = new WebSocketServer({
-      port: 7828,
+      port: config.web_socket_port || 7828,
       perMessageDeflate: {
         zlibDeflateOptions: {
           chunkSize: 1024,

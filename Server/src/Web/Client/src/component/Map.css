@@ -32,7 +32,7 @@
     height: 80vh;
 }
 
-.leaflet-image-layer {
+.leaflet-image-layer, .leaflet-tile-container {
     filter: grayscale(1) sepia(1) brightness(0.8);
 }
 
@@ -113,6 +113,10 @@
 
 .tooltip.info {
     position: relative;
+}
+
+.leaflet-control-coordinates {
+  text-align: right;
 }
 
 .tooltip {
