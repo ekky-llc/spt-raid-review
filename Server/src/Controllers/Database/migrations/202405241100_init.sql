@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS player (
     "name" TEXT NOT NULL,
     "group" INTEGER NOT NULL,
     "spawnTime" INTEGER NOT NULL,
-    "brain" TEXT DEFAULT "UNKNOWN",
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("raidId") REFERENCES raid("id")
 );

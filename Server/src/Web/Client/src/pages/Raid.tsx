@@ -170,14 +170,13 @@ export default function Raid() {
     }
   }
 
-  function getPlayerBrain(playerId: string): string {
-    if (raidData && raidData.players) {
-      const player = raidData.players.find((p) => p.profileId === playerId);
-      console.log("getPlayerBrain of ", playerId, player);
-      return player ? player.brain : "UNKNOWN";
-    } else {
-      return "UNKNOWN";
+  function getPlayerBrain(player: TrackingRaidDataPlayers): string {
+    if(player) {
+      if (player.team === "Savage") {
+        return "";
+      } else return player.mod_SAIN_brain != null ? player.mod_SAIN_brain : "UNKNOWN";
     }
+    return "UNKNOWN"
   }
 
   function generateTimeline(filters: string[]): any {
@@ -320,7 +319,7 @@ export default function Raid() {
                             </div>
                             <span>
                             {/* @ts-ignore */}
-                              {getPlayerBrain(player.profileId)} [{player.level}] {team[player.team]}
+                              {getPlayerBrain(player)} [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}
