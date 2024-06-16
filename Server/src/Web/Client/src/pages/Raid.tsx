@@ -170,6 +170,16 @@ export default function Raid() {
     }
   }
 
+  function getPlayerBrain(playerId: string): string {
+    if (raidData && raidData.players) {
+      const player = raidData.players.find((p) => p.profileId === playerId);
+      console.log("getPlayerBrain of ", playerId, player);
+      return player ? player.brain : "UNKNOWN";
+    } else {
+      return "UNKNOWN";
+    }
+  }
+
   function generateTimeline(filters: string[]): any {
 
     if (raidData && raidData.kills && raidData.looting && raidData.players) {
@@ -310,7 +320,7 @@ export default function Raid() {
                             </div>
                             <span>
                             {/* @ts-ignore */}
-                              [{player.level}] {team[player.team]}
+                              {getPlayerBrain(player.profileId)} [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}

@@ -208,7 +208,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 break;
                 
               case "PLAYER":
-                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, brain) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database
                   .run(player_sql, [
                     this.raid_id,
@@ -218,6 +218,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                     payload_object.name,
                     payload_object.group,
                     payload_object.spawnTime,
+                    payload_object.brain,
                   ])
                   .catch((e: Error) => console.error(e));
 

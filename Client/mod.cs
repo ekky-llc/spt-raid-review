@@ -17,6 +17,7 @@ using SAIN;
 using SAIN.Plugin;
 using SAIN.SAINComponent;
 using SAIN.Preset.GlobalSettings.Categories;
+using SAIN.SAINComponent.Classes.Info;
 
 namespace RAID_REVIEW
 {
@@ -159,6 +160,7 @@ namespace RAID_REVIEW
                     newTrackingPlayer.group = 0;
                     newTrackingPlayer.spawnTime = stopwatch.ElapsedMilliseconds;
                     newTrackingPlayer.type = "HUMAN";
+                    newTrackingPlayer.brain = "PLAYER";
 
                     trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
                     Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));
@@ -190,6 +192,21 @@ namespace RAID_REVIEW
                         trackingPlayer.group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0;
                         trackingPlayer.spawnTime = captureTime;
                         trackingPlayer.type = player.IsAI ? "BOT" : "HUMAN";
+                        trackingPlayer.brain = "UNKNOWN";
+
+                        //get player SAIN brain type name
+                        if (SOLARINT_SAIN__DETECTED)
+                        {
+                            var sainBotInfo = player.GetComponent<SAINBotInfoClass>();
+                            if (sainBotInfo != null)
+                            {
+                                trackingPlayer.brain = Enum.GetName(typeof(EPersonality), sainBotInfo.GetPersonality());
+                            }
+                        }
+                        else
+                        {
+                            trackingPlayer.brain = player.IsAI ? trackingPlayer.brain = "SCAV" : trackingPlayer.brain = "PLAYER";
+                        }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
                         Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
