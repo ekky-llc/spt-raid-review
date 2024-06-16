@@ -1,0 +1,2 @@
+ALTER TABLE player
+ADD "mod_SAIN_brain" TEXT DEFAULT "UNKNOWN";

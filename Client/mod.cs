@@ -168,7 +168,7 @@ namespace RAID_REVIEW
                     newTrackingPlayer.group = 0;
                     newTrackingPlayer.spawnTime = stopwatch.ElapsedMilliseconds;
                     newTrackingPlayer.type = "HUMAN";
-                    newTrackingPlayer.brain = "PLAYER";
+                    newTrackingPlayer.mod_SAIN_brain = "PLAYER";
 
                     trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
                     Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));
@@ -200,7 +200,7 @@ namespace RAID_REVIEW
                         trackingPlayer.group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0;
                         trackingPlayer.spawnTime = captureTime;
                         trackingPlayer.type = player.IsAI ? "BOT" : "HUMAN";
-                        trackingPlayer.brain = "UNKNOWN";
+                        trackingPlayer.mod_SAIN_brain = "UNKNOWN";
 
                         //get player SAIN brain type name
                         if (SOLARINT_SAIN__DETECTED)
@@ -208,12 +208,12 @@ namespace RAID_REVIEW
                             var sainBotInfo = player.GetComponent<SAINBotInfoClass>();
                             if (sainBotInfo != null)
                             {
-                                trackingPlayer.brain = Enum.GetName(typeof(EPersonality), sainBotInfo.GetPersonality());
+                                trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), sainBotInfo.GetPersonality());
                             }
                         }
                         else
                         {
-                            trackingPlayer.brain = player.IsAI ? trackingPlayer.brain = "SCAV" : trackingPlayer.brain = "PLAYER";
+                            trackingPlayer.mod_SAIN_brain = player.IsAI ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PLAYER";
                         }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
