@@ -1,7 +1,22 @@
 {
-    "00_comment" : "If you change this port, please ensure match client settings using the F12 menu.",
+    "00_comment" : "[PORT] Changes Default HTTP port, use this if port is reserved in your environment.",
     "web_client_port": 7829,
 
-    "01_comment" : "If you change this port, please ensure match client settings using the F12 menu.",
-    "web_socket_port" : 7828
+    "01_comment" : "[PORT] Changes Default Web Socket port, use this if port is reserved in your environment.",
+    "web_socket_port" : 7828,
+
+    "02_comment": "[AUTH] Enable Basic Auth, use this setting if you'd like to password protect web server.",
+    "basic_auth" : false,
+
+    "03_comment" : "[AUTH] If Basic Auth Enabled, use this to register username/passwords.",
+    "users" : {
+        "admin" : "password",
+        "user_1" : "password"
+    },
+
+    "04_comment" : "[AUTH] If Basic Auth Enabled, use this to mark user as an admin.",
+    "admin" : {
+        "admin" : true,
+        "user_1" : false
+    }
 }

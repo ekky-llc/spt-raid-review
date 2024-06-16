@@ -1,13 +1,14 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import path from "path";
 import cors from "cors";
 import _ from "lodash";
 import { Database } from "sqlite";
 import sqlite3 from "sqlite3";
+import cookieParser from 'cookie-parser';
+import basicAuth from 'express-basic-auth';
 
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
-
 
 import config from '../../../config.json';
 import { getSessiondata } from "../../mod";
@@ -29,13 +30,52 @@ export interface TrackingPositionalData {
   created_at: Date;
 }
 
+function isUserAdmin(req: Request, res: Response, next: NextFunction) {
+
+  if (config.basic_auth && req.auth) {
+    console.log(`[RAID-REVIEW] Confirming if '${req.auth.user}' is an admin`);
+    const isAdmin = config.admin[req.auth.user];
+    if (isAdmin) {
+      console.log(`[RAID-REVIEW] '${req.auth.user}' is an admin.`);
+      return next();
+    }
+    res.status(401).json({ status: 'ERROR', message: 'You are not authorised.' })
+  }
+
+  return next();
+}
+
 function StartWebServer(
   saveServer: SaveServer,
   db: Database<sqlite3.Database, sqlite3.Statement>
 ) {
 
   app.use(cors());
-  app.use(express.json())
+  app.use(express.json());
+  app.use(cookieParser());
+
+  // Basic Auth has been implemented for people who host Fika remotely.
+  // It's not the greatest level of protection, but I cannot be arsed to implement oAuth for sucha niche use case.
+  if (config.basic_auth) {
+    app.use(basicAuth({
+      users: config.users,
+      challenge: true
+    }));
+
+    // Cookie Setter, currently used for the following:
+    // - is_admin : used to show/hide buttons that should only be visible to admins if basic auth is enabled.
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      if (config.basic_auth && req.cookies && config.admin[req.auth.user]) {
+        var is_admin_cookie = req.cookies.is_admin_cookie;
+        if (is_admin_cookie === undefined) {
+            let randomNumber = Math.random().toString();
+            randomNumber = randomNumber.substring(2,randomNumber.length);
+            res.cookie('is_admin_cookie', randomNumber, { maxAge: 900000 });
+        }
+      }
+      return next();
+    })
+  }
 
   const publicFolder = path.join(__dirname, "/public/");
   app.use(express.static(publicFolder));
@@ -88,7 +128,7 @@ function StartWebServer(
     }
   );
 
-  app.post("/api/profile/:profileId/raids/deleteAllData", async (req: Request, res: Response) => {
+  app.post("/api/profile/:profileId/raids/deleteAllData", isUserAdmin, async (req: Request, res: Response) => {
       const deletedRaids = [];
       try {
         let { raidIds } = req.body;
@@ -119,7 +159,7 @@ function StartWebServer(
     }
   );
 
-  app.post("/api/profile/:profileId/raids/deleteTempFiles", async (req: Request, res: Response) => {
+  app.post("/api/profile/:profileId/raids/deleteTempFiles", isUserAdmin, async (req: Request, res: Response) => {
       const deletedTempFiles = [];
       try {
         let { raidIds } = req.body;

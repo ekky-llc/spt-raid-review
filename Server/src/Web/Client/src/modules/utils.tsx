@@ -33,3 +33,8 @@ export function findInsertIndex(newObject : any, array :any) {
 
     return low;
 }
+
+export function getCookie(key: string) {
+    var b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
+    return b ? b.pop() : "";
+}

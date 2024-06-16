@@ -262,23 +262,29 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             "base": "base"
         };
 
-        // setCurrentMap(locations[raidData.location]);
-        setCurrentMap("interchange");
-
+        setCurrentMap(locations[raidData.location]);
+        // setCurrentMap("interchange");
+        
         const newEvents = []
-        for (let i = 0; i < raidData.kills.length; i++) {
-            const kill = raidData.kills[i];
-            newEvents.push({
-                time: kill.time,
-                profileId: kill.profileId,
-                profileNickname: raidData.players.find(p => p.profileId === kill.profileId).name,
-                killedId: kill.killedId,
-                killedNickname: raidData.players.find(p => p.profileId === kill.killedId).name,
-                weapon: kill.weapon,
-                distance: Number(kill.distance),
-                source: JSON.parse(kill.positionKiller),
-                target: JSON.parse(kill.positionKilled)
-            })
+        if (raidData && raidData.players) { 
+            for (let i = 0; i < raidData.kills.length; i++) {
+                const kill = raidData.kills[i];
+
+                const profileNickname = raidData.players.find(p => p.profileId === kill.profileId);
+                const killedNickname = raidData.players.find(p => p.profileId === kill.killedId);
+
+                newEvents.push({
+                    time: kill.time,
+                    profileId: kill.profileId,
+                    profileNickname : profileNickname ? profileNickname.name : 'Unknown',
+                    killedId: kill.killedId,
+                    killedNickname : killedNickname ? killedNickname.name  : 'Unknown',
+                    weapon: kill.weapon,
+                    distance: Number(kill.distance),
+                    source: JSON.parse(kill.positionKiller),
+                    target: JSON.parse(kill.positionKilled)
+                });
+            }
         }
 
         setEvents(newEvents);
@@ -490,392 +496,130 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         mapRef.current = map;
     }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
     
-
-    // useEffect(() => {
-    //     if (!mapData || mapData.projection !== 'interactive') {
-    //         return;
-    //     }
-    
-    //     let mapCenter = [0, 0];
-    //     let mapZoom = mapData.minZoom + 1;
-    //     let mapViewRestored = false;
-    //     const maxZoom = Math.max(7, mapData.maxZoom);
-        
-    //     if (mapRef.current?._leaflet_id) {
-    //         if (mapRef.current.options.id === mapData.id) {
-    //             if (mapViewRef.current.center) {
-    //                 mapCenter = [mapViewRef.current.center.lat, mapViewRef.current.center.lng];
-    //                 mapViewRestored = true;
-    //             }
-    //             if (typeof mapViewRef.current.zoom !== 'undefined') {
-    //                 mapZoom = mapViewRef.current.zoom;
-    //                 mapViewRestored = true;
-    //             }
-    //         } else {
-    //             mapViewRef.current.center = undefined;
-    //             mapViewRef.current.zoom = undefined;
-    //             mapViewRef.current.layer = undefined;
-    //         }
-    //         mapRef.current.remove();
-    //     }
-    
-    //     setProportionalScale(calculateProportionalRadius(mapData.bounds));
-    
-    //     const map = L.map('leaflet-map', {
-    //         maxBounds: getScaledBounds(mapData.bounds, 1.5),
-    //         center: mapCenter,
-    //         zoom: mapZoom,
-    //         minZoom: mapData.minZoom,
-    //         maxZoom: maxZoom,
-    //         zoomSnap: 0.1,
-    //         scrollWheelZoom: true,
-    //         wheelPxPerZoomLevel: 120,
-    //         crs: getCRS(mapData),
-    //         attributionControl: false,
-    //         id: mapData.id,
-    //     });
-    
-    //     SET_MAP(map);
-    
-    //     map.on('zoom', () => {
-    //         mapViewRef.current.zoom = map.getZoom();
-    //     });
-    
-    //     map.on('move', () => {
-    //         mapViewRef.current.center = map.getCenter();
-    //     });
-    
-    //     const bounds = getBounds(mapData.bounds);
-    //     const layerOptions = {
-    //         maxZoom: maxZoom,
-    //         maxNativeZoom: mapData.maxZoom,
-    //         extents: [
-    //             {
-    //                 height: mapData.heightRange || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
-    //                 bounds: [mapData.bounds],
-    //             }
-    //         ],
-    //         type: 'map-layer',
-    //     };
-    
-    //     if (selectedLayer === '') {
-    //         layerOptions.opacity = 1;
-    //     } else {
-    //         layerOptions.opacity = 0.3;
-    //     }
-    
-    //     const tileSize = mapData.tileSize || 256;
-    
-    //     const baseLayers = [];
-    //     if (mapData.tilePath) {
-    //         const tileLayer = L.tileLayer(mapData.tilePath, {
-    //             tileSize,
-    //             bounds,
-    //             ...layerOptions,
-    //         });
-    //         baseLayers.push(tileLayer);
-    //     }
-    
-    //     if (mapData.svgPath) {
-    //         const svgBounds = mapData.svgBounds ? getBounds(mapData.svgBounds) : bounds;
-    //         const svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, layerOptions);
-    //         baseLayers.push(svgLayer);
-    //     }
-
-    //     for (let i = 0; i < mapData.layers.length; i++) {
-    //         const layer = mapData.layers[i];
-            
-    //         if (layer.tilePath) {
-    //             const tileLayer = L.tileLayer(layer.tilePath, {
-    //                 tileSize,
-    //                 bounds,
-    //                 ...layerOptions,
-    //             });
-    //             baseLayers.push(tileLayer);
-    //         }
-        
-    //         if (layer.svgPath) {
-    //             const svgBounds = layer.svgBounds ? getBounds(layer.svgBounds) : bounds;
-    //             const svgLayer = L.imageOverlay(layer.svgPath, svgBounds, layerOptions);
-    //             baseLayers.push(svgLayer);
-    //         }
-
-    //     }        
-
-    //     const layerGroup = L.layerGroup(baseLayers).addTo(map);
-    
-    //     if (map && !mapViewRestored) {
-    //         map.setView(L.latLngBounds(bounds).getCenter(true), undefined, { animate: false });
-    //     }
-    
-    //     mapRef.current = map;
-    // }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
-    
-
-    // useEffect(() => {
-    //     if (!mapData || mapData.projection !== 'interactive') {
-    //         return;
-    //     }
-    
-    //     if (mapData.layers !== undefined) {
-    //         let newAvailableLayers = mapData.layers.map(x => ({ name: x.name, value: x.name }));
-    //         setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
-    //     }
-    
-    //     let mapCenter = [0, 0];
-    //     let mapZoom = mapData.minZoom + 1;
-    //     let mapViewRestored = false;
-    //     const maxZoom = Math.max(7, mapData.maxZoom);
-        
-    //     if (mapRef.current?._leaflet_id) {
-    //         if (mapRef.current.options.id === mapData.id) {
-    //             if (mapViewRef.current.center) {
-    //                 mapCenter = [mapViewRef.current.center.lat, mapViewRef.current.center.lng];
-    //                 mapViewRestored = true;
-    //             }
-    //             if (typeof mapViewRef.current.zoom !== 'undefined') {
-    //                 mapZoom = mapViewRef.current.zoom;
-    //                 mapViewRestored = true;
-    //             }
-    //         } else {
-    //             mapViewRef.current.center = undefined;
-    //             mapViewRef.current.zoom = undefined;
-    //             mapViewRef.current.layer = undefined;
-    //         }
-    //         mapRef.current.remove();
-    //     }
-    
-    //     setProportionalScale(calculateProportionalRadius(mapData.bounds));
-    
-    //     const map = L.map('leaflet-map', {
-    //         maxBounds: getScaledBounds(mapData.bounds, 1.5),
-    //         center: mapCenter,
-    //         zoom: mapZoom,
-    //         minZoom: mapData.minZoom,
-    //         maxZoom: maxZoom,
-    //         zoomSnap: 0.1,
-    //         scrollWheelZoom: true,
-    //         wheelPxPerZoomLevel: 120,
-    //         crs: getCRS(mapData),
-    //         attributionControl: false,
-    //         id: mapData.id,
-    //     });
-    
-    //     SET_MAP(map);
-    
-    //     map.on('zoom', () => {
-    //         mapViewRef.current.zoom = map.getZoom();
-    //     });
-    
-    //     map.on('move', () => {
-    //         mapViewRef.current.center = map.getCenter();
-    //     });
-    
-    //     const bounds = getBounds(mapData.bounds);
-    //     const layerOptions = {
-    //         maxZoom: maxZoom,
-    //         maxNativeZoom: mapData.maxZoom,
-    //         extents: [
-    //             {
-    //                 height: mapData.heightRange || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
-    //                 bounds: [mapData.bounds],
-    //             }
-    //         ],
-    //         type: 'map-layer',
-    //     };
-    
-    //     if (selectedLayer === '') {
-    //         layerOptions.opacity = 1;
-    //     } else {
-    //         layerOptions.opacity = 0.3;
-    //     }
-    
-    //     const tileSize = mapData.tileSize || 256;
-
-    //     const baseLayers = [];
-    //     if (mapData.tilePath) {
-    //         const tileLayer = L.tileLayer(mapData.tilePath, {
-    //             tileSize,
-    //             bounds,
-    //             ...layerOptions,
-    //         });
-    //         baseLayers.push(tileLayer);
-    //         tileLayer.addTo(map);
-    //     }
-    
-    //     if (mapData.svgPath) {
-    //         const svgBounds = mapData.svgBounds ? getBounds(mapData.svgBounds) : bounds;
-    //         const svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, layerOptions);
-    //         baseLayers.push(svgLayer);
-    //         svgLayer.addTo(map);
-    //     }
-    
-    //     let baseLayer = baseLayers[0];
-
-        
-    //     if (mapData.layers.length > 0) {
-    //         for (const layer of mapData.layers) {
-    //             let heightLayer;
-    //             console.log(selectedLayer, layer.name)
-    
-    //             const layerOptions = {
-    //                 name: layer.name,
-    //                 extents: layer.extents || baseLayer.options?.extents,
-    //                 type: "map-layer",
-    //                 overlay: Boolean(layer.extents),
-    //             };
-    
-    //             // Check the selected style and layer name
-    //             if (selectedStyle === 'tile' && selectedLayer === layer.name) {
-    //                 heightLayer = L.tileLayer(layer.tilePath, {
-    //                     tileSize,
-    //                     bounds,
-    //                     ...layerOptions,
-    //                 });
-    //                 heightLayer.addTo(map);
-    //             } else if (selectedStyle === 'svg' && selectedLayer === layer.name) {
-    //                 heightLayer = L.imageOverlay(layer.svgPath, bounds, layerOptions);
-    //                 heightLayer.addTo(map);
-    //             }
-
-    
-    //             // Only create the layer group if heightLayer is defined
-    //             if (heightLayer) {
-    //                 L.layerGroup([heightLayer], {
-    //                     attribution: layer.name
-    //                 }).addTo(map);
-    //             }
-
-    //         }
-    //     }
-    
-    //     if (map && !mapViewRestored) {
-    //         map.setView(L.latLngBounds(bounds).getCenter(true), undefined, {animate: false});
-    //     }
-    
-    //     mapRef.current = map;
-    // }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
-    
     // Positon Renderer
-    useEffect(() => {             
+    useEffect(() => {    
+        
+        requestAnimationFrame(() => {
 
-        let times = [];
+            let times = [];
 
-        if (MAP) {
-            clearMap(MAP)
-        }
-
-        for (let i = 0; i < positions.length; i++) {
-            const playerPositions = positions[i];
-            const cleanPositions = [];
-            let currentDirection = 0;
-            
-            const currentIndexId = playerPositions[0].profileId;
-            const isPlayerDead = events.find(e => e.killedId === currentIndexId && e.time < timeEndLimit);
-
-            for (let j = 0; j < playerPositions.length; j++) {
-                const playerPosition = playerPositions[j];
-                times.push(playerPosition.time);
-
-
-                if (timeEndLimit && timeStartLimit) {
-                    if (playerPosition.time > (!isPlayerDead ? timeStartLimit : (timeEndLimit * -1000)) && playerPosition.time < timeEndLimit ) {
-                        cleanPositions.push([playerPosition.z, playerPosition.x])
-                    }
-                }
-
-                if (playerPositions.length - 1 === j) {
-                    currentDirection = playerPosition.dir;
-                }
-
+            if (MAP) {
+                clearMap(MAP)
             }
 
-            const pickedColor = colors[i % colors.length];
-
-            // Hide player movement if enabled
-            if (!hidePlayers && MAP && cleanPositions.length > 0) {
-
-                // If player is focused, opacques out all other players
-                if (playerFocus !== null && playerFocus === i) {
-                    L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                    L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                } else {
-                    L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                    if (!isPlayerDead) {
-
-                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, opacity: isPlayerDead ? 0 : 0.1, fillOpacity: 1, fillRule: 'nonzero' })
-                        .addTo(MAP);
-
-                        if (followPlayer === i) {
-                            MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
-                        }
-                    }
-                }
+            for (let i = 0; i < positions.length; i++) {
+                const playerPositions = positions[i];
+                const cleanPositions = [];
+                let currentDirection = 0;
                 
-                // Normal rendering
-                if (playerFocus === null) {
-                    L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                    if (!isPlayerDead) {
+                const currentIndexId = playerPositions[0].profileId;
+                const isPlayerDead = events.find(e => e.killedId === currentIndexId && e.time < timeEndLimit);
 
-                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' })
-                        .addTo(MAP);
+                for (let j = 0; j < playerPositions.length; j++) {
+                    const playerPosition = playerPositions[j];
+                    times.push(playerPosition.time);
 
-                        if (followPlayer === i) {
-                            if (!followPlayerZoomed) {
-                                MAP.setZoom(3)
 
-                                // This is here to make sure the user can adjust zoom as a player is followed
-                                setFollowPlayerZoomed(true);
-                            }
-                            MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                    if (timeEndLimit && timeStartLimit) {
+                        if (playerPosition.time > (!isPlayerDead ? timeStartLimit : (timeEndLimit * -1000)) && playerPosition.time < timeEndLimit ) {
+                            cleanPositions.push([playerPosition.z, playerPosition.x])
                         }
                     }
+
+                    if (playerPositions.length - 1 === j) {
+                        currentDirection = playerPosition.dir;
+                    }
+
                 }
 
-            }
-        }
+                const pickedColor = colors[i % colors.length];
 
-        for (let i = 0; i < events.length; i++) {
-            const e = events[i];
-            
-            const toBeIndex = findInsertIndex(e.time, sliderTimes);
-            if (toBeIndex < timeCurrentIndex) {
-                if (!hideEvents && MAP) {
-                    if (preserveHistory || toBeIndex > (timeCurrentIndex - 200)) {
-                        var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
-                        L.marker([e.source.z, e.source.x], {icon: killerIcon}).addTo(MAP);
-                        L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3,  opacity: 0.75 }).addTo(MAP);
+                // Hide player movement if enabled
+                if (!hidePlayers && MAP && cleanPositions.length > 0) {
+
+                    // If player is focused, opacques out all other players
+                    if (playerFocus !== null && playerFocus === i) {
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                    } else {
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        if (!isPlayerDead) {
+
+                            L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, opacity: isPlayerDead ? 0 : 0.1, fillOpacity: 1, fillRule: 'nonzero' })
+                            .addTo(MAP);
+
+                            if (followPlayer === i) {
+                                MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                            }
+                        }
                     }
                     
-                    var deathHtml = `☠️<span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`
-                    var deathIcon = L.divIcon({className: 'death-icon tooltip event', html:deathHtml });
-                    L.marker([e.target.z, e.target.x], {icon: deathIcon}).addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
+                    // Normal rendering
+                    if (playerFocus === null) {
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        if (!isPlayerDead) {
+
+                            L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' })
+                            .addTo(MAP);
+
+                            if (followPlayer === i) {
+                                if (!followPlayerZoomed) {
+                                    MAP.setZoom(3)
+
+                                    // This is here to make sure the user can adjust zoom as a player is followed
+                                    setFollowPlayerZoomed(true);
+                                }
+                                MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                            }
+                        }
+                    }
+
                 }
             }
-        }
-        
-        if (sliderTimes.length === 0) {
-            times = _.chain(times).uniq().sort((t) => t).value();
-            setSliderTimes(times);
-            setTimeStartLimit(times[0]);
-            setTimeEndLimit(times[times.length - 1]);
-            setTimeCurrentIndex(times.length - 1);
-        }
 
-        if (preserveHistory) {
-            setTimeStartLimit(sliderTimes[0])
-        } else {
-            setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - 200)]);
-        }
-
-        function clearMap(m) {
-            for (const key in m._layers) {
-                const layer = m._layers[key];
-                if (layer._path !== undefined || layer._icon !== undefined) {
-                    m.removeLayer(layer)
+            for (let i = 0; i < events.length; i++) {
+                const e = events[i];
+                
+                const toBeIndex = findInsertIndex(e.time, sliderTimes);
+                if (toBeIndex < timeCurrentIndex) {
+                    if (!hideEvents && MAP) {
+                        if (preserveHistory || toBeIndex > (timeCurrentIndex - 200)) {
+                            var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
+                            L.marker([e.source.z, e.source.x], {icon: killerIcon}).addTo(MAP);
+                            L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3,  opacity: 0.75 }).addTo(MAP);
+                        }
+                        
+                        var deathHtml = `☠️<span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`
+                        var deathIcon = L.divIcon({className: 'death-icon tooltip event', html:deathHtml });
+                        L.marker([e.target.z, e.target.x], {icon: deathIcon}).addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
+                    }
                 }
             }
-        }
+            
+            if (sliderTimes.length === 0) {
+                times = _.chain(times).uniq().sort((t) => t).value();
+                setSliderTimes(times);
+                setTimeStartLimit(times[0]);
+                setTimeEndLimit(times[times.length - 1]);
+                setTimeCurrentIndex(times.length - 1);
+            }
+
+            if (preserveHistory) {
+                setTimeStartLimit(sliderTimes[0])
+            } else {
+                setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - 200)]);
+            }
+
+            function clearMap(m) {
+                for (const key in m._layers) {
+                    const layer = m._layers[key];
+                    if (layer._path !== undefined || layer._icon !== undefined) {
+                        m.removeLayer(layer)
+                    }
+                }
+            }
+
+        });
 
     }, [mapData, mapRef, navigate, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus]);
 

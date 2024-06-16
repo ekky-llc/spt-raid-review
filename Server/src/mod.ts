@@ -19,6 +19,8 @@ import { ExtractKeysAndValues } from "./Utils/utils";
 import { WriteLineToFile } from "./Controllers/Collection/DataSaver";
 import { database } from "./Controllers/Database/sqlite";
 import CompileRaidPositionalData from "./Controllers/Collection/CompileRaidPositionalData";
+import { NotificationLimiter } from './types'
+import { NOTIFICATION_LIMITER_DEFAULT } from "./Utils/constant";
 
 export let session_id = null;
 export let profile_id = null;
@@ -40,6 +42,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   wss: WebSocketServer;
   logger: ILogger;
   raid_id: string;
+  notificationLimiter: NotificationLimiter;
   post_process: boolean;
   saveServer: SaveServer;
   mailSendService: MailSendService;
@@ -50,6 +53,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     this.raid_id = "";
     this.database = null;
     this.post_process = true;
+    this.notificationLimiter = NOTIFICATION_LIMITER_DEFAULT;
   }
 
   public preAkiLoad(container: DependencyContainer): void {
@@ -178,6 +182,11 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   payload_object.detectedMods || '',
                 ]);
 
+                if(!this.notificationLimiter.raid_start && this.raid_id) {
+                  this.notificationLimiter.raid_start = true;
+                  this.wss.send("RECORDING_START");
+                }
+
                 break;
 
               case "END":
@@ -200,6 +209,14 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
                 CompileRaidPositionalData(this.raid_id);
 
+                if(this.notificationLimiter.raid_end && this.raid_id) {
+                  this.notificationLimiter.raid_end = true;
+                  this.wss.send("RECORDING_END");
+                }
+
+                // Reset the notification limiter for the next raid
+                this.notificationLimiter = NOTIFICATION_LIMITER_DEFAULT;
+
                 this.raid_id = "";
                 console.log(`[RAID-REVIEW] Clearing Raid Id`);
 
@@ -221,6 +238,11 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
+                  if(this.notificationLimiter.player && this.raid_id) {
+                    this.notificationLimiter.player = true;
+                    this.wss.send("RECORDING__DEBUG__PLAYER");
+                  }
+
                 break;
 
               case "KILL":
@@ -239,12 +261,22 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
+                  if(this.notificationLimiter.kill && this.raid_id) {
+                    this.notificationLimiter.kill = true;
+                    this.wss.send("RECORDING__DEBUG__KILL");
+                  }
+
                 break;
 
               case "POSITION":
 
                 filename = `${this.raid_id}_positions`;
                 WriteLineToFile('positions', '', '', filename, keys, values);
+
+                if(this.notificationLimiter.position && this.raid_id) {
+                  this.notificationLimiter.position = true;
+                  this.wss.send("RECORDING__DEBUG__POSITION");
+                }
 
                 break;
 
@@ -263,6 +295,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
+                  if(this.notificationLimiter.loot && this.raid_id) {
+                    this.notificationLimiter.loot = true;
+                    this.wss.send("RECORDING__DEBUG__LOOT");
+                  }
 
                 break;
 

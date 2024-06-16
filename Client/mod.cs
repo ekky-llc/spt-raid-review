@@ -20,12 +20,13 @@ using SAIN.Preset.GlobalSettings.Categories;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("RAID_REVIEW", "RAID_REVIEW", "0.0.3")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.4")]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
         public static float updateInterval = 0.0f;
         public static float lastUpdateTime = 0.0f;
+        public static float PlayerTrackingInterval = 5f;
 
         // RAID_REVIEW
         public static bool inRaid = false;
@@ -38,7 +39,6 @@ namespace RAID_REVIEW
         public static Dictionary<string, Vector3> lastPlayerPosition = new Dictionary<string, Vector3>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
         public static Stopwatch stopwatch = new Stopwatch();
-        public static float PlayerTrackingInterval = 5f;
 
         // EFT
         public static GameWorld gameWorld;
@@ -51,12 +51,15 @@ namespace RAID_REVIEW
         public static ConfigEntry<KeyboardShortcut> LaunchWebpageKey;
         public static ConfigEntry<bool> PlayerTracking;
         public static ConfigEntry<bool> InsertMenuItem;
+        public static ConfigEntry<bool> RecordingNotification;
+        public static ConfigEntry<bool> VerboseNotifications;
         public static ConfigEntry<bool> KillTracking;
         public static ConfigEntry<bool> LootTracking;
         public static ConfigEntry<bool> ExtractTracking;
         public static ConfigEntry<string> ServerAddress;
         public static ConfigEntry<string> ServerWsPort;
         public static ConfigEntry<string> ServerHttpPort;
+        public static ConfigEntry<bool> ServerTLS;
         public static GameObject Hook;
 
         // Other Mods
@@ -66,17 +69,22 @@ namespace RAID_REVIEW
         {
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Mod Loaded");
 
-            LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the 'Stats Mod' webpage in your default browser.");
-            InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item insertion to launch the reviewer.");
-            ServerAddress = Config.Bind<string>("Main", "Server Ip", "127.0.0.1", "Ip address of the server."); 
-            ServerWsPort = Config.Bind<string>("Main", "Server WS Port", "7828", "Listen port of the raid review websocket server.");
-            ServerHttpPort = Config.Bind<string>("Main", "Server Http Port", "7829", "Listen port of the raid review http server.");
+            // Configuration Bindings
+            LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the web client.");
+            InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
+            RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", false, "Enables notifications as recording starts and ends.");
+            VerboseNotifications = Config.Bind<bool>("Main", "Verbose Notifications", false, "Enables all notifications [DEBUG MODE].");
+            ServerAddress = Config.Bind<string>("Server", "1. Server IP", "127.0.0.1", "IP address of the server."); 
+            ServerWsPort = Config.Bind<string>("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");
+            ServerHttpPort = Config.Bind<string>("Server", "3. Server HTTP Port", "7829", "Listen port of the raid review http server.");
+            ServerTLS = Config.Bind<bool>("Server", "4. TLS", false, "Enable if you are using an SSL Certificate infront of your http server.");
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
-            KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of players and bots kills.");
-            LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of players and bots looting activities.");
+            KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
+            LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
             
+            // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
-            RAID_REVIEW_HTTP_Server = "ws://" + ServerAddress.Value + ":" + ServerHttpPort.Value;
+            RAID_REVIEW_HTTP_Server = (ServerTLS.Value ? "https://" : "http://") + ServerAddress.Value + ":" + ServerHttpPort.Value;
 
             Hook = new GameObject();
 
@@ -212,7 +220,7 @@ namespace RAID_REVIEW
                             if (player == null || gameWorld == null)
                             {
                                 Logger.LogWarning("Player or gameWorld is null, skipping this iteration.");
-                                continue;  // Use continue if inside a loop, otherwise use return or break as needed
+                                continue;
                             }
 
                             Vector3 playerPosition = player.Position;
@@ -241,7 +249,6 @@ namespace RAID_REVIEW
 
                             var trackingPlayerData = new TrackingPlayerData(player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
 
-                            // Ensure Telemetry.Send and JsonConvert.SerializeObject are not causing issues
                             try
                             {
                                 List<ValidationResult> _validationResults;
@@ -257,7 +264,6 @@ namespace RAID_REVIEW
                                 Logger.LogError($"Telemetry sending failed: {ex.Message}");
                             }
 
-                            // Update the last position and check if it has changed
                             Vector3 lastPositionVal;
                             if (lastPlayerPosition.TryGetValue(player.ProfileId, out lastPositionVal))
                             {

@@ -8,6 +8,7 @@ import en from "../assets/en.json";
 import "./Raid.css";
 import { TrackingRaidData, TrackingRaidDataPlayers } from "../types/api_types";
 import { locations } from "./Profile";
+import { getCookie } from "../modules/utils";
 
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
@@ -27,6 +28,7 @@ export async function loader(loaderData: any) {
 
 export default function Raid() {
   const [ filters, setFilters ] = useState(["KILLS"]);
+  const [ isAdmin, setIsAdmin ] = useState(false);
   const [ playerFilter, setPlayerFilter ] = useState([] as string[]);
   const [ raidSummary, setRaidSummary ] = useState([] as { title: string, value: any }[]);
   const [ playersByGroup, setPlayersByGroup ] = useState({} as { [key:string] : TrackingRaidDataPlayers[] })
@@ -34,8 +36,15 @@ export default function Raid() {
   const [ playerGrouping, setPlayerGrouping ] = useState(true);
   const { profileId, raidData } = useLoaderData() as { profileId: string; raidData: TrackingRaidData; };
 
+  
+
   useEffect(() => {
     if (raidData === undefined) return;
+
+    const is_admin_cookie = getCookie('is_admin_cookie')
+    if (is_admin_cookie) {
+      setIsAdmin(true);
+    }
 
     const groupedPlayers = _.chain(raidData.players).map(p => {
       if (p.team === 'Savage') {
@@ -248,9 +257,12 @@ export default function Raid() {
             <p>{ raidSum.value }</p>
           </div>) }
         </div>
-        <Link to={`/p/${profileId}/raid/${raidData.raidId}/settings`} className="raid_more_settings cursor-pointer bg-eft p-1 text-xs font-black flex hover:opacity-75">
+        {
+          isAdmin ? 
+          <Link to={`/p/${profileId}/raid/${raidData.raidId}/settings`} className="raid_more_settings cursor-pointer bg-eft p-1 text-xs font-black flex hover:opacity-75">
             Settings
-        </Link>
+          </Link> : ''
+        }
       </section>
       <section className="flex w-100 gap-4">
         <div className="border border-eft w-2/6 py-4 px-6">
