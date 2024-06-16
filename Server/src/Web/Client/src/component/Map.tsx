@@ -686,6 +686,18 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         }
     }
 
+    function getPlayerBrain(player: TrackingRaidDataPlayers): string {
+        if(player) {
+          if (player.team === 'Savage') {
+            return "(SCAV)";
+          } else if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
+            return "(PMC)"
+          }
+          else return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+        }
+        return "(UNKNOWN)"
+      }
+
     return (
         <div className="map-container" key="map-wrapper">
             <div className='parent'>
@@ -706,7 +718,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : colors[index]}}></span>
                                         <span>
-                                            {player.name}
+                                            {player.name} {getPlayerBrain(player)}
                                         </span>
                                     </div>
                                     { followPlayer === index ? 
