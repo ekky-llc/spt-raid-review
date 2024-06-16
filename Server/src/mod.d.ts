@@ -47,6 +47,7 @@ export interface TrackingPlayer {
   type: string;
   group: string;
   spawnTime: number;
+  brain: string;
 }
 
 export interface TrackingRaidKill {
