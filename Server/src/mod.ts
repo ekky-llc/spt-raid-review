@@ -146,6 +146,12 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
       ws.on("message", async (str: string) => {
         try {
+
+          if (str.includes('WS_CONNECTED')) {
+            console.log(`[RAID-REVIEW] Web Socket Client Connected`);
+            return;
+          }
+
           let data = JSON.parse(str);
           let filename = '';
 

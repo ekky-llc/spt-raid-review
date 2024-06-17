@@ -72,7 +72,7 @@ namespace RAID_REVIEW
             // Configuration Bindings
             LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the web client.");
             InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
-            RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", false, "Enables notifications as recording starts and ends.");
+            RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", true, "Enables notifications as recording starts and ends.");
             VerboseNotifications = Config.Bind<bool>("Main", "Verbose Notifications", false, "Enables all notifications [DEBUG MODE].");
             ServerAddress = Config.Bind<string>("Server", "1. Server IP", "127.0.0.1", "IP address of the server."); 
             ServerWsPort = Config.Bind<string>("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");

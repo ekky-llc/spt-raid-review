@@ -23,24 +23,25 @@ namespace RAID_REVIEW
 
             ws = new WebSocket(host);
 
-            ws.OnOpen += (sender, e) => Logger.LogInfo("WebSocket connected.");
-            ws.OnMessage += (sender, e) => Logger.LogInfo($"WebSocket message received: {e.Data}");
-            ws.OnError += (sender, e) => Logger.LogError($"WebSocket error: {e.Message}");
-            ws.OnClose += (sender, e) => Logger.LogInfo("WebSocket closed.");
+            ws.OnOpen += (sender, e) => { 
+                Logger.LogInfo("[RAID-REVIEW] WebSocket connected."); 
+                ws.Send("WS_CONNECTED"); 
+            };
+
+            ws.OnMessage += (sender, e) =>
+            {
+                Logger.LogInfo("[RAID-REVIEW] Received message: " + e.Data);
+                HandleMessage(e.Data);
+            };
+
+            ws.OnError += (sender, e) => Logger.LogError($"[RAID-REVIEW] WebSocket error: {e.Message}");
+            ws.OnClose += (sender, e) => Logger.LogInfo("[RAID-REVIEW] WebSocket closed.");
 
             Task.Run(() =>
             {
                 try
                 {
                     ws.Connect();
-
-                    ws.OnMessage += (sender, e) =>
-                    {
-                        Logger.LogInfo("[RAID-SERVER] Received message: " + e.Data);
-                        HandleMessage(e.Data);
-                    };
-
-                    Logger.LogError("WebSocket is connected.");
                 }
                 catch (System.Exception ex)
                 {
