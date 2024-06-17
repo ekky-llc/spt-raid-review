@@ -202,13 +202,14 @@ namespace RAID_REVIEW
                         trackingPlayer.type = player.IsAI ? "BOT" : "HUMAN";
                         trackingPlayer.mod_SAIN_brain = "UNKNOWN";
 
-                        //get player SAIN brain type name
+                        //get player mod_SAIN brain type name
                         if (SOLARINT_SAIN__DETECTED)
                         {
-                            var sainBotInfo = player.GetComponent<SAINBotInfoClass>();
-                            if (sainBotInfo != null)
+                            var botComponent = player.GetComponent<BotComponent>();
+                            if(botComponent != null)
                             {
-                                trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), sainBotInfo.GetPersonality());
+                                var brain = botComponent.Info.Personality;
+                                trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), brain);
                             }
                         }
                         else
