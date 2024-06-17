@@ -188,6 +188,15 @@ export default function Raid() {
     }
   }
 
+  function getPlayerBrain(player: TrackingRaidDataPlayers): string {
+    if(player) {
+      if (player.team === "Savage") {
+        return "";
+      } else return player.mod_SAIN_brain != null ? player.mod_SAIN_brain : "UNKNOWN";
+    }
+    return "UNKNOWN"
+  }
+
   function generateTimeline(filters: string[]): any {
 
     if (raidData && raidData.kills && raidData.looting && raidData.players) {
@@ -331,7 +340,7 @@ export default function Raid() {
                             </div>
                             <span>
                             {/* @ts-ignore */}
-                              [{player.level}] {team[player.team]}
+                              {getPlayerBrain(player)} [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}

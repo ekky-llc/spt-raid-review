@@ -49,6 +49,7 @@ export interface TrackingPlayer {
   type: string;
   group: string;
   spawnTime: number;
+  mod_SAIN_brain: string;
 }
 
 export interface TrackingRaidKill {
