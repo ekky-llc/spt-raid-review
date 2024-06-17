@@ -1,8 +1,7 @@
-export interface TrackingCoreData {
-  raids: TrackingCoreDataRaids[];
-}
+
 export interface TrackingCoreDataRaids {
   id: string;
+  raidId: string;
   playerId: string;
   location: string;
   time: Date;
@@ -68,4 +67,8 @@ export interface TrackingRaidDataLoot {
   qty: string
   type: string
   added: string
+}
+
+export interface RaidReviewServerSettings {
+  telemetry_enabled: string,
 }

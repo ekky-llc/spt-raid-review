@@ -15,6 +15,7 @@ import { getSessiondata } from "../../mod";
 import { DeleteFile, FileExists, ReadFile } from "../../Controllers/Collection/DataSaver";
 import CompileRaidPositionalData from "../../Controllers/Collection/CompileRaidPositionalData";
 import { generateInterpolatedFramesBezier } from "../../Utils/utils";
+import { mkdirSync, rmSync, rmdirSync } from "fs";
 
 const app: Express = express();
 const port = config.web_client_port || 7829;
@@ -63,16 +64,31 @@ function StartWebServer(
     }));
 
     // Cookie Setter, currently used for the following:
-    // - is_admin : used to show/hide buttons that should only be visible to admins if basic auth is enabled.
+    // - is_auth_configured : used to determine if 'is_admin' should even be considered to toggle visbility.
+    // - is_admin : used to show/hide buttons that should only be visible to admins if 'Basic Auth' is enabled.
     app.use((req: Request, res: Response, next: NextFunction) => {
+      
+      // is_auth_configured
+      if (config.basic_auth) {
+        var is_auth_configured = req.cookies.is_auth_configured;
+        if (is_auth_configured === undefined) {
+            res.cookie('is_auth_configured', 'true', { maxAge: 900000 });
+        }
+      } else {
+        var is_auth_configured = req.cookies.is_auth_configured;
+        if (is_auth_configured === undefined) {
+            res.cookie('is_auth_configured', 'false', { maxAge: 900000 });
+        }
+      }
+
+      // is_admin
       if (config.basic_auth && req.cookies && config.admin[req.auth.user]) {
         var is_admin_cookie = req.cookies.is_admin_cookie;
         if (is_admin_cookie === undefined) {
-            let randomNumber = Math.random().toString();
-            randomNumber = randomNumber.substring(2,randomNumber.length);
-            res.cookie('is_admin_cookie', randomNumber, { maxAge: 900000 });
+            res.cookie('is_admin_cookie', 'true', { maxAge: 900000 });
         }
       }
+
       return next();
     })
   }
@@ -84,11 +100,57 @@ function StartWebServer(
     return res.sendFile(path.join(__dirname, "/public/index.html"));
   });
 
-  app.get("/api/profile/active", (req: Request, res: Response) => {
-    let { session_id, profile_id } = getSessiondata();
-    if (!session_id && !profile_id)
-      return res.json({ profileId: null, sessionId: session_id });
-    return res.json({ profileId: profile_id, sessionId: session_id });
+  app.get("/api/server/settings", isUserAdmin, async (req: Request, res: Response) => {
+    try {
+      const sqlSettingsQuery = `SELECT * FROM setting ORDER BY id ASC`;
+      const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e));
+      const settings = _.groupBy(data, 'key');
+      res.json(settings);
+    } catch (error) {
+      res.json(null);
+    }
+  });
+
+  app.put("/api/server/settings", isUserAdmin, async (req: Request, res: Response) => {
+    try {
+      const settingsToUpdate = req.body() as { key: string, value: string }[];
+
+      // Could improve this into a single query...
+      for (let i = 0; i < settingsToUpdate.length; i++) {
+        const setting = settingsToUpdate[i];
+        const sqlSettingsQuery = `UPDATE setting * SET value = ? WHERE key = ?`;
+        const sqlSettingsValues = [setting.key, setting.value]
+        await db.all(sqlSettingsQuery, sqlSettingsValues).catch((e: Error) => console.error(e));
+      }
+      
+      // I'm not too worried about performance, I just need it to work right now...
+      const sqlSettingsQuery = `SELECT * FROM setting ORDER BY id ASC`;
+      const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e));
+      const settings = _.groupBy(data, 'key');
+      res.json(settings);
+    } catch (error) {
+      res.json(null);
+    }
+  });
+
+  app.get("/api/server/deleteAllData", isUserAdmin, async (req: Request, res: Response) => {
+    try {
+
+      // Burn it all
+      const keys = ["raid", "kills", "looting", "player"];
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const sqlKeyQuery = `DELETE FROM ${key}`;
+        await db.all(sqlKeyQuery).catch((e: Error) => console.error(e));
+
+        rmSync(`${__dirname}/../../../data/positions`, { force: true, recursive: true });
+        mkdirSync(`${__dirname}/../../../data/positions`);
+      }
+
+      res.json(true);
+    } catch (error) {
+      res.json(true);
+    }
   });
 
   app.get("/api/profile/all", (req: Request, res: Response) => {

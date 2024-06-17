@@ -36,13 +36,22 @@ export default function Raid() {
   const [ playerGrouping, setPlayerGrouping ] = useState(true);
   const { profileId, raidData } = useLoaderData() as { profileId: string; raidData: TrackingRaidData; };
 
-  
-
   useEffect(() => {
     if (raidData === undefined) return;
 
-    const is_admin_cookie = getCookie('is_admin_cookie')
-    if (is_admin_cookie) {
+    // If Basic Auth is on, check if is_admin
+    const is_auth_configured_cookie = getCookie('is_auth_configured_cookie');
+    if (is_auth_configured_cookie === "true") {
+
+      // If is admin, display raid settings.
+      const is_admin_cookie = getCookie('is_admin_cookie');
+      if (is_admin_cookie === "true") {
+        setIsAdmin(true);
+      }
+    } 
+    
+    // If Basic Auth is off, display raid settings.
+    else {
       setIsAdmin(true);
     }
 
@@ -260,7 +269,7 @@ export default function Raid() {
         {
           isAdmin ? 
           <Link to={`/p/${profileId}/raid/${raidData.raidId}/settings`} className="raid_more_settings cursor-pointer bg-eft p-1 text-xs font-black flex hover:opacity-75">
-            Settings
+            Raid Settings
           </Link> : ''
         }
       </section>

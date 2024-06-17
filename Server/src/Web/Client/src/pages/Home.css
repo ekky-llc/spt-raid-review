@@ -16,3 +16,7 @@
     display: grid;
     place-content: center;
 }
+
+.home-message {
+    max-width: 500px;
+}

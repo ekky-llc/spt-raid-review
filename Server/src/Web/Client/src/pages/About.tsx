@@ -11,7 +11,7 @@ export async function loader() {
 export default function About() {
     return (
         <div className="text-eft font-mono overflow-x-auto">
-            <div className='border border-eft px-4 py-2 w-3/6 mb-4'>
+            <div className='border border-eft px-4 py-2 mb-4'>
                 <strong className='underline'>How To / Info</strong>
                 <p className='mb-4'>
                     Play a raid, once the mod has collected information you'll be sent a notification in-game and you'll see the raids on the left hand side to review.
@@ -26,7 +26,7 @@ export default function About() {
                 </div>
             </div>
 
-            <div className='border border-eft px-4 py-2 w-3/6 mb-4'>
+            <div className='border border-eft px-4 py-2 mb-4'>
                 <strong className='underline'>Known Issues</strong>
                 <ul className="mb-0">
                     <li>
@@ -35,7 +35,7 @@ export default function About() {
                 </ul>
             </div>
 
-            <div className='border border-eft px-4 py-2 w-3/6 mb-4'>
+            <div className='border border-eft px-4 py-2 mb-4'>
                 <strong className='underline'>Features</strong>
                 <ul className="mb-0">
                     <li>
@@ -65,40 +65,14 @@ export default function About() {
                 </ul>
             </div>
 
-            <div className='border border-eft px-4 py-2 w-3/6 mb-4'>
+            <div className='border border-eft px-4 py-2 mb-4'>
                 <strong className='underline'>Roadmap</strong>
-                <ul className='mb-4'>
-                    <li>
-                        - [Feature] Share a raid, nuff' said.
-                    </li>
-                    <li>    
-                        - [Feature] Favourite/highlights feature, similar to "twitch clips" for referencing back to specifc moments.
-                    </li>
-                    <li>    
-                        - [Feature] Ballistics/rounds fired stats, visualize this in a focused "firefight" replay.
-                    </li>
-                    <li>    
-                        - [Feature] Profile visulisation over a period of time, see profile stat increases with interactive graphs.
-                    </li>
-                    <li>    
-                        - [UI] Differentiate between Bosses/Raiders/Rogues/Cultists from PMCs and Scavs.
-                    </li>
-                    <li>    
-                        - [UI] Differentiate between PMC/Scav Runs.
-                    </li>
-                    <li>    
-                        - [UI] Improve logos and icons for the playback system.
-                    </li>
-                    <li>    
-                        - [Code] Code clean-up, tons of unused stuff and double ups of functions.
-                    </li>
-                </ul>
-                <p>
-                    If you have an idea, or wish to contribute, everything is available on <a className='underline' href="https://github.com/ekky-llc/spt-post-raid-statistics">Github</a>
+                <p className='mt-2'>
+                    Interested to see what's on the roadmap, if you have an idea, or wish to contribute, everything is available on <a className='underline' href="https://github.com/ekky-llc/spt-post-raid-statistics">Github</a>.
                 </p>
             </div>
 
-            <div className='border border-eft px-4 py-2 w-3/6 mb-4'>
+            <div className='border border-eft px-4 py-2 mb-4'>
                 <strong className='underline'>Credits / Thank You</strong>
                 <ul>
                     <li>

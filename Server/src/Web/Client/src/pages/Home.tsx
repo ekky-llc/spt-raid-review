@@ -67,18 +67,20 @@ export default function Home() {
 
             { showMessage ? 
                 <div id="notification">
-                        <>
-                            <div className="text-right text-xs w-96 mx-auto"> 
-                                <a className="text-right cursor-pointer hover:opacity-75 underline" onClick={updateHideMessage}>Hide</a>
+                        <div className="home-message">
+                            <div className="text-right mx-auto mb-2"> 
+                                <a className="text-sm p-2 py-1 hover:bg-neutral-500/25 text-sm cursor-pointer border border-eft text-eft" onClick={updateHideMessage}>Hide Message</a>
                             </div>
-                            <div className="border border-eft text-xs text-center p-2 mb-2 w-96 mx-auto bg-black">
-                                <strong>👋🏾 Hello There</strong>
-                                <p>I want your input, I have an idea for the next update so I made a poll, can you spare a minute?</p>
-                                <div className="text-center  my-2">
-                                    <a target="_blank" className="underline hover:opacity-75" href="https://strawpoll.com/w4nWWj23WnA">https://strawpoll.com/w4nWWj23WnA</a><br/>
-                                </div>
+                            <div className="border border-eft text-sm text-center p-2 mb-2 mx-auto bg-black p-2">
+                                <strong>👋🏾 Hello There 👋🏾</strong>
+                                <p className="mt-2">As part of this v0.0.4 update, I've implemented a statistics service that sends post-raid data back to a public web server for some dashboard fun.</p>
+                                <p className="mt-2">All data is completely <strong className="underline">anonymous</strong> and is <strong className="underline">disabled</strong> by default.</p>
+                                <p className="mt-2">If you'd like to participate you can do so from the new settings page which you'll find in the top-right corner when you select a profile.</p>
+                                <p className="mt-2">If you'd like to know more about this <a target='_blank' className="underline" href="https://github.com/ekky-llc/spt-raid-review/blob/main/TELEMETRY.md">read here</a>.</p>
+                                <p className="mt-2">You can check out the overall statistics here<br/> <a className="underline" target="_blank" href="https://raid-review.online">https://raid-review.online</a></p>
+                                <p className="mt-4">Have fun! - Ekky</p>
                             </div>
-                        </>
+                        </div>
                 </div>    
             : ''}
 

@@ -1,17 +1,15 @@
-import { Link, redirect, Outlet, useLoaderData } from "react-router-dom";
+import { Link, Outlet, useLoaderData } from "react-router-dom";
 import api from "../api/api";
 import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
 
 import "./Profile.css";
 import moment from "moment";
+import { useEffect, useState } from "react";
+import { getCookie } from "../modules/utils";
 
 export async function loader(loaderData: any) {
   const profile = await api.getProfile(loaderData.params.profileId);
   const core = await api.getCore(loaderData.params.profileId);
-
-  if (!loaderData.request.url.includes('about') && !core.length) {
-    return redirect(`/p/${profile.info.id}/about`);
-  }
 
   return { profile, core };
 }
@@ -46,6 +44,28 @@ export function msToHMS( ms: number ) : string {
 
 export default function Profile() {
   const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
+  const [ isAdmin, setIsAdmin ] = useState(false);
+
+
+  useEffect(() => {
+
+    // If Basic Auth is on, check if is_admin
+    const is_auth_configured_cookie = getCookie('is_auth_configured_cookie');
+    if (is_auth_configured_cookie === "true") {
+
+      // If is admin, display raid settings.
+      const is_admin_cookie = getCookie('is_admin_cookie');
+      if (is_admin_cookie === "true") {
+        setIsAdmin(true);
+      }
+    } 
+    
+    // If Basic Auth is off, display raid settings.
+    else {
+      setIsAdmin(true);
+    }
+
+  }, [])
 
   return (
     <div className="profile__layout p-6 font-mono">
@@ -72,10 +92,15 @@ export default function Profile() {
               </button>
             </Link>
           </li>
-          <li>
+          <li className="flex gap-4">
               <Link to={`/p/${profile.info.id}/about`} className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
                 <span>About</span>
               </Link>
+              { isAdmin ? 
+                <Link to={`/p/${profile.info.id}/settings`} className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
+                  <span>Settings</span>
+                </Link>
+              : ''}
           </li>
         </ul>
       </div>
