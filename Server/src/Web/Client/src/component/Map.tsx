@@ -157,8 +157,8 @@ const colors = [
     "#33FFF3", // Cyan
     "#FF33E9", // Magenta
     "#FFD433", // Yellow
-    "#8D33FF", // Purple //TODO: Reserved for Raiders so need to make sure it's not used by players
-    "#33FF8D", // Light Green
+    "#7FFFD4", // Aquamarine
+    "#B87333", // Copper
     "#FF9633", // Orange
     "#3366FF", // Royal Blue
     "#FF3380", // Hot Pink
@@ -173,7 +173,7 @@ const colors = [
     "#B833FF", // Violet
     "#33FF57", // Lime
     "#33FF57", // Forest Green
-    "#FF3333", // Red //TODO: Reserved for bosses so need to make sure it's not used by players
+    "#660000", // Blood red
     "#3399FF", // Sky Blue
     "#FF33B8", // Rose
     "#8CFF33", // Lime Green
@@ -690,19 +690,41 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
     function getPlayerBrain(player: TrackingRaidDataPlayers): string {
         if(player) {
-          if (player.team === 'Savage') {
-            return "(SCAV)";
-          } else if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
-            return "(PMC)"
-          }
-          else return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+            switch (player.type){
+                case 'SCAV':
+                    return "(SCAV)"
+                case 'BOSS':
+                    return "(BOSS)"
+                case 'RAIDER':
+                    return "(RAIDER)"
+                case 'PLAYER_SCAV':
+                    return "(PLAYER SCAV)"
+                default:
+                    if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
+                      return "(PMC)"
+                    } else if(player.team === "Savage") {
+                      return "(SCAV)"
+                    } 
+                    return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+            }
         }
         return "(UNKNOWN)"
     }
 
     function getPlayerColor(player: TrackingRaidDataPlayers, index: number): string {
-        if (player && player.team === 'Savage') return "#33FF57"; // Green - Scav (bosses and raiders included for now)
-        else return colors[index]; // PMC
+        switch (player.type) {
+            case 'SCAV':
+                return "#33FF57"; // Green - Scav
+            case 'BOSS':
+                return "#FF3333"; // Red - Boss
+            case 'RAIDER':
+                return "#8D33FF"; // Purple - Raider
+            case 'PLAYER_SCAV':
+                return "#33FF8D"; // Light Green - Scav Player
+            default:
+                if (player && player.team === 'Savage') return "#33FF57"; // Green - Scav
+                else return colors[index]; // PMC
+        }
     }
 
     return (

@@ -190,11 +190,21 @@ export default function Raid() {
 
   function getPlayerBrain(player: TrackingRaidDataPlayers): string {
     if(player) {
-      if (player.team === "Savage") {
-        return "";
-      } else return player.mod_SAIN_brain != null ? player.mod_SAIN_brain : "UNKNOWN";
-    }
-    return "UNKNOWN"
+      switch (player.type){
+          case 'BOSS':
+              return "BOSS"
+          case 'RAIDER':
+              return "RAIDER"
+          case 'PLAYER_SCAV':
+              return "PLAYER SCAV"
+          default:
+              if(player.team === "Savage") {
+                return ""
+              } 
+              return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+      }
+  }
+  return "(UNKNOWN)"
   }
 
   function generateTimeline(filters: string[]): any {

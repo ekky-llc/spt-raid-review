@@ -211,10 +211,15 @@ namespace RAID_REVIEW
                                 var brain = botComponent.Info.Personality;
                                 trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), brain);
                             }
+
+                            if (botComponent.Info.Profile.IsScav) trackingPlayer.type = "SCAV";
+                            else if (botComponent.Info.Profile.IsBoss) trackingPlayer.type = "BOSS";
+                            else if (botComponent.Info.Profile.IsFollower) trackingPlayer.type = "RAIDER";
+                            else if (botComponent.Info.Profile.IsPlayerScav) trackingPlayer.type = "PLAYER_SCAV";
                         }
                         else
                         {
-                            trackingPlayer.mod_SAIN_brain = player.IsAI ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PLAYER";
+                            trackingPlayer.mod_SAIN_brain = player.Side == EPlayerSide.Savage ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PMC";
                         }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
