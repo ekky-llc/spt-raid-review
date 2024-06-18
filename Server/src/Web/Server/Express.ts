@@ -1,4 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from "express";
+import { mkdirSync, rmSync } from "fs";
 import path from "path";
 import cors from "cors";
 import _ from "lodash";
@@ -11,11 +12,10 @@ import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 
 import config from '../../../config.json';
-import { getSessiondata } from "../../mod";
-import { DeleteFile, FileExists, ReadFile } from "../../Controllers/Collection/DataSaver";
+import { DeleteFile, ReadFile } from "../../Controllers/Collection/DataSaver";
 import CompileRaidPositionalData from "../../Controllers/Collection/CompileRaidPositionalData";
 import { generateInterpolatedFramesBezier } from "../../Utils/utils";
-import { mkdirSync, rmSync, rmdirSync } from "fs";
+import { getRaidData } from "../../Controllers/Collection/GetRaidData";
 
 const app: Express = express();
 const port = config.web_client_port || 7829;
@@ -247,33 +247,7 @@ function StartWebServer(
       try {
         let { profileId, raidId } = req.params;
 
-        // Need to fix this; N+1 Problem
-        const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = ? AND timeInRaid > 10 AND raidId = ?`;
-        const sqlRaidValues = [profileId, raidId];
-        const raid = await db
-          .get(sqlRaidQuery, sqlRaidValues)
-          .catch((e: Error) => console.error(e));
-
-        const keys = ["kills", "looting", "player"];
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const sqlKeyQuery = `SELECT * FROM ${key} WHERE raidId = ?`;
-          const sqlKeyValues = [raidId];
-          const sqlResult = await db.all(sqlKeyQuery, sqlKeyValues).catch((e: Error) => console.error(e));
-          raid[key] = sqlResult || [];
-        }
-
-        // Positions check
-        raid.positionsTracked = FileExists(
-          "positions",
-          "",
-          "",
-          `${raidId}_positions.json`
-        );
-
-        // Quick Fix
-        raid.players = raid.player;
-        delete raid.player;
+        const raid = await getRaidData(db, profileId, raidId);
 
         return res.json(raid);
       } catch (error) {

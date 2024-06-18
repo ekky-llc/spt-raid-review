@@ -1,6 +1,6 @@
 // @ts-ignore
 import { DependencyContainer } from "tsyringe";
-import { WebSocketServer } from "ws";
+import { Server, WebSocket, WebSocketServer } from "ws";
 import sqlite3 from "sqlite3";
 import { Database } from "sqlite";
 import _ from 'lodash';
@@ -21,6 +21,9 @@ import { database } from "./Controllers/Database/sqlite";
 import CompileRaidPositionalData from "./Controllers/Collection/CompileRaidPositionalData";
 import { NotificationLimiter } from './types'
 import { NOTIFICATION_LIMITER_DEFAULT } from "./Utils/constant";
+import { isTelemetryEnabled } from "./Controllers/Telemetry/Telemetry";
+import { sendStatistics } from "./Controllers/Telemetry/RaidStatistics";
+import { IncomingMessage } from "http";
 
 export let session_id = null;
 export let profile_id = null;
@@ -188,10 +191,9 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   payload_object.detectedMods || '',
                 ]);
 
-                if(!this.notificationLimiter.raid_start && this.raid_id) {
-                  this.notificationLimiter.raid_start = true;
-                  this.wss.send("RECORDING_START");
-                }
+                console.log(`[RAID-REVIEW] Recieved 'Recording Start' trigger.`)
+                this.notificationLimiter.raid_start = true;
+                ws.send("RECORDING_START");
 
                 break;
 
@@ -213,11 +215,15 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
-                CompileRaidPositionalData(this.raid_id);
-
-                if(this.notificationLimiter.raid_end && this.raid_id) {
-                  this.notificationLimiter.raid_end = true;
-                  this.wss.send("RECORDING_END");
+                // Send telemetry if enabled
+                let positional_data = CompileRaidPositionalData(this.raid_id);
+                let telemetryEnabled = await isTelemetryEnabled(this.database);
+                // let telemetryEnabled = true;
+                if (telemetryEnabled) {
+                  console.log(`[RAID-REVIEW] Telemetry is enabled.`)
+                  await sendStatistics(this.database, profile_id, this.raid_id, positional_data);
+                } else {
+                  console.log(`[RAID-REVIEW] Telemetry is disabled.`)
                 }
 
                 // Reset the notification limiter for the next raid
@@ -246,11 +252,6 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
-                  if(this.notificationLimiter.player && this.raid_id) {
-                    this.notificationLimiter.player = true;
-                    this.wss.send("RECORDING__DEBUG__PLAYER");
-                  }
-
                 break;
 
               case "KILL":
@@ -269,11 +270,6 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
-                  if(this.notificationLimiter.kill && this.raid_id) {
-                    this.notificationLimiter.kill = true;
-                    this.wss.send("RECORDING__DEBUG__KILL");
-                  }
-
                 break;
 
               case "POSITION":
@@ -282,8 +278,9 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 WriteLineToFile('positions', '', '', filename, keys, values);
 
                 if(this.notificationLimiter.position && this.raid_id) {
+                  console.log(`[RAID-REVIEW] Recieved 'position' trigger.`)
                   this.notificationLimiter.position = true;
-                  this.wss.send("RECORDING__DEBUG__POSITION");
+                  ws.send("RECORDING__DEBUG__POSITION");
                 }
 
                 break;
@@ -302,11 +299,6 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                     payload_object.added,
                   ])
                   .catch((e: Error) => console.error(e));
-
-                  if(this.notificationLimiter.loot && this.raid_id) {
-                    this.notificationLimiter.loot = true;
-                    this.wss.send("RECORDING__DEBUG__LOOT");
-                  }
 
                 break;
 

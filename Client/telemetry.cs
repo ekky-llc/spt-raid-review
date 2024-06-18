@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using WebSocketSharp;
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
-using System;
+using Comfort.Common;
 using EFT.Communications;
 
 namespace RAID_REVIEW
@@ -31,7 +32,6 @@ namespace RAID_REVIEW
             ws.OnMessage += (sender, e) =>
             {
                 Logger.LogInfo("[RAID-REVIEW] Received message: " + e.Data);
-                HandleMessage(e.Data);
             };
 
             ws.OnError += (sender, e) => Logger.LogError($"[RAID-REVIEW] WebSocket error: {e.Message}");
@@ -49,57 +49,6 @@ namespace RAID_REVIEW
                 }
             });
         }
-
-        static void HandleMessage(string message)
-        {
-            // Basic Notification System
-            // - People requested that some level of notification is provided.
-            if (RAID_REVIEW.RecordingNotification.Value)
-            {
-
-                // Switch statements are for cucks
-                if (message == "RECORDING_START")
-                {
-                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
-                }
-
-                if (message == "RECORDING_END")
-                {
-                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
-                }
-
-            }
-
-            // Verbose Notification System
-            // - Not asked for, Helpful for Fika/Remote host testing and dev debugging.
-            if (RAID_REVIEW.VerboseNotifications.Value)
-            {
-
-                // Switch statements are for cucks
-                if (message == "RECORDING__DEBUG__PLAYER")
-                {
-                    NotificationManagerClass.DisplayMessageNotification("[RAID-REVIEW:DEBUG] ✔️ Player", ENotificationDurationType.Long);
-                }
-
-                if (message == "RECORDING__DEBUG__KILL")
-                {
-                    NotificationManagerClass.DisplayMessageNotification("[RAID-REVIEW:DEBUG] ✔️ Kills", ENotificationDurationType.Long);
-                }
-
-                if (message == "RECORDING__DEBUG__POSITION")
-                {
-                    NotificationManagerClass.DisplayMessageNotification("[RAID-REVIEW:DEBUG] ✔️ Positions", ENotificationDurationType.Long);
-                }
-
-                if (message == "RECORDING__DEBUG__LOOT")
-                {
-                    NotificationManagerClass.DisplayMessageNotification("[RAID-REVIEW:DEBUG] ✔️ Lootings", ENotificationDurationType.Long);
-                }
-
-            }
-
-        }
-
         public static Task Send(string Action, string Payload)
         {
             return Task.Run(() =>

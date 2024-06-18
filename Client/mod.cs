@@ -18,6 +18,7 @@ using SAIN.Plugin;
 using SAIN.SAINComponent;
 using SAIN.Preset.GlobalSettings.Categories;
 using SAIN.SAINComponent.Classes.Info;
+using EFT.Communications;
 
 namespace RAID_REVIEW
 {
@@ -65,7 +66,7 @@ namespace RAID_REVIEW
 
         // Other Mods
         public static bool MODS_SEARCHED = false;
-        public static bool SOLARINT_SAIN__DETECTED { get; private set; }
+        public static bool SOLARINT_SAIN__DETECTED { get; set; }
 
         void Awake()
         {
@@ -91,10 +92,11 @@ namespace RAID_REVIEW
             Hook = new GameObject();
 
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Config Loaded");
+            new RAID_REVIEW_Player_OnGameStartedPatch().Enable();
+            new RAID_REVIEW_Player_OnGameSessionEndPatch().Enable();
             new RAID_REVIEW_menuTaskBar_setButtonsAvailablePatch().Enable();
             new RAID_REVIEW_Player_OnBeenKilledByAggressorPatch().Enable();
             new RAID_REVIEW_Player_OnItemAddedOrRemovedPatch().Enable();
-            new RAID_REVIEW_Player_OnGameSessionEndPatch().Enable();
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Patches Loaded");
 
             Telemetry.Connect(RAID_REVIEW_WS_Server);
@@ -116,6 +118,11 @@ namespace RAID_REVIEW
                     Application.OpenURL(RAID_REVIEW_HTTP_Server);
                 }
 
+                if (Input.GetKey(KeyCode.F6))
+                {
+                    NotificationManagerClass.DisplayMessageNotification("[RAID-REVIEW] Triggered Manually", ENotificationDurationType.Long);
+                }
+
                 // IF MAP NOT LOADED, RETURN
                 if (!MapLoaded())
                     return;
@@ -126,59 +133,6 @@ namespace RAID_REVIEW
                 // IF IN MENU, RETURN
                 if (gameWorld == null || myPlayer == null)
                     return;
-
-                // RAID START
-                if (!inRaid && !stopwatch.IsRunning)
-                {
-                    if (!MODS_SEARCHED)
-                    {
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Searching For Supported Mods");
-                        MODS_SEARCHED = true;
-                        if (DetectMod("me.sol.sain"))
-                        {
-                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
-                            SOLARINT_SAIN__DETECTED = true;
-                        }
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
-                    }
-                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
-
-                    inRaid = true;
-                    stopwatch.Reset();
-                    stopwatch.Start();
-
-                    RAID_REVIEW.trackingRaid = new TrackingRaid
-                    {
-                        id = Guid.NewGuid().ToString("D"),
-                        profileId = RAID_REVIEW.myPlayer.ProfileId,
-                        time = DateTime.Now,
-                        detectedMods = RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW__DETECTED_MODS) : "",
-                        location = RAID_REVIEW.gameWorld.LocationId,
-                        timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
-                    };
-
-                    Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
-
-                    // Reset Playerlist
-                    trackingPlayers = new Dictionary<string, TrackingPlayer>();
-
-                    var newTrackingPlayer = new TrackingPlayer();
-                    newTrackingPlayer.profileId = myPlayer.ProfileId;
-                    newTrackingPlayer.name = myPlayer.Profile.Nickname;
-                    newTrackingPlayer.level = myPlayer.Profile.Info.Level;
-                    newTrackingPlayer.team = myPlayer.Side;
-                    newTrackingPlayer.group = 0;
-                    newTrackingPlayer.spawnTime = stopwatch.ElapsedMilliseconds;
-                    newTrackingPlayer.type = "HUMAN";
-                    newTrackingPlayer.mod_SAIN_brain = "PLAYER";
-
-                    trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
-                    Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));
-
-                    inRaid = true;
-                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Information Populated");
-                    return;
-                }
 
                 // PLAYER TRACKING LOOP
                 IEnumerable<Player> allPlayers = gameWorld.AllPlayersEverExisted;

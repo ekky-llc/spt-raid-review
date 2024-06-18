@@ -6,7 +6,17 @@ export interface FileImport {
     data: string;
 }
 
-function CompileRaidPositionalData(raid_guid: string) {
+export interface positonal_data {
+    profileId: string
+    time: number
+    x: number
+    y: number
+    z: number
+    dir: number
+    raid_id: string
+}
+  
+function CompileRaidPositionalData(raid_guid: string) : positonal_data[][] {
     console.log(`[RAID-REVIEW] Starting - Compiling positional data for '${raid_guid}' into '.json' format.`);
 
     const file_suffixes = ['positions'];
@@ -25,7 +35,8 @@ function CompileRaidPositionalData(raid_guid: string) {
         };
     }
 
-    let positional_data = [] as any;
+    let positional_data = [] as positonal_data[];
+    let positional_data_2d = [] as positonal_data[][];
     for (let i = 0; i < files.length; i++) {
         
         const file = files[i];
@@ -52,19 +63,20 @@ function CompileRaidPositionalData(raid_guid: string) {
                 allPositions.push(position);
             }
 
-            let groupedByPlayerId = _.chain(allPositions).orderBy('time', 'asc').groupBy('profileId').value();
+            positional_data = _.orderBy(allPositions, 'time', 'asc');
+            let groupedByPlayerId = _.chain(positional_data).groupBy('profileId').value();
             Object.keys(groupedByPlayerId).forEach(key => {
-                positional_data.push(groupedByPlayerId[key])
+                positional_data_2d.push(groupedByPlayerId[key])
             });
         }
 
 
     }
     console.log(`[RAID-REVIEW] Finished - Compiling positional data for '${raid_guid}' into '.json' format.`);
-
     fs.writeFileSync(`${__dirname}/../../../data/positions/${raid_guid}_positions.json`, JSON.stringify(positional_data), 'utf-8');
-
     console.log(`[RAID-REVIEW] Saved file  '${raid_guid}_data.json' to folder '<mod_folder>/data/positions'.`);
+
+    return positional_data_2d;
 };
 
 export default CompileRaidPositionalData;
