@@ -151,17 +151,17 @@ function calculateProportionalRadius(mapBounds) {
   
 const colors = [
     "#3357FF", // Blue
-    "#FF5733", // Red-Orange
-    "#FFFF99", // Canary
-    "#FF33A1", // Pink
-    "#33FFF3", // Cyan
-    "#FF33E9", // Magenta
     "#FFD433", // Yellow
+    "#33FFF3", // Cyan
+    "#9370DB", // MediumPurple
+    "#BC8F8F", // RosyBrown
+    "#FF5733", // Red-Orange
     "#7FFFD4", // Aquamarine
-    "#B87333", // Copper
+    "#FFFF99", // Canary
+    "#FF3380", // Hot Pink
     "#FF9633", // Orange
     "#3366FF", // Royal Blue
-    "#FF3380", // Hot Pink
+    "#B87333", // Copper
     "#FFA533", // Light Orange
     "#33FFAF", // Mint Green
     "#5733FF", // Indigo
@@ -716,9 +716,9 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             case 'SCAV':
                 return "#33FF57"; // Green - Scav
             case 'BOSS':
-                return "#FF3333"; // Red - Boss
+                return "#FF0000"; // Red - Boss
             case 'RAIDER':
-                return "#8D33FF"; // Purple - Raider
+                return "#FF00FF"; // Magenta - Raider
             case 'PLAYER_SCAV':
                 return "#33FF8D"; // Light Green - Scav Player
             default:

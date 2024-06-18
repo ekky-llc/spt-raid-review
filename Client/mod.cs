@@ -64,6 +64,7 @@ namespace RAID_REVIEW
         public static GameObject Hook;
 
         // Other Mods
+        public static bool MODS_SEARCHED = false;
         public static bool SOLARINT_SAIN__DETECTED { get; private set; }
 
         void Awake()
@@ -98,16 +99,6 @@ namespace RAID_REVIEW
 
             Telemetry.Connect(RAID_REVIEW_WS_Server);
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Connected to backend");
-
-            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Searching For Supported Mods");
-            if (Chainloader.PluginInfos.ContainsKey("me.sol.sain"))
-            {
-                Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
-                SOLARINT_SAIN__DETECTED = true;
-                RAID_REVIEW__DETECTED_MODS.Add("SAIN");
-                ExtractTracking = Config.Bind<bool>("Tracking Settings", "Extract Tracking", true, "Enables location tracking of players and bots extraction activities.");
-            }
-            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
         }
         void Update()
         {
@@ -139,6 +130,17 @@ namespace RAID_REVIEW
                 // RAID START
                 if (!inRaid && !stopwatch.IsRunning)
                 {
+                    if (!MODS_SEARCHED)
+                    {
+                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Searching For Supported Mods");
+                        MODS_SEARCHED = true;
+                        if (DetectMod("me.sol.sain"))
+                        {
+                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
+                            SOLARINT_SAIN__DETECTED = true;
+                        }
+                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
+                    }
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
 
                     inRaid = true;
@@ -316,6 +318,12 @@ namespace RAID_REVIEW
             var context = new ValidationContext(data, null, null);
             validationResults = new List<ValidationResult>();
             return Validator.TryValidateObject(data, context, validationResults, true);
+        }
+
+        public static bool DetectMod(string modName)
+        {
+            if (Chainloader.PluginInfos.ContainsKey(modName)) return true;
+            return false;
         }
 
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;
