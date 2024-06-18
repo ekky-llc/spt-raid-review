@@ -151,17 +151,17 @@ function calculateProportionalRadius(mapBounds) {
   
 const colors = [
     "#3357FF", // Blue
-    "#FF5733", // Red-Orange
-    "#33FF57", // Green
-    "#FF33A1", // Pink
-    "#33FFF3", // Cyan
-    "#FF33E9", // Magenta
     "#FFD433", // Yellow
-    "#8D33FF", // Purple
-    "#33FF8D", // Light Green
+    "#33FFF3", // Cyan
+    "#9370DB", // MediumPurple
+    "#BC8F8F", // RosyBrown
+    "#FF5733", // Red-Orange
+    "#7FFFD4", // Aquamarine
+    "#FFFF99", // Canary
+    "#FF3380", // Hot Pink
     "#FF9633", // Orange
     "#3366FF", // Royal Blue
-    "#FF3380", // Hot Pink
+    "#B87333", // Copper
     "#FFA533", // Light Orange
     "#33FFAF", // Mint Green
     "#5733FF", // Indigo
@@ -173,7 +173,7 @@ const colors = [
     "#B833FF", // Violet
     "#33FF57", // Lime
     "#33FF57", // Forest Green
-    "#FF3333", // Red
+    "#660000", // Blood red
     "#3399FF", // Sky Blue
     "#FF33B8", // Rose
     "#8CFF33", // Lime Green
@@ -532,7 +532,9 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
                 }
 
-                const pickedColor = colors[i % colors.length];
+                const player = raidData.players.find(p => p.profileId === currentIndexId);
+                const index = raidData.players.findIndex(p => p.profileId === currentIndexId);
+                const pickedColor = getPlayerColor(player, index);
 
                 // Hide player movement if enabled
                 if (!hidePlayers && MAP && cleanPositions.length > 0) {
@@ -688,15 +690,42 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
     function getPlayerBrain(player: TrackingRaidDataPlayers): string {
         if(player) {
-          if (player.team === 'Savage') {
-            return "(SCAV)";
-          } else if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
-            return "(PMC)"
-          }
-          else return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+            switch (player.type){
+                case 'SCAV':
+                    return "(SCAV)"
+                case 'BOSS':
+                    return "(BOSS)"
+                case 'RAIDER':
+                    return "(RAIDER)"
+                case 'PLAYER_SCAV':
+                    return "(PLAYER SCAV)"
+                default:
+                    if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
+                      return "(PMC)"
+                    } else if(player.team === "Savage") {
+                      return "(SCAV)"
+                    } 
+                    return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+            }
         }
         return "(UNKNOWN)"
-      }
+    }
+
+    function getPlayerColor(player: TrackingRaidDataPlayers, index: number): string {
+        switch (player.type) {
+            case 'SCAV':
+                return "#33FF57"; // Green - Scav
+            case 'BOSS':
+                return "#FF0000"; // Red - Boss
+            case 'RAIDER':
+                return "#FF00FF"; // Magenta - Raider
+            case 'PLAYER_SCAV':
+                return "#33FF8D"; // Light Green - Scav Player
+            default:
+                if (player && player.team === 'Savage') return "#33FF57"; // Green - Scav
+                else return colors[index]; // PMC
+        }
+    }
 
     return (
         <div className="map-container" key="map-wrapper">
@@ -716,7 +745,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             { raidData.players.filter(p => p.spawnTime < timeEndLimit).map((player, index) => 
                                 <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => {setFollowPlayer(followPlayer === index ? 999999 : index); setFollowPlayerZoomed(false);}}>
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
-                                        <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : colors[index]}}></span>
+                                        <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : getPlayerColor(player, index)}}></span>
                                         <span>
                                             {player.name} {getPlayerBrain(player)}
                                         </span>
