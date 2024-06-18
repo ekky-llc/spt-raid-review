@@ -169,7 +169,17 @@ namespace RAID_REVIEW
                                 if (botComponent.Info.Profile.IsScav) trackingPlayer.type = "SCAV";
                                 else if (botComponent.Info.Profile.IsBoss) trackingPlayer.type = "BOSS";
                                 else if (botComponent.Info.Profile.IsFollower) trackingPlayer.type = "RAIDER";
-                                else if (botComponent.Info.Profile.IsPlayerScav) trackingPlayer.type = "PLAYER_SCAV";
+                                else
+                                {
+                                    var mod_SAIN_version = SAIN.AssemblyInfoClass.SAINVersion;
+                                    var splittedVersion = mod_SAIN_version.Split('.');
+                                    if(splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3)
+                                    {
+                                        if (botComponent.Info.Profile.IsPlayerScav) trackingPlayer.type = "PLAYER_SCAV";
+                                        else { trackingPlayer.type = "SCAV"; }
+                                    }
+                                    else { trackingPlayer.type = "SCAV"; }
+                                }
                             }
                         }
                         else
