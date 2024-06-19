@@ -148,18 +148,20 @@ namespace RAID_REVIEW
 
                     // Checks if a new player / bot has spawned into the raid...
                     TrackingPlayer trackingPlayer = new TrackingPlayer();
-                    bool isBeingTracking = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
-                    if (!isBeingTracking)
+                    bool isBeingTracked = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
+                    if (!isBeingTracked)
                     {
-                        trackingPlayer = new TrackingPlayer();
-                        trackingPlayer.profileId = player.ProfileId;
-                        trackingPlayer.name = player.Profile.Nickname;
-                        trackingPlayer.level = player.Profile.Info.Level;
-                        trackingPlayer.team = player.Side;
-                        trackingPlayer.group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0;
-                        trackingPlayer.spawnTime = captureTime;
-                        trackingPlayer.type = player.IsAI ? "BOT" : "HUMAN";
-                        trackingPlayer.mod_SAIN_brain = "UNKNOWN";
+                        trackingPlayer = new TrackingPlayer
+                        {
+                            profileId = player.ProfileId,
+                            name = player.Profile.Nickname,
+                            level = player.Profile.Info.Level,
+                            team = player.Side,
+                            group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0,
+                            spawnTime = captureTime,
+                            type = player.IsAI ? "BOT" : "HUMAN",
+                            mod_SAIN_brain = "UNKNOWN"
+                        };
 
                         //get player mod_SAIN brain type name
                         if (SOLARINT_SAIN__DETECTED)
@@ -205,8 +207,13 @@ namespace RAID_REVIEW
                             trackingPlayer.mod_SAIN_brain = player.Side == EPlayerSide.Savage ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PMC";
                         }
 
-                        trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
-                        _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
+                        bool isBeingTrackedInner = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
+                        if (!isBeingTrackedInner)
+                        {
+                            trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
+                            _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
+                        }
+
                     }
 
                     // Checks if a player / bot has died since the last check...
