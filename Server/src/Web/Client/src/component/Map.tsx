@@ -507,13 +507,14 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 clearMap(MAP)
             }
 
-            for (let i = 0; i < positions.length; i++) {
-                const playerPositions = positions[i];
+            const playerPositionKeys = Object.keys(positions);
+            for (let i = 0; i < playerPositionKeys.length; i++) {
+                const playerId = playerPositionKeys[i];
+                const playerPositions = positions[playerId];
                 const cleanPositions = [];
                 let currentDirection = 0;
-                
-                const currentIndexId = playerPositions[0].profileId;
-                const isPlayerDead = events.find(e => e.killedId === currentIndexId && e.time < timeEndLimit);
+
+                const isPlayerDead = events.find(e => e.killedId === playerId && e.time < timeEndLimit);
 
                 for (let j = 0; j < playerPositions.length; j++) {
                     const playerPosition = playerPositions[j];
@@ -532,8 +533,8 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
                 }
 
-                const player = raidData.players.find(p => p.profileId === currentIndexId);
-                const index = raidData.players.findIndex(p => p.profileId === currentIndexId);
+                const player = raidData.players.find(p => p.profileId === playerId);
+                const index = raidData.players.findIndex(p => p.profileId === playerId);
                 const pickedColor = getPlayerColor(player, index);
 
                 // Hide player movement if enabled
