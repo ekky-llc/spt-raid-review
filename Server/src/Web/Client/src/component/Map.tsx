@@ -132,22 +132,21 @@ function toggleForceOutline(event) {
     activateMarkerLayer(event);
 }
 
-function calculateProportionalRadius(mapBounds) {
-    const baseRadius = 0.5;
-
+function calculateProportionalRadius(mapBounds, zoomLevel) {
+    const baseRadius = 2;
     const [maxLon, minLat] = mapBounds[0];
     const [minLon, maxLat] = mapBounds[1];
     
     const width = maxLon - minLon;
     const height = maxLat - minLat;
-  
-    // Assuming width is our reference size
-    const referenceWidth = 145.5; // This can be your original reference width
-  
+
+    const referenceWidth = 145.5;
     const scalingFactor = width / referenceWidth;
-  
-    return baseRadius * scalingFactor;
-};
+    
+    const zoomAdjustment = Math.pow(2, zoomLevel - 1);
+
+    return baseRadius * scalingFactor / zoomAdjustment;
+}
   
 const colors = [
     "#3357FF", // Blue
@@ -209,7 +208,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     const [ availableStyles, serAvailableStyles ] = useState([]);
     const [ selectedStyle, setSelectedStyle ] = useState('svg');
     const [ selectedLayer, setSelectedLayer ] = useState('');
-    const [ followPlayer, setFollowPlayer ] = useState(9999);
+    const [ followPlayer, setFollowPlayer ] = useState(null);
     const [ followPlayerZoomed, setFollowPlayerZoomed ] = useState(false);
     const [ calculatedPlayerInfo, setCalculatedPlayerInfo ] = useState({});
     const [ playerFocus, setPlayerFocus ] = useState(null);
@@ -372,8 +371,6 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             mapRef.current.remove();
         }
     
-        setProportionalScale(calculateProportionalRadius(mapData.bounds));
-    
         const map = L.map('leaflet-map', {
             maxBounds: getScaledBounds(mapData.bounds, 1.5),
             center: mapCenter,
@@ -387,11 +384,20 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             attributionControl: false,
             id: mapData.id,
         });
-    
+
+        const zoomLevel = map.getZoom();
+        setProportionalScale(calculateProportionalRadius(mapData.bounds, zoomLevel));
         SET_MAP(map);
+
+        const updateProportionalScale = () => {
+            const zoomLevel = map.getZoom();
+            const newProportionalScale = calculateProportionalRadius(mapData.bounds, zoomLevel);
+            setProportionalScale(newProportionalScale);
+        };
     
         map.on('zoom', () => {
             mapViewRef.current.zoom = map.getZoom();
+            updateProportionalScale();
         });
     
         map.on('move', () => {
@@ -552,19 +558,19 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
                     // Focused Player
                     if (playerFocus !== null && playerFocus === i) {
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                        L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
+                        L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
                     } 
                     
                     else {
 
                         let focusedOpacityPolyLine = preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1;
                         let focusedOpacityCircle =  isPlayerDead ? 0 : 0.1;
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
                         if (!isPlayerDead) {
 
                             L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, opacity: focusedOpacityCircle, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP);
-                            if (followPlayer === i) {
+                            if (followPlayer === playerId) {
                                 MAP.panTo(endOfLine, 4)
                             }
                         }
@@ -573,11 +579,11 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     // Normal rendering
                     if (playerFocus === null) {
                         let focusedOpacityPolyLine = preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8;
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false); });
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(playerId); setFollowPlayerZoomed(false); });
                         if (!isPlayerDead) {
 
                             L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP);
-                            if (followPlayer === i) {
+                            if (followPlayer === playerId) {
                                 if (!followPlayerZoomed) {
                                     // This is here to make sure the user can adjust zoom as a player is followed
                                     MAP.setZoom(3)
@@ -772,14 +778,14 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                         <strong>Legend</strong>
                         <ul>
                             { raidData.players.filter(p => p.spawnTime < timeEndLimit).map((player, index) => 
-                                <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => {setFollowPlayer(followPlayer === index ? 999999 : index); setFollowPlayerZoomed(false);}}>
+                                <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => {setFollowPlayer(followPlayer === player.profileId ? null : player.profileId); setFollowPlayerZoomed(false);}}>
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : getPlayerColor(player, index)}}></span>
                                         <span>
                                             {player.name} {getPlayerBrain(player)}
                                         </span>
                                     </div>
-                                    { followPlayer === index ? 
+                                    { followPlayer === player.profileId ? 
                                         <span className='text-xs'>
                                             [FOLLOWING]
                                         </span> : ''

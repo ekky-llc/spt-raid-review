@@ -25,6 +25,8 @@ import { isTelemetryEnabled } from "./Controllers/Telemetry/Telemetry";
 import { sendStatistics } from "./Controllers/Telemetry/RaidStatistics";
 import { IncomingMessage } from "http";
 import { MigratePositionsStructure } from "./Controllers/PositionalData/PositionsMigration";
+import { CheckForMissingMainPlayer } from "./Controllers/DataIntegrity/CheckForMissingMainPlayer";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 
 export let session_id = null;
 export let profile_id = null;
@@ -121,6 +123,12 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     // Data Position Migration
     // @ekky @ 2024-06-18: Added this for the move from v0.0.3 to v0.0.4
     await MigratePositionsStructure(this.database);
+
+    // Missing Player Fix
+    // @ekky @ 2024-06-19: Added this to help fix this 'Issue # 25'
+    const profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
+    const profiles = profileHelper.getProfiles();
+    await CheckForMissingMainPlayer(this.database, profiles)
 
     this.saveServer = container.resolve<SaveServer>("SaveServer");
     this.mailSendService = container.resolve<MailSendService>("MailSendService");
