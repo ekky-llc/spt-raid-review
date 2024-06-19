@@ -1,6 +1,6 @@
 .parent {
     display: grid;
-    grid-template-columns: 300px repeat(4, 1fr);
+    grid-template-columns: 400px repeat(4, 1fr);
     grid-template-rows: auto repeat(3, 1fr) auto;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
@@ -162,7 +162,7 @@
   }
 
 
-  .killer-icon {
+  .killer-icon, .death-icon {
     position: absolute;
     left: -15px;
     top: -13px;
@@ -178,10 +178,14 @@
     top: -5px;
   }
 
+  .death-icon img {
+    height: 30px;
+  }
+
   .kill-stream {
     position: absolute;
     bottom: 222px;
-    left: 355px;
+    left: 455px;
     padding: 4px 8px;
     width: 450px;
     z-index: 9999;
@@ -236,9 +240,9 @@
   }
 
   .kill-stream .text-eft:nth-of-type(3) {
-      opacity: 0.5;
+      opacity: 0.65;
   }
 
   .kill-stream .text-eft:nth-of-type(4) {
-    opacity: 0.25;
+    opacity: 0.5;
   }

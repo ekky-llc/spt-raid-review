@@ -206,10 +206,12 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
     // Map
     const [ availableLayers, setAvailableLayers ] = useState([]);
-    const [ selectedStyle, setSelectedStyle ] = useState('');
+    const [ availableStyles, serAvailableStyles ] = useState([]);
+    const [ selectedStyle, setSelectedStyle ] = useState('svg');
     const [ selectedLayer, setSelectedLayer ] = useState('');
     const [ followPlayer, setFollowPlayer ] = useState(9999);
     const [ followPlayerZoomed, setFollowPlayerZoomed ] = useState(false);
+    const [ calculatedPlayerInfo, setCalculatedPlayerInfo ] = useState({});
     const [ playerFocus, setPlayerFocus ] = useState(null);
     const [ proportionalScale, setProportionalScale ] = useState(0);
 
@@ -333,13 +335,15 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         if (map && map.layers) {
             let newAvailableLayers = map.layers.map(x => ({ name: x.name, value: x.name }));
             setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
+
+            let newAvailableStyles = [!map.tilePath || { name: 'Satellite', value: 'tile' }, !map.svgPath || { name: 'Map', value: 'svg' }].filter(f => f);
+            serAvailableStyles(newAvailableStyles);
         }
 
         return map;
     }, [allMaps, currentMap]);
 
     // Map Renderer
-
     useEffect(() => {
         if (!mapData || mapData.projection !== 'interactive') {
             return;
@@ -414,7 +418,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
         const overlayLayerGroup = L.layerGroup().addTo(map);
     
         // Add base layers
-        if (mapData.tilePath) {
+        if (mapData.tilePath && selectedStyle === 'tile') {
             const tileLayer = L.tileLayer(mapData.tilePath, {
                 tileSize,
                 bounds,
@@ -423,7 +427,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             baseLayerGroup.addLayer(tileLayer);
         }
     
-        if (mapData.svgPath) {
+        if (mapData.svgPath && selectedStyle === 'svg') {
             const svgBounds = mapData.svgBounds ? getBounds(mapData.svgBounds) : bounds;
             const svgLayer = L.imageOverlay(mapData.svgPath, svgBounds, baseLayerOptions);
             baseLayerGroup.addLayer(svgLayer);
@@ -441,7 +445,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     overlay: Boolean(layer.extents),
                 };
         
-                if (layer.tilePath) {
+                if (layer.tilePath && selectedStyle === 'tile') {
                     const tileLayer = L.tileLayer(layer.tilePath, {
                         tileSize,
                         bounds,
@@ -450,7 +454,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     overlayLayerGroup.addLayer(tileLayer);
                 }
         
-                if (layer.svgPath) {
+                if (layer.svgPath && selectedStyle === 'svg') {
                     const svgBounds = layer.svgBounds ? getBounds(layer.svgBounds) : bounds;
                     const svgLayer = L.imageOverlay(layer.svgPath, svgBounds, layerOptions);
                     overlayLayerGroup.addLayer(svgLayer);
@@ -533,46 +537,53 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
                 }
 
-                const player = raidData.players.find(p => p.profileId === playerId);
-                const index = raidData.players.findIndex(p => p.profileId === playerId);
-                const pickedColor = getPlayerColor(player, index);
+                const index = calculatedPlayerInfo[playerId]?.index || raidData.players.findIndex(p => p.profileId === playerId);
+                const player = calculatedPlayerInfo[playerId]?.player || raidData.players[index];
+                const pickedColor = calculatedPlayerInfo[playerId]?.pickedColor || getPlayerColor(player, index);
+                if (calculatedPlayerInfo[playerId] === undefined) {
+                    let newAddition = { ...calculatedPlayerInfo };
+                    newAddition[playerId] = { player, index, pickedColor }
+                    setCalculatedPlayerInfo(newAddition);
+                }
 
                 // Hide player movement if enabled
                 if (!hidePlayers && MAP && cleanPositions.length > 0) {
+                    let endOfLine = cleanPositions[cleanPositions.length - 1];
 
-                    // If player is focused, opacques out all other players
+                    // Focused Player
                     if (playerFocus !== null && playerFocus === i) {
                         L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                        L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
-                    } else {
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                    } 
+                    
+                    else {
+
+                        let focusedOpacityPolyLine = preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1;
+                        let focusedOpacityCircle =  isPlayerDead ? 0 : 0.1;
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
                         if (!isPlayerDead) {
 
-                            L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, opacity: isPlayerDead ? 0 : 0.1, fillOpacity: 1, fillRule: 'nonzero' })
-                            .addTo(MAP);
-
+                            L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, opacity: focusedOpacityCircle, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP);
                             if (followPlayer === i) {
-                                MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                                MAP.panTo(endOfLine, 4)
                             }
                         }
                     }
                     
                     // Normal rendering
                     if (playerFocus === null) {
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8 }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(i); setFollowPlayerZoomed(false);});
+                        let focusedOpacityPolyLine = preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8;
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(i); setFollowPlayerZoomed(false); });
                         if (!isPlayerDead) {
 
-                            L.circle(cleanPositions[cleanPositions.length - 1], { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' })
-                            .addTo(MAP);
-
+                            L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP);
                             if (followPlayer === i) {
                                 if (!followPlayerZoomed) {
-                                    MAP.setZoom(3)
-
                                     // This is here to make sure the user can adjust zoom as a player is followed
+                                    MAP.setZoom(3)
                                     setFollowPlayerZoomed(true);
                                 }
-                                MAP.panTo(cleanPositions[cleanPositions.length - 1], 4)
+                                MAP.panTo(endOfLine, 4)
                             }
                         }
                     }
@@ -592,7 +603,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3,  opacity: 0.75 }).addTo(MAP);
                         }
                         
-                        var deathHtml = `☠️<span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`
+                        var deathHtml = `<img src="/skull.png" /><span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`
                         var deathIcon = L.divIcon({className: 'death-icon tooltip event', html:deathHtml });
                         L.marker([e.target.z, e.target.x], {icon: deathIcon}).addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
                     }
@@ -735,6 +746,11 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     <div>
                         { availableLayers.map(layer => (
                             <button key={layer.value} className={`text-sm p-2 mr-2 py-1 text-sm ${layer.value === selectedLayer ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`} onClick={() => setSelectedLayer(layer.value)}>{layer.name}</button>
+                        ))}
+                    </div>
+                    <div className="ml-4">
+                        { availableStyles.map(style => (
+                            <button key={style.value} className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`} onClick={() => setSelectedStyle(style.value)}>{style.name}</button>
                         ))}
                     </div>
                     <Link to={`/p/${profileId}/raid/${raidId}?return=1`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto' reloadDocument>Close</Link>
