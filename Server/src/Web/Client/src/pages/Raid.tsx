@@ -197,6 +197,12 @@ export default function Raid() {
               return "RAIDER"
           case 'PLAYER_SCAV':
               return "PLAYER SCAV"
+          case 'SNIPER':
+              return "SNIPER"
+          case 'GOON':
+              return "GOON"
+          case 'CULTIST':
+              return "CULTIST"
           default:
               if(player.team === "Savage") {
                 return ""
