@@ -157,7 +157,7 @@ const colors = [
     "#FF5733", // Red-Orange
     "#7FFFD4", // Aquamarine
     "#FFFF99", // Canary
-    "#FF3380", // Hot Pink
+    "#ae85f9", // Light Purple
     "#FF9633", // Orange
     "#3366FF", // Royal Blue
     "#B87333", // Copper
@@ -187,7 +187,7 @@ const colors = [
     "#33FF57", // Medium Sea Green
     "#FF33E9", // Orchid
     "#FFD433", // Khaki
-    "#FF33A1", // Hot Pink
+    "#ae85f9", // Light Purple
     "#FF33D4", // Light Pink
     "#8D33FF", // Plum
     "#33FFF3", // Light Cyan
