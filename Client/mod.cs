@@ -186,19 +186,9 @@ namespace RAID_REVIEW
                             {
                                 var brain = botComponent.Info.Personality;
                                 trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), brain);
-                                if (botComponent.Info.Profile.IsScav) trackingPlayer.type = "SCAV";
-                                else if (botComponent.Info.Profile.IsBoss) trackingPlayer.type = "BOSS";
-                                else if (botComponent.Info.Profile.IsFollower) trackingPlayer.type = "RAIDER";
-                                else
+                                if(!botComponent.Info.Profile.IsPMC)
                                 {
-                                    var mod_SAIN_version = SAIN.AssemblyInfoClass.SAINVersion;
-                                    var splittedVersion = mod_SAIN_version.Split('.');
-                                    if(splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3)
-                                    {
-                                        if (botComponent.Info.Profile.IsPlayerScav) trackingPlayer.type = "PLAYER_SCAV";
-                                        else { trackingPlayer.type = "SCAV"; }
-                                    }
-                                    else { trackingPlayer.type = "SCAV"; }
+                                    trackingPlayer.type = getBotType(botComponent);
                                 }
                             }
                         }
@@ -312,6 +302,27 @@ namespace RAID_REVIEW
         {
             if (Chainloader.PluginInfos.ContainsKey(modName)) return true;
             return false;
+        }
+
+        private static string getBotType(BotComponent botComponent)
+        {
+            if (botComponent.Info.Profile.IsScav) return "SCAV";
+            else if (botComponent.Info.Profile.IsBoss) return "BOSS";
+            else if (botComponent.Info.Profile.IsFollower) return "RAIDER";
+            else
+            {
+                if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.marksman) return "SNIPER";
+                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.bossKnight || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBigPipe || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBirdEye) return "GOON";
+                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantPriest || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantWarrior || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectactPriestEvent) return "CULTIST";
+                var mod_SAIN_version = SAIN.AssemblyInfoClass.SAINVersion;
+                var splittedVersion = mod_SAIN_version.Split('.');
+                if (splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3)
+                {
+                    if (botComponent.Info.Profile.IsPlayerScav) return "PLAYER_SCAV";
+                    else { return "SCAV"; }
+                }
+                else { return "SCAV"; }
+            }
         }
 
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;

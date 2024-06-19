@@ -700,6 +700,12 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     return "(RAIDER)"
                 case 'PLAYER_SCAV':
                     return "(PLAYER SCAV)"
+                case 'SNIPER':
+                    return "(SNIPER)"
+                case 'GOON':
+                    return "(GOON)"
+                case 'CULTIST':
+                    return "(CULTIST)"
                 default:
                     if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
                       return "(PMC)"
@@ -722,6 +728,12 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 return "#FF00FF"; // Magenta - Raider
             case 'PLAYER_SCAV':
                 return "#33FF8D"; // Light Green - Scav Player
+            case 'SNIPER':
+                return "#00911a"; // Dark Green - Sniper
+            case 'GOON':
+                return "##ff005d"; // Between Magenta & Red  - Goon
+            case 'CULTIST':
+                return "##6f00ff"; // Dark Purple - Cultist
             default:
                 if (player && player.team === 'Savage') return "#33FF57"; // Green - Scav
                 else return colors[index]; // PMC
