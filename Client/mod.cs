@@ -301,23 +301,18 @@ namespace RAID_REVIEW
 
         private static string getBotType(BotComponent botComponent)
         {
-            if (botComponent.Info.Profile.IsScav) return "SCAV";
-            else if (botComponent.Info.Profile.IsBoss) return "BOSS";
-            else if (botComponent.Info.Profile.IsFollower) return "RAIDER";
-            else
-            {
-                if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.marksman) return "SNIPER";
-                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.bossKnight || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBigPipe || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBirdEye) return "GOON";
-                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantPriest || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantWarrior || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectactPriestEvent) return "CULTIST";
+            if (SOLARINT_SAIN__DETECTED) {
                 var mod_SAIN_version = SAIN.AssemblyInfoClass.SAINVersion;
                 var splittedVersion = mod_SAIN_version.Split('.');
-                if (splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3)
-                {
-                    if (botComponent.Info.Profile.IsPlayerScav) return "PLAYER_SCAV";
-                    else { return "SCAV"; }
-                }
-                else { return "SCAV"; }
+                if (splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3 && botComponent.Info.Profile.IsPlayerScav) return "PLAYER_SCAV";
+                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.bossKnight || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBigPipe || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBirdEye) return "GOON";
+                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantPriest || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantWarrior || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectactPriestEvent) return "CULTIST";
+                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.marksman) return "SNIPER";
+                else if (botComponent.Info.Profile.IsBoss) return "BOSS";
+                else if (botComponent.Info.Profile.IsFollower) return "RAIDER";
+                else if (botComponent.Info.Profile.IsScav) return "SCAV";
             }
+            return "UNKNOWN";
         }
 
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;
