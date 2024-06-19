@@ -16,14 +16,15 @@ import { MailSendService } from "@spt-aki/services/MailSendService";
 import config from '../config.json';
 import WebServer from "./Web/Server/Express";
 import { ExtractKeysAndValues } from "./Utils/utils";
-import { WriteLineToFile } from "./Controllers/Collection/DataSaver";
-import { database } from "./Controllers/Database/sqlite";
-import CompileRaidPositionalData from "./Controllers/Collection/CompileRaidPositionalData";
+import { WriteLineToFile } from "./Controllers/FileSystem/DataSaver";
+import { database } from "./Database/sqlite";
+import CompileRaidPositionalData from "./Controllers/PositionalData/CompileRaidPositionalData";
 import { NotificationLimiter } from './types'
 import { NOTIFICATION_LIMITER_DEFAULT } from "./Utils/constant";
 import { isTelemetryEnabled } from "./Controllers/Telemetry/Telemetry";
 import { sendStatistics } from "./Controllers/Telemetry/RaidStatistics";
 import { IncomingMessage } from "http";
+import { MigratePositionsStructure } from "./Controllers/PositionalData/PositionsMigration";
 
 export let session_id = null;
 export let profile_id = null;
@@ -116,6 +117,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   public async postAkiLoad(container: DependencyContainer): Promise<void> {
     this.database = await database();
     console.log(`[RAID-REVIEW] Database Connected`);
+
+    // Data Position Migration
+    // @ekky @ 2024-06-18: Added this for the move from v0.0.3 to v0.0.4
+    await MigratePositionsStructure(this.database);
 
     this.saveServer = container.resolve<SaveServer>("SaveServer");
     this.mailSendService = container.resolve<MailSendService>("MailSendService");

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { positonal_data } from "src/Controllers/Collection/CompileRaidPositionalData";
+import { positional_data, positional_data__grouped } from "src/Controllers/PositionalData/CompileRaidPositionalData";
 
 export function calculateDistance(point1, point2) {
     const dx = point2.x - point1.x;
@@ -9,8 +9,9 @@ export function calculateDistance(point1, point2) {
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-export function calculateTotalDistance(positions : positonal_data[][]) : number {
+export function calculateTotalDistance(positions_grouped : positional_data__grouped) : number {
 
+    const positions = _.valuesIn(positions_grouped) as unknown as positional_data[][];
     const distances = [];
     for (let i = 0; i < positions.length; i++) {
         const playerPositions = positions[i];
@@ -18,11 +19,11 @@ export function calculateTotalDistance(positions : positonal_data[][]) : number 
         let previousPoint = null;
         let totalDistance = 0;
         for (let j = 0; j < playerPositions.length; j++) {
-            const positon = playerPositions[j];
+            const position = playerPositions[j];
             if (previousPoint) {
-                totalDistance += calculateDistance(previousPoint, positon);
+                totalDistance += calculateDistance(previousPoint, position);
             }
-            previousPoint = positon;
+            previousPoint = position;
         }
         distances.push(totalDistance);
     

@@ -103,28 +103,20 @@ function generateInterpolatedFramesBezier(data, originalFps, targetFps) {
 
         interpolatedFrames.push(point1);
 
-        // Calculate time difference between consecutive frames
         const timeDiff = (point2.time - point1.time) / frameInterval;
-
         for (let t = 1; t < frameInterval; t++) {
-            // Interpolate position coordinates
             const interpolatedPoint = interpolateBezier(point1, control1, control2, point2, t / frameInterval);
-
-            // Interpolate direction
             const interpolatedDir = interpolateDirection(point1.dir, point2.dir, t / frameInterval);
-
-            // Interpolate time
             const interpolatedTime = point1.time + (timeDiff * t);
 
-            // Push interpolated frame
             interpolatedFrames.push({
                 x: interpolatedPoint.x,
                 y: interpolatedPoint.y,
                 z: interpolatedPoint.z,
                 dir: interpolatedDir,
                 time: interpolatedTime,
-                profileId: point1.profileId, // Assuming profileId remains constant
-                raid_id: point1.raid_id      // Assuming raid_id remains constant
+                profileId: point1.profileId,
+                raid_id: point1.raid_id
             });
         }
     }

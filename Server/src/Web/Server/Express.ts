@@ -12,8 +12,8 @@ import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 
 import config from '../../../config.json';
-import { DeleteFile, ReadFile } from "../../Controllers/Collection/DataSaver";
-import CompileRaidPositionalData from "../../Controllers/Collection/CompileRaidPositionalData";
+import { DeleteFile, ReadFile } from "../../Controllers/FileSystem/DataSaver";
+import CompileRaidPositionalData from "../../Controllers/PositionalData/CompileRaidPositionalData";
 import { generateInterpolatedFramesBezier } from "../../Utils/utils";
 import { getRaidData } from "../../Controllers/Collection/GetRaidData";
 
@@ -180,10 +180,10 @@ function StartWebServer(
     async (req: Request, res: Response) => {
       let { profileId } = req.params;
 
-      const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = ? AND timeInRaid > 10 ORDER BY id DESC`;
-      const sqlRaidValues = [profileId];
+      const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = '${profileId}' AND timeInRaid > 10 ORDER BY id DESC`;
+      // const sqlRaidValues = [profileId];
       const data = await db
-        .all(sqlRaidQuery, sqlRaidValues)
+        .all(sqlRaidQuery)
         .catch((e: Error) => console.error(e));
 
       res.json(data);
@@ -208,7 +208,7 @@ function StartWebServer(
           }
 
           DeleteFile("positions", "", "", `${raidId}_positions`);
-          DeleteFile("positions", "", "", `${raidId}_positions.json`);
+          DeleteFile("positions", "", "", `${raidId}_V2_positions.json`);
           
           deletedRaids.push(raidId);
         }
@@ -280,7 +280,7 @@ function StartWebServer(
         "positions",
         "",
         "",
-        `${raidId}_positions.json`
+        `${raidId}_V2_positions.json`
       );
       if (positionalDataRaw) {
         const positionalData = JSON.parse(positionalDataRaw);

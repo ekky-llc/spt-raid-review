@@ -4,8 +4,8 @@ import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
 
 import { TrackingRaidData } from "src/Web/Client/src/types/api_types";
-import { positonal_data } from "../Collection/CompileRaidPositionalData";
-import { calculateTotalDistance } from "../../Utils/CalculateDistancesTravelled";
+import { positional_data, positional_data__grouped } from "../PositionalData/CompileRaidPositionalData";
+import { calculateTotalDistance } from "../PositionalData/CalculateDistancesTravelled";
 import { getRaidData } from '../Collection/GetRaidData';
 
 export interface StatisticsPayload {
@@ -27,7 +27,7 @@ export interface StatisticsPayload {
     distanceTravelled: number
 }
 
-export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Statement>, profileId: string, raidId: string, positions: positonal_data[][] = []): Promise<void> {
+export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Statement>, profileId: string, raidId: string, positions: positional_data__grouped): Promise<void> {
     const raidData = await getRaidData(db, profileId, raidId);
     console.log(`[RAID-REVIEW] Generating statistics payload.`)
 
@@ -38,7 +38,7 @@ export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Stat
     console.log(`[RAID-REVIEW] Statistics payload recieved.`)
 }
 
-async function generateStatisticsPayload(raid: TrackingRaidData, positions: positonal_data[][] = []) : Promise<StatisticsPayload> {
+async function generateStatisticsPayload(raid: TrackingRaidData, positions: positional_data__grouped) : Promise<StatisticsPayload> {
 
     // Data points
     let players = {

@@ -103,6 +103,15 @@ export interface NotificationLimiter {
   loot: boolean;
 }
 
+export interface RaidReviewSettings {
+  id : number;
+  key : string;
+  value : string;
+  type : string;
+  created_at : Date;
+  updated_at : Date;
+}
+
 declare module 'express' {
   interface Request {
       auth?: {

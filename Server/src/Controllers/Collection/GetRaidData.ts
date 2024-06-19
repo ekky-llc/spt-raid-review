@@ -1,6 +1,6 @@
 import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
-import { FileExists } from "./DataSaver";
+import { FileExists } from "../FileSystem/DataSaver";
 
 export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Statement>, profileId: string, raidId: string) {
 
@@ -25,7 +25,7 @@ export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Stateme
       "positions",
       "",
       "",
-      `${raidId}_positions.json`
+      `${raidId}_V2_positions.json`
     );
 
     // Quick Fix
