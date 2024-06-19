@@ -33,6 +33,7 @@ namespace RAID_REVIEW
                         {
                             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
                             RAID_REVIEW.SOLARINT_SAIN__DETECTED = true;
+                            RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Add("SAIN");
                         }
                         Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
                     }

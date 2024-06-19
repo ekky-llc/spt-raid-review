@@ -19,7 +19,8 @@ namespace RAID_REVIEW
         {
             try
             {
-                if (RAID_REVIEW.LootTracking.Value)
+                bool isPackingMagazine = location.Container.ID == "cartridges";
+                if (RAID_REVIEW.LootTracking.Value && !isPackingMagazine)
                 {
                     TrackingLootItem newLootItem = new TrackingLootItem();
 

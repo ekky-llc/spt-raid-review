@@ -19,10 +19,12 @@ using SAIN.SAINComponent;
 using SAIN.Preset.GlobalSettings.Categories;
 using SAIN.SAINComponent.Classes.Info;
 using EFT.Communications;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
     [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.4")]
+    [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
@@ -102,7 +104,7 @@ namespace RAID_REVIEW
             Telemetry.Connect(RAID_REVIEW_WS_Server);
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Connected to backend");
         }
-        void Update()
+        async void Update()
         {
             try
             {
@@ -129,6 +131,7 @@ namespace RAID_REVIEW
 
                 gameWorld = Singleton<GameWorld>.Instance;
                 myPlayer = gameWorld?.MainPlayer;
+
 
                 // IF IN MENU, RETURN
                 if (gameWorld == null || myPlayer == null)
@@ -161,8 +164,23 @@ namespace RAID_REVIEW
                         //get player mod_SAIN brain type name
                         if (SOLARINT_SAIN__DETECTED)
                         {
-                            var botComponent = player.GetComponent<BotComponent>();
-                            if(botComponent != null)
+                            BotComponent botComponent = null;
+
+                            int maxRetries = 5;
+                            int retryCount = 0;
+                            int retryIntervalMilliseconds = 1000;
+
+                            while (botComponent == null && retryCount < maxRetries)
+                            {
+                                botComponent = player.gameObject.GetComponent<BotComponent>();
+                                if (botComponent == null)
+                                {
+                                    await Task.Delay(retryIntervalMilliseconds); // Wait for the specified interval
+                                    retryCount++;
+                                }
+                            }
+
+                            if (botComponent != null)
                             {
                                 var brain = botComponent.Info.Personality;
                                 trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), brain);
@@ -188,7 +206,7 @@ namespace RAID_REVIEW
                         }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
-                        Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
+                        _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
                     }
 
                     // Checks if a player / bot has died since the last check...
@@ -243,7 +261,7 @@ namespace RAID_REVIEW
                                 bool isValidPayload = ValidateTrackingPlayerData(trackingPlayerData, out _validationResults);
                                 if (inRaid && ValidateTrackingPlayerData(trackingPlayerData, out _validationResults))
                                 {
-                                    Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
+                                    _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                                 }
                             }
 
