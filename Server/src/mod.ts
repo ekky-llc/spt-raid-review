@@ -242,6 +242,20 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 break;
                 
               case "PLAYER":
+
+                const playerExists_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ?`
+                const playerExists = await this.database
+                .all(playerExists_sql, [
+                  this.raid_id,
+                  payload_object.profileId
+                ])
+                .catch((e: Error) => console.error(e));
+
+                // Stop duplicates
+                if (playerExists && playerExists.length) {
+                  return;
+                }
+
                 const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database
                   .run(player_sql, [

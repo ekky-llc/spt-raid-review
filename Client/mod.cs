@@ -197,13 +197,8 @@ namespace RAID_REVIEW
                             trackingPlayer.mod_SAIN_brain = player.Side == EPlayerSide.Savage ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PMC";
                         }
 
-                        bool isBeingTrackedInner = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
-                        if (!isBeingTrackedInner)
-                        {
-                            trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
-                            _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
-                        }
-
+                        trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
+                        _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
                     }
 
                     // Checks if a player / bot has died since the last check...
