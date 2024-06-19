@@ -748,9 +748,9 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             case 'SNIPER':
                 return "#00911a"; // Dark Green - Sniper
             case 'GOON':
-                return "##ff005d"; // Between Magenta & Red  - Goon
+                return "#ff005d"; // Between Magenta & Red  - Goon
             case 'CULTIST':
-                return "##6f00ff"; // Dark Purple - Cultist
+                return "#6f00ff"; // Dark Purple - Cultist
             default:
                 if (player && player.team === 'Savage') return "#33FF57"; // Green - Scav
                 else return colors[index]; // PMC
