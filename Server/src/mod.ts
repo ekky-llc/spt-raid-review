@@ -27,6 +27,7 @@ import { IncomingMessage } from "http";
 import { MigratePositionsStructure } from "./Controllers/PositionalData/PositionsMigration";
 import { CheckForMissingMainPlayer } from "./Controllers/DataIntegrity/CheckForMissingMainPlayer";
 import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { NoOneLeftBehind } from "./Controllers/DataIntegrity/NoOneLeftBehind";
 
 export let session_id = null;
 export let profile_id = null;
@@ -182,6 +183,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
               payload_object.profileId = profile_id;
             }
 
+
             const { keys, values } = ExtractKeysAndValues(payload_object);
 
             switch (data.Action) {
@@ -249,6 +251,11 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 console.log(`[RAID-REVIEW] Enabling Post Processing`);
                 break;
                 
+              case "PLAYER_CHECK":
+
+                await NoOneLeftBehind(this.database, this.raid_id, profile_id, payload_object);
+                break;
+
               case "PLAYER":
 
                 const playerExists_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ?`

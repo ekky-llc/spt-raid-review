@@ -40,7 +40,6 @@ namespace RAID_REVIEW
         public static List<string> RAID_REVIEW__DETECTED_MODS = new List<string>();
         public static Dictionary<string ,TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
         public static Dictionary<string, TrackingPlayer> deadPlayers = new Dictionary<string, TrackingPlayer>();
-        public static Dictionary<string, Vector3> lastPlayerPosition = new Dictionary<string, Vector3>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
         public static Stopwatch stopwatch = new Stopwatch();
 
@@ -246,34 +245,7 @@ namespace RAID_REVIEW
                             float dir = angle;
 
                             var trackingPlayerData = new TrackingPlayerData(player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
-
-                            try
-                            {
-                                List<ValidationResult> _validationResults;
-                                bool isValidPayload = ValidateTrackingPlayerData(trackingPlayerData, out _validationResults);
-                                if (inRaid && ValidateTrackingPlayerData(trackingPlayerData, out _validationResults))
-                                {
-                                    _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
-                                }
-                            }
-
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Telemetry sending failed: {ex.Message}");
-                            }
-
-                            Vector3 lastPositionVal;
-                            if (lastPlayerPosition.TryGetValue(player.ProfileId, out lastPositionVal))
-                            {
-                                if (!lastPositionVal.Equals(playerPosition))
-                                {
-                                    lastPlayerPosition[player.ProfileId] = playerPosition;
-                                }
-                            }
-                            else
-                            {
-                                lastPlayerPosition.Add(player.ProfileId, playerPosition);
-                            }
+                            _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                         }
                     }
                 }
@@ -284,13 +256,6 @@ namespace RAID_REVIEW
                 Logger.LogError(ex);
                 Logger.LogError($"{ex.Message}");
             }
-        }
-
-        public static bool ValidateTrackingPlayerData(TrackingPlayerData data, out List<ValidationResult> validationResults)
-        {
-            var context = new ValidationContext(data, null, null);
-            validationResults = new List<ValidationResult>();
-            return Validator.TryValidateObject(data, context, validationResults, true);
         }
 
         public static bool DetectMod(string modName)

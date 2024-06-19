@@ -74,6 +74,8 @@ namespace RAID_REVIEW
                     RAID_REVIEW.inRaid = true;
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Information Populated");
 
+                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
+
                     return;
                 }
                 return;
