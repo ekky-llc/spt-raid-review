@@ -7,23 +7,23 @@
     "01_comment" : "[SERVER] [DEFAULT: 7829]Changes Default HTTP port, modify this if port is reserved in your environment.",
     "web_client_port": 7829,
 
-    "02_comment": "[AUTO-DELETE] [DEFAULT: TRUE] Automatically delete old raids to save disk space, runs on start up.",
-    "autoDelete" : true,
+    "02_comment": "[AUTO-DELETE] [DEFAULT: TRUE] Automatically delete old raids to save disk space.",
+    "autoDelete" : false,
     "03_comment": "[AUTO-DELETE] [DEFAULT: 30] Maximum number of raids allowed to be stored, oldest raid will be deleted [DEFAULT: 30 Raids].",
-    "autoDeleteLimit" : 30,
-    "04_comment": "[AUTO-DELETE] [DEFAULT: TRUE] Automatically delete unfinished raids (due to crash, alt+f4 etc), runs on start up.",
+    "autoDeleteLimit" : 28,
+    "04_comment": "[AUTO-DELETE] [DEFAULT: TRUE] Automatically delete unfinished raids (due to crash, alt+f4 etc).",
     "autoDeleteUnfinishedRaids" : true,
 
-    "05_comment": "[AUTH] [DEFAULT: FALSE] Enable Basic Auth, use this setting if you'd like to password protect web server.",
+    "05_comment": "[AUTH] Enable Basic Auth, use this setting if you'd like to password protect web server.",
     "basic_auth" : false,
     "06_comment" : "[AUTH] If Basic Auth Enabled, use this to register username/passwords.",
     "users" : {
         "admin" : "password",
-        "guest" : "password"
+        "user_1" : "password"
     },
     "07_comment" : "[AUTH] If Basic Auth Enabled, use this to mark user as an admin.",
     "admin" : {
         "admin" : true,
-        "guest" : false
+        "user_1" : false
     }
 }

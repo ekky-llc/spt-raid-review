@@ -28,6 +28,7 @@ import { MigratePositionsStructure } from "./Controllers/PositionalData/Position
 import { CheckForMissingMainPlayer } from "./Controllers/DataIntegrity/CheckForMissingMainPlayer";
 import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 import { NoOneLeftBehind } from "./Controllers/DataIntegrity/NoOneLeftBehind";
+import { GarbageCollectOldRaids, GarbageCollectUnfinishedRaids } from "./Controllers/DataIntegrity/TheGarbageCollector";
 
 export let session_id = null;
 export let profile_id = null;
@@ -131,9 +132,13 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     const profiles = profileHelper.getProfiles();
     await CheckForMissingMainPlayer(this.database, profiles)
 
+    // Storage Saving Helpers
+    await GarbageCollectOldRaids(this.database);
+    await GarbageCollectUnfinishedRaids(this.database);
+
     this.saveServer = container.resolve<SaveServer>("SaveServer");
     this.mailSendService = container.resolve<MailSendService>("MailSendService");
-    console.log(`[RAID-REVIEW] SPT-AKI Server Connected`);
+    console.log(`[RAID-REVIEW] SPT Server Connected.`);
 
     this.wss = new WebSocketServer({
       port: config.web_socket_port || 7828,

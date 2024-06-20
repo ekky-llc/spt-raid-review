@@ -316,7 +316,7 @@ function StartWebServer(
 
   app.listen(port, () => {
     return console.log(
-      `[RAID-REVIEW] Web Server is running at 'http://127.0.0.1:${port}'`
+      `[RAID-REVIEW] Web Server is running at 'http://127.0.0.1:${port}'.`
     );
   });
 }
