@@ -3,7 +3,7 @@ import _ from "lodash";
 
 import api from "../api/api";
 
-import Map from '../component/Map'
+import MapComponent from '../component/MapComponent'
 import "./MapView.css";
 import { TrackingPositionalData, TrackingRaidData } from "../types/api_types";
 
@@ -29,6 +29,6 @@ export default function MapView() {
   };
 
   return <>
-    <Map raidData={raidData} profileId={profileId} raidId={raidId} positions={positions} />
+    <MapComponent raidData={raidData} profileId={profileId} raidId={raidId} positions={positions} />
   </>;
 }

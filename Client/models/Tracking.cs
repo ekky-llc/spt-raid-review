@@ -31,6 +31,7 @@ namespace RAID_REVIEW
         public string type { get; set; }
         public int group {  get; set; }
         public long spawnTime { get; set; }
+        public string mod_SAIN_brain { get; set; }
     }
 
     public class TrackingExtractedPlayer

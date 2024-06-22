@@ -1,8 +1,7 @@
-export interface TrackingCoreData {
-  raids: TrackingCoreDataRaids[];
-}
+
 export interface TrackingCoreDataRaids {
   id: string;
+  raidId: string;
   playerId: string;
   location: string;
   time: Date;
@@ -25,7 +24,7 @@ export interface TrackingPositionalData {
 
 
 export interface TrackingRaidData {
-  positionsTracked: boolean;
+  positionsTracked: string;
   id: string;
   raidId: string;
   profileId: string
@@ -48,6 +47,7 @@ export interface TrackingRaidDataPlayers {
   type: string
   group: number
   spawnTime: number
+  mod_SAIN_brain: string
 }
 
 export interface TrackingRaidDataKills {
@@ -68,4 +68,8 @@ export interface TrackingRaidDataLoot {
   qty: string
   type: string
   added: string
+}
+
+export interface RaidReviewServerSettings {
+  telemetry_enabled: string,
 }

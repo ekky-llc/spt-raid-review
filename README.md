@@ -7,6 +7,16 @@ An experimental way for the SPT Community to review raid data such as kills and 
 ### Installation
 Download your compatible version from the 'Releases' tab, and see the instructions for that version in the description of the release.
 
+### Contributions / Development
+
+Please see [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can help contribute to this project.
+
+Please see [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
+
+Please see [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) for information regarding using this mod on a remote host, or with Fika.
+
+Please see [TELEMETRY.md](TELEMETRY.md) for information regarding statistics collection.
+
 ### Features
 - Review information for raids such as kills, looting, players, bots, and positional information.
 - Basic toggle filters/grouping features to view raid information after the fact.
@@ -35,3 +45,7 @@ If you have an idea, or wish to contribute feel free to raise an issue or make a
 - SPT Discord, specfically people active in the 'mod-development' and 'dev-community' channels.
 - The folks over at 'tarkov.dev' for having an Open Sourced MIT Licensed repo that I could fork the interactive map from, litterally saved me weeks of work.
 - You for downloading the mod, and taking the time to install it.
+
+### Support
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I8Z8R08)

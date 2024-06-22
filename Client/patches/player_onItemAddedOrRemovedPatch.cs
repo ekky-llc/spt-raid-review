@@ -19,7 +19,8 @@ namespace RAID_REVIEW
         {
             try
             {
-                if (RAID_REVIEW.LootTracking.Value)
+                bool isPackingMagazine = location.Container.ID == "cartridges";
+                if (RAID_REVIEW.LootTracking.Value && !isPackingMagazine)
                 {
                     TrackingLootItem newLootItem = new TrackingLootItem();
 
@@ -30,6 +31,12 @@ namespace RAID_REVIEW
                     newLootItem.qty = item.StackObjectsCount;
                     newLootItem.type = item.QuestItem ? "QUEST_ITEM" : "LOOT";
                     newLootItem.added = added;
+
+                    if (!added)
+                    {
+                        // bool isMagazine = location.Item.Name.ToLower().Contains("mag");
+                        Console.WriteLine(location.Item.ToJson());
+                    }
 
                     Telemetry.Send("LOOT", JsonConvert.SerializeObject(newLootItem));
                 }

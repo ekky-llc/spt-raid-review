@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<AssemblyName>RAID_REVIEW__0.0.3</AssemblyName>
+		<AssemblyName>RAID_REVIEW__0.0.4</AssemblyName>
 		<Copyright>2024 © Ekky</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>D:\Games\SPT_3.8.1_DEV\BepInEx\plugins\</OutputPath>

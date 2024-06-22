@@ -1,0 +1,35 @@
+{
+    "do_not_delete_1" : "[👇🏾 DO NOT MODIFY]",
+    "settings_schema_version" : 1,
+    "do_not_delete_2" : "[☝🏾 DO NOT MODIFY]",
+
+    
+    "00_comment" : "[SERVER] [DEFAULT: 7828] Changes Default Web Socket port, modify this if port is reserved in your environment.",
+    "web_socket_port" : 7828,
+    "01_comment" : "[SERVER] [DEFAULT: 7829] Changes Default HTTP port, modify this if port is reserved in your environment.",
+    "web_client_port": 7829,
+
+
+    "02_comment": "[AUTO-DELETE] [DEFAULT: true] Automatically delete old raids to save disk space, runs on start up.",
+    "autoDelete" : true,
+    "03_comment": "[AUTO-DELETE] [DEFAULT: true] Automatically delete unfinished raids (due to crash, alt+f4 etc), runs on start up.",
+    "autoDeleteUnfinishedRaids" : true,
+    "04_comment": "[AUTO-DELETE] [DEFAULT: false] If this is 'true', 'autoDelete' functions will run once an hour, helpful if you don't generally restart the SPT Server.",
+    "autoDeleteCronJob" : false,
+    "05_comment": "[AUTO-DELETE] [DEFAULT: 30] If this is 'true', this is the maximum number of raids allowed to be stored, oldest raid will be deleted.",
+    "autoDeleteLimit" : 30,
+
+    
+    "06_comment": "[AUTH] [DEFAULT: false] Enable Basic Auth, use this setting if you'd like to password protect web server.",
+    "basic_auth" : false,
+    "07_comment" : "[AUTH] If Basic Auth Enabled, use this to register username/passwords.",
+    "users" : {
+        "admin" : "password",
+        "guest" : "password"
+    },
+    "08_comment" : "[AUTH] If Basic Auth Enabled, use this to mark user as an admin.",
+    "admin" : {
+        "admin" : true,
+        "guest" : false
+    }
+}

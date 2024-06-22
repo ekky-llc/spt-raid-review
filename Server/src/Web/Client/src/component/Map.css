@@ -1,6 +1,6 @@
 .parent {
     display: grid;
-    grid-template-columns: 300px repeat(4, 1fr);
+    grid-template-columns: 400px repeat(4, 1fr);
     grid-template-rows: auto repeat(3, 1fr) auto;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
@@ -29,10 +29,10 @@
 
 .map-wrapper {
     width: 100%;
-    height: 80vh;
+    height: calc(100vh - 260px);
 }
 
-.leaflet-image-layer {
+.leaflet-image-layer, .leaflet-tile-container {
     filter: grayscale(1) sepia(1) brightness(0.8);
 }
 
@@ -62,6 +62,7 @@
 .dev__time_sliders {
     position: relative;
     width: 100%;
+    height: fit-content;
     background-color: rgba(0, 0, 0, 0.75);
     user-select: none;
 }
@@ -115,6 +116,10 @@
     position: relative;
 }
 
+.leaflet-control-coordinates {
+  text-align: right;
+}
+
 .tooltip {
     display: inline-block;
   }
@@ -149,7 +154,7 @@
     /* Position the tooltip */
     position: absolute;
     bottom: 115%;
-    z-index: 1;
+    z-index: 9999;
   }
   
   .tooltip:hover .tooltiptext {
@@ -157,7 +162,7 @@
   }
 
 
-  .killer-icon {
+  .killer-icon, .death-icon {
     position: absolute;
     left: -15px;
     top: -13px;
@@ -173,15 +178,19 @@
     top: -5px;
   }
 
+  .death-icon img {
+    height: 30px;
+  }
+
   .kill-stream {
     position: absolute;
     bottom: 222px;
-    left: 355px;
+    left: 455px;
     padding: 4px 8px;
-    width: 450px;
+    width: fit-content;
     z-index: 9999;
     height: 110px;
-    background: #00000094;
+    background: #9a8866;
   }
 
   .player-legend-item:hover {
@@ -231,9 +240,9 @@
   }
 
   .kill-stream .text-eft:nth-of-type(3) {
-      opacity: 0.5;
+      opacity: 0.65;
   }
 
   .kill-stream .text-eft:nth-of-type(4) {
-    opacity: 0.25;
+    opacity: 0.5;
   }

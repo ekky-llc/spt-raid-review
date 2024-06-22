@@ -1,4 +1,4 @@
-import { Link, Outlet, useLoaderData } from "react-router-dom";
+import { Link, Outlet, redirect, useLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
 import _ from 'lodash';
 
@@ -8,19 +8,27 @@ import en from "../assets/en.json";
 import "./Raid.css";
 import { TrackingRaidData, TrackingRaidDataPlayers } from "../types/api_types";
 import { locations } from "./Profile";
+import { getCookie } from "../modules/utils";
 
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
+  const raidId = loaderData.params.raidId as string;
+
   const raidData = (await api.getRaid(
     profileId,
-    loaderData.params.raidId
+    raidId
   )) as TrackingRaidData;
+
+  if (!raidData) {
+    return redirect(`/p/${profileId}`);
+  }
 
   return { profileId, raidData };
 }
 
 export default function Raid() {
   const [ filters, setFilters ] = useState(["KILLS"]);
+  const [ isAdmin, setIsAdmin ] = useState(false);
   const [ playerFilter, setPlayerFilter ] = useState([] as string[]);
   const [ raidSummary, setRaidSummary ] = useState([] as { title: string, value: any }[]);
   const [ playersByGroup, setPlayersByGroup ] = useState({} as { [key:string] : TrackingRaidDataPlayers[] })
@@ -30,6 +38,22 @@ export default function Raid() {
 
   useEffect(() => {
     if (raidData === undefined) return;
+
+    // If Basic Auth is on, check if is_admin
+    const is_auth_configured_cookie = getCookie('is_auth_configured_cookie');
+    if (is_auth_configured_cookie === "true") {
+
+      // If is admin, display raid settings.
+      const is_admin_cookie = getCookie('is_admin_cookie');
+      if (is_admin_cookie === "true") {
+        setIsAdmin(true);
+      }
+    } 
+    
+    // If Basic Auth is off, display raid settings.
+    else {
+      setIsAdmin(true);
+    }
 
     const groupedPlayers = _.chain(raidData.players).map(p => {
       if (p.team === 'Savage') {
@@ -84,9 +108,13 @@ export default function Raid() {
       value: raidData.kills ? raidData.kills.length : 0
     });
 
+
+    let positionsTrackedMap = { "COMPILED" : "Available", "RAW" : "Processing", "NOT_AVAILABLE" : "Not Available" }
     newRaidSummary.push({
       title: 'Positional Data',
-      value: raidData.positionsTracked ? 'Available' : 'N/A'
+
+      // @ts-ignore
+      value: raidData.positionsTracked ? positionsTrackedMap[raidData.positionsTracked] : 'N/A'
     });
 
 
@@ -164,6 +192,57 @@ export default function Raid() {
     }
   }
 
+  function getPlayerBrain(player: TrackingRaidDataPlayers): string {
+    if(player) {
+      switch (player.type){
+          case 'BOSS':
+              return "BOSS"
+          case 'RAIDER':
+              return "RAIDER"
+          case 'PLAYER_SCAV':
+              return "PLAYER SCAV"
+          case 'SNIPER':
+              return "SNIPER"
+          case 'GOON':
+              return "GOON"
+          case 'CULTIST':
+              return "CULTIST"
+          default:
+              if(player.team === "Savage") {
+                return ""
+              } 
+              return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+      }
+  }
+  return "(UNKNOWN)"
+  }
+
+  function generateMapPlaybackButton(positionDataStatus: string) {
+
+    if (positionDataStatus === 'RAW') {
+      return (
+        <button disabled className="text-sm p-2 py-1 text-sm cursor-not-allowed bg-eft flex items-center font-black opacity-50 border border-black/0 mr-3">
+          Processing Playback Data
+        </button>
+      )
+    }
+
+    if (positionDataStatus === 'COMPILED') {
+      return (
+        <Link to={`/p/${profileId}/raid/${raidData.raidId}/map`} className="text-sm p-2 py-1 text-sm cursor-pointer bg-eft flex items-center font-black hover:opacity-75 border border-black/0 mr-3">
+          View Map Playback
+        </Link>
+      )
+    }
+
+    return (
+      <button disabled className="text-sm p-2 py-1 text-sm cursor-not-allowed bg-eft flex items-center font-black opacity-50 border border-black/0 mr-3">
+        View Map Playback
+      </button>
+    )
+    
+  }
+
   function generateTimeline(filters: string[]): any {
 
     if (raidData && raidData.kills && raidData.looting && raidData.players) {
@@ -234,7 +313,7 @@ export default function Raid() {
 
   return (
     <>
-      <section className="border border-eft py-4 px-6 mb-5">
+      <section className="border border-eft py-4 px-6 mb-5 relative">
         <h2 className="text-xl font-black text-eft">Raid Summary</h2>
         <div id="raid_summary">
           { raidSummary.map( raidSum => <div key={raidSum.title} className="text text-eft">
@@ -242,6 +321,12 @@ export default function Raid() {
             <p>{ raidSum.value }</p>
           </div>) }
         </div>
+        {
+          isAdmin ? 
+          <Link to={`/p/${profileId}/raid/${raidData.raidId}/settings`} className="raid_more_settings cursor-pointer bg-eft p-1 text-xs font-black flex hover:opacity-75">
+            Raid Settings
+          </Link> : ''
+        }
       </section>
       <section className="flex w-100 gap-4">
         <div className="border border-eft w-2/6 py-4 px-6">
@@ -301,7 +386,7 @@ export default function Raid() {
                             </div>
                             <span>
                             {/* @ts-ignore */}
-                              [{player.level}] {team[player.team]}
+                              {getPlayerBrain(player)} [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}
@@ -336,13 +421,9 @@ export default function Raid() {
           <nav className="mb-5 flex justify-between items-start">
             <h2 className="text-xl font-black text-eft mb-3">Raid Timeline</h2>
             <div className="flex">
-              { raidData.positionsTracked ? 
-              <Link to={`/p/${profileId}/raid/${raidData.raidId}/map`} className="text-sm p-2 py-1 text-sm cursor-pointer bg-eft flex items-center font-black hover:opacity-75 border border-black/0 mr-3">
-                  View Map Playback
-              </Link>
-              : <button disabled className="text-sm p-2 py-1 text-sm cursor-not-allowed bg-eft flex items-center font-black opacity-50 border border-black/0 mr-3">
-                View Map Playback
-              </button> }
+
+              { generateMapPlaybackButton(raidData.positionsTracked) }
+
               <ul className="flex items-center gap-2 border border-eft p-1">
                 <span className="text-eft">Filter By:</span>
                 <li
