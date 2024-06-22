@@ -65,7 +65,7 @@ export default function Home() {
                 )) : 'No Profiles Found...'}
             </div>
 
-            { showMessage ? 
+            {/* { showMessage ? 
                 <div id="notification">
                         <div className="home-message">
                             <div className="text-right mx-auto mb-2"> 
@@ -82,7 +82,7 @@ export default function Home() {
                             </div>
                         </div>
                 </div>    
-            : ''}
+            : ''} */}
 
             <div className="text-xs text-center mt-4">
                 Need help? Found a bug?<br />Join the <a target="_blank" className="underline" href="https://discord.gg/5AyDs66h8S">Discord</a>.

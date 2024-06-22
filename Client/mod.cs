@@ -20,6 +20,7 @@ using SAIN.Preset.GlobalSettings.Categories;
 using SAIN.SAINComponent.Classes.Info;
 using EFT.Communications;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace RAID_REVIEW
 {
@@ -39,7 +40,6 @@ namespace RAID_REVIEW
         public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
         public static List<string> RAID_REVIEW__DETECTED_MODS = new List<string>();
         public static Dictionary<string ,TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
-        public static Dictionary<string, TrackingPlayer> deadPlayers = new Dictionary<string, TrackingPlayer>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
         public static Stopwatch stopwatch = new Stopwatch();
 
@@ -119,11 +119,6 @@ namespace RAID_REVIEW
                     Application.OpenURL(RAID_REVIEW_HTTP_Server);
                 }
 
-                if (Input.GetKey(KeyCode.F6))
-                {
-                    NotificationManagerClass.DisplayMessageNotification("[RAID-REVIEW] Triggered Manually", ENotificationDurationType.Long);
-                }
-
                 // IF MAP NOT LOADED, RETURN
                 if (!MapLoaded())
                     return;
@@ -133,7 +128,7 @@ namespace RAID_REVIEW
 
 
                 // IF IN MENU, RETURN
-                if (gameWorld == null || myPlayer == null)
+                if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
                     return;
 
                 // PLAYER TRACKING LOOP
@@ -145,11 +140,11 @@ namespace RAID_REVIEW
                     if (player == null)
                         continue;
 
-                    // Checks if a new player / bot has spawned into the raid...
                     TrackingPlayer trackingPlayer = new TrackingPlayer();
                     bool isBeingTracked = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
                     if (!isBeingTracked)
                     {
+
                         trackingPlayer = new TrackingPlayer
                         {
                             profileId = player.ProfileId,
@@ -157,12 +152,12 @@ namespace RAID_REVIEW
                             level = player.Profile.Info.Level,
                             team = player.Side,
                             group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0,
-                            spawnTime = captureTime,
+                            spawnTime = stopwatch.ElapsedMilliseconds,
                             type = player.IsAI ? "BOT" : "HUMAN",
                             mod_SAIN_brain = "UNKNOWN"
                         };
 
-                        //get player mod_SAIN brain type name
+                        // Get player mod_SAIN brain type name
                         if (SOLARINT_SAIN__DETECTED)
                         {
                             BotComponent botComponent = null;
@@ -191,6 +186,7 @@ namespace RAID_REVIEW
                                 }
                             }
                         }
+
                         else
                         {
                             trackingPlayer.mod_SAIN_brain = player.Side == EPlayerSide.Savage ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PMC";
@@ -200,19 +196,11 @@ namespace RAID_REVIEW
                         _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
                     }
 
-                    // Checks if a player / bot has died since the last check...
-                    TrackingPlayer deadPlayer = new TrackingPlayer();
-                    bool isDead = deadPlayers.TryGetValue(player.ProfileId, out deadPlayer);
-                    if (!isDead)
-                    {
-                        if (!player.HealthController.IsAlive)
-                        {
-                            deadPlayers[player.ProfileId] = trackingPlayer;
-                            continue;
-                        }
 
-                        // Checks a player position if they are still alive...
-                        if (RAID_REVIEW.PlayerTracking.Value)
+                    // Checks if a player / bot has died since the last check...
+                    if (player.HealthController.IsAlive)
+                    {
+                        if (PlayerTracking.Value)
                         {
                             if (player == null || gameWorld == null)
                             {
@@ -266,7 +254,7 @@ namespace RAID_REVIEW
 
         private static string getBotType(BotComponent botComponent)
         {
-            if (SOLARINT_SAIN__DETECTED) {
+            if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) {
                 var mod_SAIN_version = SAIN.AssemblyInfoClass.SAINVersion;
                 var splittedVersion = mod_SAIN_version.Split('.');
                 if (splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3 && botComponent.Info.Profile.IsPlayerScav) return "PLAYER_SCAV";

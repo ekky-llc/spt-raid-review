@@ -11,41 +11,48 @@ import { DeleteFile } from '../FileSystem/DataSaver';
  */
 async function GarbageCollectOldRaids(db: Database<sqlite3.Database, sqlite3.Statement>) {
 
-    if (config.autoDelete) {
-        console.log(`[RAID-REVIEW] Garbage collector deleting old raids, only keeping data for the last '${config.autoDeleteLimit}' raids.`);
+    try  {
 
-        // Get raids that are offset by {config.autoDeleteLimit}.
-        const oldRaids_sql = `SELECT * FROM raid ORDER BY created_at DESC LIMIT 1000000 OFFSET ${config.autoDeleteLimit};`
-        const oldRaids = await db.all(oldRaids_sql);
+        if (config.autoDelete) {
+            console.log(`[RAID-REVIEW] Garbage collector deleting old raids, only keeping data for the last '${config.autoDeleteLimit}' raids.`);
+
+            // Get raids that are offset by {config.autoDeleteLimit}.
+            const oldRaids_sql = `SELECT * FROM raid ORDER BY created_at DESC LIMIT 1000000 OFFSET ${config.autoDeleteLimit};`
+            const oldRaids = await db.all(oldRaids_sql);
+            
+            // Delete these raids, including temp and positional data.
+            if (oldRaids.length > 0) {
+                console.log(`[RAID-REVIEW] Found '${oldRaids.length}' raids to delete.`);
+                for (let i = 0; i < oldRaids.length; i++) {
+                    const oldRaid = oldRaids[i];
+
+                    const keys = ["raid", "kills", "looting", "player"];
+                    for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`;
+                    const sqlKeyValues = [oldRaid.raidId];
+                    await db
+                        .run(sqlKeyQuery, sqlKeyValues)
+                        .catch((e: Error) => console.error(e));
+                    }
         
-        // Delete these raids, including temp and positional data.
-        if (oldRaids.length > 0) {
-            console.log(`[RAID-REVIEW] Found '${oldRaids.length}' raids to delete.`);
-            for (let i = 0; i < oldRaids.length; i++) {
-                const oldRaid = oldRaids[i];
-
-                const keys = ["raid", "kills", "looting", "player"];
-                for (let i = 0; i < keys.length; i++) {
-                  const key = keys[i];
-                  const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`;
-                  const sqlKeyValues = [oldRaid];
-                  await db
-                    .all(sqlKeyQuery, sqlKeyValues)
-                    .catch((e: Error) => console.error(e));
+                    DeleteFile("positions", "", "", `${oldRaid.raidId}_positions`);
+                    DeleteFile("positions", "", "", `${oldRaid.raidId}_V2_positions.json`);
                 }
-      
-                DeleteFile("positions", "", "", `${oldRaid}_positions`);
-                DeleteFile("positions", "", "", `${oldRaid}_V2_positions.json`);
+                console.log(`[RAID-REVIEW] Garbage collector is done deleting old raids.`);
+            } 
+            
+            else {
+                console.log(`[RAID-REVIEW] All good, no old raids to purge.`);
             }
-            console.log(`[RAID-REVIEW] Garbage collector is done deleting old raids.`);
-        } 
-        
-        else {
-            console.log(`[RAID-REVIEW] All good, no old raids to purge.`);
+        } else {
+            console.warn(`[RAID-REVIEW] Garbage collector for 'old raids' is disabled, watch storage space!`)
         }
-    } else {
-        console.warn(`[RAID-REVIEW] Garbage collector for 'old raids' is disabled, watch storage space!`)
+
+    } catch(e) {
+        console.log(e)
     }
+
 }
 
 
@@ -79,14 +86,14 @@ async function GarbageCollectUnfinishedRaids(db: Database<sqlite3.Database, sqli
                 for (let i = 0; i < keys.length; i++) {
                 const key = keys[i];
                 const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`;
-                const sqlKeyValues = [raid];
+                const sqlKeyValues = [raid.raidId];
                 await db
                     .all(sqlKeyQuery, sqlKeyValues)
                     .catch((e: Error) => console.error(e));
                 }
     
-                DeleteFile("positions", "", "", `${raid}_positions`);
-                DeleteFile("positions", "", "", `${raid}_V2_positions.json`);
+                DeleteFile("positions", "", "", `${raid.raidId}_positions`);
+                DeleteFile("positions", "", "", `${raid.raidId}_V2_positions.json`);
             }
             console.log(`[RAID-REVIEW] Garbage collector is done deleting unfinished raids.`);
         } 

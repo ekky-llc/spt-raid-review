@@ -96,10 +96,10 @@ export default function Profile() {
               <Link to={`/p/${profile.info.id}/about`} className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
                 <span>About</span>
               </Link>
-              { isAdmin ? 
-                <Link to={`/p/${profile.info.id}/settings`} className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
-                  <span>Settings</span>
-                </Link>
+              { isAdmin ? ''
+                // <Link to={`/p/${profile.info.id}/settings`} className="bg-eft px-4 py-1 text-xl font-black flex hover:opacity-75">
+                //   <span>Settings</span>
+                // </Link>
               : ''}
           </li>
         </ul>

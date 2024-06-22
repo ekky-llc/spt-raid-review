@@ -21,12 +21,9 @@ export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Stateme
     }
 
     // Positions check
-    raid.positionsTracked = FileExists(
-      "positions",
-      "",
-      "",
-      `${raidId}_V2_positions.json`
-    );
+    const rawPositionData = FileExists("positions","","",`${raidId}_positions`);
+    const compiledPositionData = FileExists("positions","","",`${raidId}_V2_positions.json`);
+    raid.positionsTracked = compiledPositionData ? 'COMPILED' : rawPositionData ? 'RAW' : 'NOT_AVAILABLE';
 
     // Quick Fix
     raid.players = raid.player;

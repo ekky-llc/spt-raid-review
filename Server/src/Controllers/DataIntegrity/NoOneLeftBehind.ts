@@ -2,7 +2,7 @@ import _ from 'lodash';
 import sqlite3 from 'sqlite3';
 import { Database } from "sqlite"
 
-export interface Players {
+export interface Player {
     raidId : string;
     profileId : string;
     level : string;
@@ -14,25 +14,22 @@ export interface Players {
     type : string;
 };
 
-async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>, raidId: string, profileId: string, players : Players[]) {
+async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>, raidId: string, players : Player[]) {
     console.log(`[RAID-REVIEW] Validating that all players/bots are accounted for.`)
 
-    // Get all the players in the db
-    const raidPlayer_sql = `SELECT * FROM player WHERE raidId = ?`;
-    const raidPlayersArr = db.all(raidPlayer_sql, [ raidId ]).catch(e => console.log(e));
-    const raidPlayersDict = _.groupBy(raidPlayersArr, 'profileId');
-    
     // Filter out the ones already there
     let playersMissingFromRaid = 0;
     let playersInserted = 0;
     for (let i = 0; i < players.length; i++) {
         const player = players[i];
-        const playerExists = raidPlayersDict[player.profileId];
+
+        const checkQuery = `SELECT 1 FROM player WHERE raidId = ? OR profileId = ? LIMIT 1`;
+        const playerExists = await db.get(checkQuery, [raidId, player.profileId]);
         if (playerExists === undefined) {
             playersMissingFromRaid++;
             const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             db.run(player_sql, [
-                this.raid_id,
+                raidId,
                 player.profileId,
                 player.level,
                 player.team,

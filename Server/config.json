@@ -9,7 +9,7 @@
 
     "02_comment": "[AUTO-DELETE] [DEFAULT: TRUE] Automatically delete old raids to save disk space, runs on start up.",
     "autoDelete" : true,
-    "03_comment": "[AUTO-DELETE] [DEFAULT: 30] Maximum number of raids allowed to be stored, oldest raid will be deleted [DEFAULT: 30 Raids].",
+    "03_comment": "[AUTO-DELETE] [DEFAULT: 30] If 'autoDelete' is 'true', this is the maximum number of raids allowed to be stored, oldest raid will be deleted.",
     "autoDeleteLimit" : 30,
     "04_comment": "[AUTO-DELETE] [DEFAULT: TRUE] Automatically delete unfinished raids (due to crash, alt+f4 etc), runs on start up.",
     "autoDeleteUnfinishedRaids" : true,

@@ -514,7 +514,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             let times = [];
 
             if (MAP) {
-                clearMap(MAP)
+                clearMap(MAP, { start: timeStartLimit, end: timeEndLimit })
             }
 
             const playerPositionKeys = Object.keys(positions);
@@ -544,6 +544,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 }
 
                 const index = calculatedPlayerInfo[playerId]?.index || raidData.players.findIndex(p => p.profileId === playerId);
+                // if (!index) continue;
                 const player = calculatedPlayerInfo[playerId]?.player || raidData.players[index];
                 const pickedColor = calculatedPlayerInfo[playerId]?.pickedColor || getPlayerColor(player, index);
                 if (calculatedPlayerInfo[playerId] === undefined) {
@@ -603,15 +604,22 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 const toBeIndex = findInsertIndex(e.time, sliderTimes);
                 if (toBeIndex < timeCurrentIndex) {
                     if (!hideEvents && MAP) {
-                        if (preserveHistory || toBeIndex > (timeCurrentIndex - 200)) {
+                        if (preserveHistory || toBeIndex > (timeCurrentIndex - 200) ) {
                             var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
-                            L.marker([e.source.z, e.source.x], {icon: killerIcon}).addTo(MAP);
-                            L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3,  opacity: 0.75 }).addTo(MAP);
+                            var killerMarker = L.marker([e.source.z, e.source.x], {icon: killerIcon});
+                            killerMarker.eventTime = e.time; // Store the event time
+                            killerMarker.addTo(MAP);
+        
+                            var polyline = L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3, opacity: 0.75 });
+                            polyline.eventTime = e.time; // Store the event time
+                            polyline.addTo(MAP);
                         }
-                        
-                        var deathHtml = `<img src="/skull.png" /><span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`
-                        var deathIcon = L.divIcon({className: 'death-icon tooltip event', html:deathHtml });
-                        L.marker([e.target.z, e.target.x], {icon: deathIcon}).addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
+        
+                        var deathHtml = `<img src="/skull.png" /><span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`;
+                        var deathIcon = L.divIcon({className: 'death-icon tooltip event', html: deathHtml });
+                        var deathMarker = L.marker([e.target.z, e.target.x], {icon: deathIcon});
+                        deathMarker.eventTime = e.time; // Store the event time
+                        deathMarker.addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
                     }
                 }
             }
@@ -630,11 +638,19 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - 200)]);
             }
 
-            function clearMap(m) {
+            function clearMap(m, timeRange) {
                 for (const key in m._layers) {
                     const layer = m._layers[key];
                     if (layer._path !== undefined || layer._icon !== undefined) {
-                        m.removeLayer(layer)
+                        if (layer.eventTime) {
+                            // Remove layers that are outside the time range
+                            if (layer.eventTime < timeRange.start || layer.eventTime > timeRange.end) {
+                                m.removeLayer(layer);
+                            }
+                        } else {
+                            // Remove layer if it does not have an eventTime
+                            m.removeLayer(layer);
+                        }
                     }
                 }
             }

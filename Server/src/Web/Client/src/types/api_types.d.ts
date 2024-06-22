@@ -24,7 +24,7 @@ export interface TrackingPositionalData {
 
 
 export interface TrackingRaidData {
-  positionsTracked: boolean;
+  positionsTracked: string;
   id: string;
   raidId: string;
   profileId: string

@@ -3,6 +3,7 @@ using EFT;
 using EFT.Communications;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -35,13 +36,17 @@ namespace RAID_REVIEW
                 Telemetry.Send("PLAYER_CHECK", JsonConvert.SerializeObject(RAID_REVIEW.trackingPlayers.Values));
                 Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
 
-
                 NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
             }
 
             catch (Exception ex)
             {
                 Logger.LogError($"{ex.Message}");
+            }
+
+            finally 
+            {
+                    RAID_REVIEW.trackingPlayers = new Dictionary<string, TrackingPlayer>();
             }
         }
     }

@@ -8,7 +8,7 @@ import Profile, { loader as coreLoader } from './pages/Profile'
 import Raid, { loader as raidLoader } from './pages/Raid';
 import MapView, { loader as mapLoader } from './pages/MapView';
 import RaidSettings, { loader as raidSettingsLoader } from './pages/RaidSettings';
-import ServerSettings, { loader as serverSettingsLoader } from "./pages/ServerSettings";
+// import ServerSettings, { loader as serverSettingsLoader } from "./pages/ServerSettings";
 import About from "./pages/About";
 
 const router = createBrowserRouter([
@@ -45,11 +45,11 @@ const router = createBrowserRouter([
         // loader: raidLoader,
         element: <About />,
       },
-      {
-        path: "/p/:profileId/settings",
-        loader: serverSettingsLoader,
-        element: <ServerSettings />,
-      }
+      // {
+      //   path: "/p/:profileId/settings",
+      //   loader: serverSettingsLoader,
+      //   element: <ServerSettings />,
+      // }
     ],
   },
 ]);

@@ -21,7 +21,7 @@ namespace RAID_REVIEW
         private static void PatchPostFix(ref GameWorld __instance)
         {
             try {
-                if (Singleton<GameWorld>.Instantiated)
+                if (__instance.LocationId != "hideout")
                 {
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
 
@@ -55,18 +55,17 @@ namespace RAID_REVIEW
 
                     Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
 
-                    // Reset Playerlist
-                    RAID_REVIEW.trackingPlayers = new Dictionary<string, TrackingPlayer>();
-
-                    var newTrackingPlayer = new TrackingPlayer();
-                    newTrackingPlayer.profileId = RAID_REVIEW.myPlayer.ProfileId;
-                    newTrackingPlayer.name = RAID_REVIEW.myPlayer.Profile.Nickname;
-                    newTrackingPlayer.level = RAID_REVIEW.myPlayer.Profile.Info.Level;
-                    newTrackingPlayer.team = RAID_REVIEW.myPlayer.Side;
-                    newTrackingPlayer.group = 0;
-                    newTrackingPlayer.spawnTime = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
-                    newTrackingPlayer.type = "HUMAN";
-                    newTrackingPlayer.mod_SAIN_brain = "PLAYER";
+                    var newTrackingPlayer = new TrackingPlayer
+                    {
+                        profileId = RAID_REVIEW.myPlayer.ProfileId,
+                        name = RAID_REVIEW.myPlayer.Profile.Nickname,
+                        level = RAID_REVIEW.myPlayer.Profile.Info.Level,
+                        team = RAID_REVIEW.myPlayer.Side,
+                        group = 0,
+                        spawnTime = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
+                        type = "HUMAN",
+                        mod_SAIN_brain = "PLAYER"
+                    };
 
                     RAID_REVIEW.trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
                     Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));

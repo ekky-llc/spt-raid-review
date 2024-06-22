@@ -108,9 +108,13 @@ export default function Raid() {
       value: raidData.kills ? raidData.kills.length : 0
     });
 
+
+    let positionsTrackedMap = { "COMPILED" : "Available", "RAW" : "Processing", "NOT_AVAILABLE" : "Not Available" }
     newRaidSummary.push({
       title: 'Positional Data',
-      value: raidData.positionsTracked ? 'Available' : 'N/A'
+
+      // @ts-ignore
+      value: raidData.positionsTracked ? positionsTrackedMap[raidData.positionsTracked] : 'N/A'
     });
 
 
@@ -211,6 +215,32 @@ export default function Raid() {
       }
   }
   return "(UNKNOWN)"
+  }
+
+  function generateMapPlaybackButton(positionDataStatus: string) {
+
+    if (positionDataStatus === 'RAW') {
+      return (
+        <button disabled className="text-sm p-2 py-1 text-sm cursor-not-allowed bg-eft flex items-center font-black opacity-50 border border-black/0 mr-3">
+          Processing Playback Data
+        </button>
+      )
+    }
+
+    if (positionDataStatus === 'COMPILED') {
+      return (
+        <Link to={`/p/${profileId}/raid/${raidData.raidId}/map`} className="text-sm p-2 py-1 text-sm cursor-pointer bg-eft flex items-center font-black hover:opacity-75 border border-black/0 mr-3">
+          View Map Playback
+        </Link>
+      )
+    }
+
+    return (
+      <button disabled className="text-sm p-2 py-1 text-sm cursor-not-allowed bg-eft flex items-center font-black opacity-50 border border-black/0 mr-3">
+        View Map Playback
+      </button>
+    )
+    
   }
 
   function generateTimeline(filters: string[]): any {
@@ -391,13 +421,9 @@ export default function Raid() {
           <nav className="mb-5 flex justify-between items-start">
             <h2 className="text-xl font-black text-eft mb-3">Raid Timeline</h2>
             <div className="flex">
-              { raidData.positionsTracked ? 
-              <Link to={`/p/${profileId}/raid/${raidData.raidId}/map`} className="text-sm p-2 py-1 text-sm cursor-pointer bg-eft flex items-center font-black hover:opacity-75 border border-black/0 mr-3">
-                  View Map Playback
-              </Link>
-              : <button disabled className="text-sm p-2 py-1 text-sm cursor-not-allowed bg-eft flex items-center font-black opacity-50 border border-black/0 mr-3">
-                View Map Playback
-              </button> }
+
+              { generateMapPlaybackButton(raidData.positionsTracked) }
+
               <ul className="flex items-center gap-2 border border-eft p-1">
                 <span className="text-eft">Filter By:</span>
                 <li

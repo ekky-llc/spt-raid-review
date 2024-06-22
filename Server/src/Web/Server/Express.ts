@@ -16,6 +16,7 @@ import { DeleteFile, ReadFile } from "../../Controllers/FileSystem/DataSaver";
 import CompileRaidPositionalData from "../../Controllers/PositionalData/CompileRaidPositionalData";
 import { generateInterpolatedFramesBezier } from "../../Utils/utils";
 import { getRaidData } from "../../Controllers/Collection/GetRaidData";
+import { sendStatistics } from "../../Controllers/Telemetry/RaidStatistics";
 
 const app: Express = express();
 const port = config.web_client_port || 7829;
@@ -249,6 +250,22 @@ function StartWebServer(
 
         const raid = await getRaidData(db, profileId, raidId);
 
+        if (raid.positionsTracked === "RAW") {
+            // Send telemetry if enabled
+            let positional_data = CompileRaidPositionalData(raidId);
+    
+            // let telemetryEnabled = await isTelemetryEnabled(this.database);
+            let telemetryEnabled = false;
+            if (telemetryEnabled) {
+              console.log(`[RAID-REVIEW] Telemetry is enabled.`)
+              await sendStatistics(this.database, profileId, raidId, positional_data);
+            } else {
+              console.log(`[RAID-REVIEW] Telemetry is disabled.`)
+            }
+
+            raid.positionsTracked = "COMPILED"
+        }
+
         return res.json(raid);
       } catch (error) {
         console.log(error);
@@ -282,6 +299,7 @@ function StartWebServer(
         "",
         `${raidId}_V2_positions.json`
       );
+
       if (positionalDataRaw) {
         const positionalData = JSON.parse(positionalDataRaw);
 

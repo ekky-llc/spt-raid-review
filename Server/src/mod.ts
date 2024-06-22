@@ -235,17 +235,6 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
-                // Send telemetry if enabled
-                let positional_data = CompileRaidPositionalData(this.raid_id);
-                let telemetryEnabled = await isTelemetryEnabled(this.database);
-                // let telemetryEnabled = true;
-                if (telemetryEnabled) {
-                  console.log(`[RAID-REVIEW] Telemetry is enabled.`)
-                  await sendStatistics(this.database, profile_id, this.raid_id, positional_data);
-                } else {
-                  console.log(`[RAID-REVIEW] Telemetry is disabled.`)
-                }
-
                 // Reset the notification limiter for the next raid
                 this.notificationLimiter = NOTIFICATION_LIMITER_DEFAULT;
 
@@ -258,7 +247,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 
               case "PLAYER_CHECK":
 
-                await NoOneLeftBehind(this.database, this.raid_id, profile_id, payload_object);
+                await NoOneLeftBehind(this.database, this.raid_id, payload_object);
                 break;
 
               case "PLAYER":
