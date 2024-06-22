@@ -3,8 +3,11 @@
 import { useEffect, useRef, useMemo, useCallback, useLayoutEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate, useLoaderData, Link } from 'react-router-dom';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import _, { forIn, transform } from 'lodash';
+import _, { forIn, map, transform } from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
+
+import BotMapping from '../assets/botMapping.json'
+import ItemEnMapping from '../assets/en.json'
 
 import { msToHMS } from '../pages/Profile.js'
 import L from 'leaflet';
@@ -16,7 +19,7 @@ import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import '../modules/leaflet-control-coordinates.js';
 import '../modules/leaflet-control-groupedlayer.js';
 import '../modules/leaflet-control-raid-info.js';
-import { calculateNewPosition, findInsertIndex } from '../modules/utils'
+import { calculateNewPosition, findInsertIndex } from '../modules/utils.js'
 
 import './Map.css'
 
@@ -198,7 +201,7 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export default function Map({ raidData, profileId, raidId, positions }) {
+export default function MapComponent({ raidData, profileId, raidId, positions }) {
     const navigate = useNavigate();
     const [ searchParams ] = useSearchParams();
     const [ currentMap, setCurrentMap ] = useState('')
@@ -211,6 +214,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
     const [ followPlayer, setFollowPlayer ] = useState(null);
     const [ followPlayerZoomed, setFollowPlayerZoomed ] = useState(false);
     const [ calculatedPlayerInfo, setCalculatedPlayerInfo ] = useState({});
+    const [ calculatedLayerInfo, setCalculatedLayerInfo ] = useState({});
     const [ playerFocus, setPlayerFocus ] = useState(null);
     const [ proportionalScale, setProportionalScale ] = useState(0);
 
@@ -290,25 +294,6 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
         setEvents(newEvents);
     }, [raidData])
-
-    // useEffect(() => {
-    //     let viewableHeight = window.innerHeight - document.querySelector('.navigation')?.offsetHeight || 0;
-    //     if (viewableHeight < 100) {
-    //         viewableHeight = window.innerHeight;
-    //     }
-
-    //     document.documentElement.style.setProperty(
-    //         '--display-height',
-    //         `${viewableHeight}px`,
-    //     );
-
-    //     return function cleanup() {
-    //         document.documentElement.style.setProperty(
-    //             '--display-height',
-    //             `auto`,
-    //         );
-    //     };
-    // });
 
     const ref = useRef();
     const mapRef = useRef(null);
@@ -514,7 +499,7 @@ export default function Map({ raidData, profileId, raidId, positions }) {
             let times = [];
 
             if (MAP) {
-                clearMap(MAP, { start: timeStartLimit, end: timeEndLimit })
+                clearMap(MAP, { start: timeStartLimit, end: timeEndLimit });
             }
 
             const playerPositionKeys = Object.keys(positions);
@@ -607,22 +592,26 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                         if (preserveHistory || toBeIndex > (timeCurrentIndex - 200) ) {
                             var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
                             var killerMarker = L.marker([e.source.z, e.source.x], {icon: killerIcon});
-                            killerMarker.eventTime = e.time; // Store the event time
+                            killerMarker.eventTime = e.time; 
+                            killerMarker.eventType = 'killerIcon';
                             killerMarker.addTo(MAP);
         
                             var polyline = L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3, opacity: 0.75 });
-                            polyline.eventTime = e.time; // Store the event time
+                            polyline.eventTime = e.time; 
+                            polyline.eventType = 'killerLine';
                             polyline.addTo(MAP);
                         }
         
                         var deathHtml = `<img src="/skull.png" /><span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`;
                         var deathIcon = L.divIcon({className: 'death-icon tooltip event', html: deathHtml });
                         var deathMarker = L.marker([e.target.z, e.target.x], {icon: deathIcon});
-                        deathMarker.eventTime = e.time; // Store the event time
+                        deathMarker.eventTime = e.time; 
+                        deathMarker.eventType = 'deathIcon';
                         deathMarker.addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
                     }
                 }
             }
+            
             
             if (sliderTimes.length === 0) {
                 times = _.chain(times).uniq().sort((t) => t).value();
@@ -643,17 +632,23 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                     const layer = m._layers[key];
                     if (layer._path !== undefined || layer._icon !== undefined) {
                         if (layer.eventTime) {
-                            // Remove layers that are outside the time range
-                            if (layer.eventTime < timeRange.start || layer.eventTime > timeRange.end) {
+                            const isCurrentEvent = layer.eventTime < timeRange.start || layer.eventTime > timeRange.end;
+                            const isKillerIconOrLine = layer.eventType === 'killerIcon' || layer.eventType === 'killerLine';
+                            if (isCurrentEvent && isKillerIconOrLine) {
+                                m.removeLayer(layer);
+                            }
+
+                            const isFutureEvent = layer.eventTime > timeRange.end;
+                            const isDeathIcon = layer.eventType === 'deathIcon';
+                            if (isDeathIcon && isFutureEvent) {
                                 m.removeLayer(layer);
                             }
                         } else {
-                            // Remove layer if it does not have an eventTime
                             m.removeLayer(layer);
                         }
                     }
                 }
-            }
+            }           
 
         });
 
@@ -724,39 +719,47 @@ export default function Map({ raidData, profileId, raidId, positions }) {
 
     function getPlayerBrain(player: TrackingRaidDataPlayers): string {
         if(player) {
-            switch (player.type){
-                case 'SCAV':
-                    return "(SCAV)"
-                case 'BOSS':
-                    return "(BOSS)"
-                case 'RAIDER':
-                    return "(RAIDER)"
-                case 'PLAYER_SCAV':
-                    return "(PLAYER SCAV)"
-                case 'SNIPER':
-                    return "(SNIPER)"
-                case 'GOON':
-                    return "(GOON)"
-                case 'CULTIST':
-                    return "(CULTIST)"
-                default:
-                    if(player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
-                      return "(PMC)"
-                    } else if(player.team === "Savage") {
-                      return "(SCAV)"
-                    } 
-                    return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+            let botMapping = BotMapping[player.type];
+            if (!botMapping) {
+                botMapping = {
+                    type: 'UNKNOWN'
+                };
             }
+
+            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
+                return "(PMC)"
+            } 
+            
+            else if (player.team === "Savage") {
+                return "(Scav)"
+            } 
+
+            else if (player.mod_SAIN_brain === 'PLAYER') {
+                return "(Human)"
+            }
+
+            return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain.replace(/([A-Z])/g, " $1").trim()})` : "(PMC)"
         }
         return "(UNKNOWN)"
     }
 
     function getPlayerColor(player: TrackingRaidDataPlayers, index: number): string {
-        switch (player.type) {
+
+        let botMapping = BotMapping[player.type];
+        if (!botMapping) {
+            botMapping = {
+                type: 'UNKNOWN'
+            };
+        }
+        switch (botMapping.type) {
             case 'SCAV':
                 return "#33FF57"; // Green - Scav
             case 'BOSS':
                 return "#FF0000"; // Red - Boss
+            case 'FOLLOWER':
+                return "#ff7b00"; // Orange - Follower
+            case 'BLOODHOUND':
+                return "#6d0000"; // Dark Red - Raider
             case 'RAIDER':
                 return "#FF00FF"; // Magenta - Raider
             case 'PLAYER_SCAV':
@@ -765,11 +768,13 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                 return "#00911a"; // Dark Green - Sniper
             case 'GOON':
                 return "#ff005d"; // Between Magenta & Red  - Goon
-            case 'CULTIST':
+            case 'CULT':
                 return "#6f00ff"; // Dark Purple - Cultist
+            case 'OTHER':
+                return "#00eeff"; // Other - Cyan
             default:
-                if (player && player.team === 'Savage') return "#33FF57"; // Green - Scav
-                else return colors[index]; // PMC
+                if (player.type === 'PLAYER' && player.team === 'Savage') return "#33FF57"; // Green - Scav
+                else return colors[index % colors.length]; // PMC
         }
     }
 
@@ -830,9 +835,10 @@ export default function Map({ raidData, profileId, raidId, positions }) {
                             .reverse()
                             .slice(0, 4)
                             .map((e, i) => (
-                                <div className="text-eft" key={`${e.profileId}_${i}`}>
+                                <div className="text-black" key={`${e.profileId}_${i}`}>
                                     <span className="tooltiptext event">
-                                        <strong>{e.profileNickname}</strong> killed <strong>{e.killedNickname}</strong> [<a className="underline cursor-pointer" onClick={() => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time)}>VIEW</a>]
+                                    [<a className="underline cursor-pointer" onClick={() => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time)}>VIEW</a>]{' '}
+                                    <strong>{e.profileNickname}</strong> killed <strong>{e.killedNickname}</strong> ({ItemEnMapping[e.weapon.replace('Name', 'ShortName')]} - {e.distance.toFixed(0)}m)
                                     </span>
                                 </div>
                             ))}

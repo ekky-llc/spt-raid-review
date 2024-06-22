@@ -104,7 +104,7 @@ function StartWebServer(
   app.get("/api/server/settings", isUserAdmin, async (req: Request, res: Response) => {
     try {
       const sqlSettingsQuery = `SELECT * FROM setting ORDER BY id ASC`;
-      const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e));
+      const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e)) as any[];
       const settings = _.groupBy(data, 'key');
       res.json(settings);
     } catch (error) {
@@ -126,8 +126,9 @@ function StartWebServer(
       
       // I'm not too worried about performance, I just need it to work right now...
       const sqlSettingsQuery = `SELECT * FROM setting ORDER BY id ASC`;
-      const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e));
+      const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e)) as any[];
       const settings = _.groupBy(data, 'key');
+      
       res.json(settings);
     } catch (error) {
       res.json(null);
@@ -182,7 +183,7 @@ function StartWebServer(
       let { profileId } = req.params;
 
       const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = '${profileId}' AND timeInRaid > 10 ORDER BY id DESC`;
-      // const sqlRaidValues = [profileId];
+
       const data = await db
         .all(sqlRaidQuery)
         .catch((e: Error) => console.error(e));
@@ -251,18 +252,14 @@ function StartWebServer(
         const raid = await getRaidData(db, profileId, raidId);
 
         if (raid.positionsTracked === "RAW") {
-            // Send telemetry if enabled
             let positional_data = CompileRaidPositionalData(raidId);
-    
-            // let telemetryEnabled = await isTelemetryEnabled(this.database);
-            let telemetryEnabled = false;
+            let telemetryEnabled = config.telemetry;
             if (telemetryEnabled) {
               console.log(`[RAID-REVIEW] Telemetry is enabled.`)
-              await sendStatistics(this.database, profileId, raidId, positional_data);
+              await sendStatistics(db, profileId, raidId, positional_data);
             } else {
               console.log(`[RAID-REVIEW] Telemetry is disabled.`)
             }
-
             raid.positionsTracked = "COMPILED"
         }
 
@@ -301,16 +298,13 @@ function StartWebServer(
       );
 
       if (positionalDataRaw) {
-        const positionalData = JSON.parse(positionalDataRaw);
+        let positionalData = JSON.parse(positionalDataRaw);
 
-        for (let i = 0; i < positionalData.length; i++) {
-          let playerPositions = positionalData[i];
-          positionalData[i] = generateInterpolatedFramesBezier(
-            playerPositions,
-            5,
-            24
-          );
-        }
+        positionalData = generateInterpolatedFramesBezier(
+          positionalData,
+          5,
+          24
+        );
 
         return res.json(positionalData);
       }

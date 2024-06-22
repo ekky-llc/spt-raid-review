@@ -187,10 +187,10 @@
     bottom: 222px;
     left: 455px;
     padding: 4px 8px;
-    width: 450px;
+    width: fit-content;
     z-index: 9999;
     height: 110px;
-    background: #00000094;
+    background: #9a8866;
   }
 
   .player-legend-item:hover {

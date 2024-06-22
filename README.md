@@ -13,6 +13,10 @@ Please see [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can hel
 
 Please see [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
 
+Please see [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) for information regarding using this mod on a remote host, or with Fika.
+
+Please see [TELEMETRY.md](TELEMETRY.md) for information regarding statistics collection.
+
 ### Features
 - Review information for raids such as kills, looting, players, bots, and positional information.
 - Basic toggle filters/grouping features to view raid information after the fact.

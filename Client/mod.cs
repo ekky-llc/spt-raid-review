@@ -39,7 +39,7 @@ namespace RAID_REVIEW
         public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
         public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
         public static List<string> RAID_REVIEW__DETECTED_MODS = new List<string>();
-        public static Dictionary<string ,TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
+        public static Dictionary<string, TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
         public static Stopwatch stopwatch = new Stopwatch();
 
@@ -67,7 +67,10 @@ namespace RAID_REVIEW
 
         // Other Mods
         public static bool MODS_SEARCHED = false;
-        public static bool SOLARINT_SAIN__DETECTED { get; set; }
+        public static bool SOLARINT_SAIN__DETECTED
+        {
+            get; set;
+        }
 
         void Awake()
         {
@@ -78,14 +81,14 @@ namespace RAID_REVIEW
             InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
             RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", true, "Enables notifications as recording starts and ends.");
             VerboseNotifications = Config.Bind<bool>("Main", "Verbose Notifications", false, "Enables all notifications [DEBUG MODE].");
-            ServerAddress = Config.Bind<string>("Server", "1. Server IP", "127.0.0.1", "IP address of the server."); 
+            ServerAddress = Config.Bind<string>("Server", "1. Server IP", "127.0.0.1", "IP address of the server.");
             ServerWsPort = Config.Bind<string>("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");
             ServerHttpPort = Config.Bind<string>("Server", "3. Server HTTP Port", "7829", "Listen port of the raid review http server.");
             ServerTLS = Config.Bind<bool>("Server", "4. TLS", false, "Enable if you are using an SSL Certificate infront of your http server.");
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
-            
+
             // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
             RAID_REVIEW_HTTP_Server = (ServerTLS.Value ? "https://" : "http://") + ServerAddress.Value + ":" + ServerHttpPort.Value;
@@ -102,24 +105,30 @@ namespace RAID_REVIEW
 
             Telemetry.Connect(RAID_REVIEW_WS_Server);
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Connected to backend");
+
         }
         async void Update()
         {
             try
             {
                 // UPDATE LIMITER
+
                 if (updateInterval == 0.0f)
                     updateInterval = 1.0f / PlayerTrackingInterval;
+
                 if (!(Time.time - lastUpdateTime >= updateInterval))
                     return;
                 lastUpdateTime = Time.time;
 
+
                 if (Input.GetKey(LaunchWebpageKey.Value.MainKey))
                 {
                     Application.OpenURL(RAID_REVIEW_HTTP_Server);
+
                 }
 
                 // IF MAP NOT LOADED, RETURN
+
                 if (!MapLoaded())
                     return;
 
@@ -128,6 +137,7 @@ namespace RAID_REVIEW
 
 
                 // IF IN MENU, RETURN
+
                 if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
                     return;
 
@@ -137,11 +147,13 @@ namespace RAID_REVIEW
                 long captureTime = stopwatch.ElapsedMilliseconds;
                 foreach (Player player in allPlayers)
                 {
+
                     if (player == null)
                         continue;
 
                     TrackingPlayer trackingPlayer = new TrackingPlayer();
                     bool isBeingTracked = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
+
                     if (!isBeingTracked)
                     {
 
@@ -158,6 +170,7 @@ namespace RAID_REVIEW
                         };
 
                         // Get player mod_SAIN brain type name
+
                         if (SOLARINT_SAIN__DETECTED)
                         {
                             BotComponent botComponent = null;
@@ -169,57 +182,74 @@ namespace RAID_REVIEW
                             while (botComponent == null && retryCount < maxRetries)
                             {
                                 botComponent = player.gameObject.GetComponent<BotComponent>();
+
                                 if (botComponent == null)
                                 {
                                     await Task.Delay(retryIntervalMilliseconds); // Wait for the specified interval
                                     retryCount++;
+
                                 }
+
                             }
+
 
                             if (botComponent != null)
                             {
                                 var brain = botComponent.Info.Personality;
                                 trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), brain);
-                                if(!botComponent.Info.Profile.IsPMC)
+
+                                if (!botComponent.Info.Profile.IsPMC)
                                 {
-                                    trackingPlayer.type = getBotType(botComponent);
+                                    trackingPlayer.type = BotHelper.getBotType(botComponent);
                                 }
+
                             }
+
                         }
 
                         else
                         {
                             trackingPlayer.mod_SAIN_brain = player.Side == EPlayerSide.Savage ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PMC";
+
                         }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
                         _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
+
                     }
 
 
                     // Checks if a player / bot has died since the last check...
+
                     if (player.HealthController.IsAlive)
                     {
+
                         if (PlayerTracking.Value)
                         {
+
                             if (player == null || gameWorld == null)
                             {
                                 Logger.LogWarning("Player or gameWorld is null, skipping this iteration.");
                                 continue;
+
                             }
 
                             Vector3 playerPosition = player.Position;
+
                             if (playerPosition == null)
                             {
                                 Logger.LogWarning("Player position is null, skipping this iteration.");
                                 continue;
+
                             }
 
                             Vector3 playerFacing = player.LookDirection;
+
                             if (playerFacing == null)
                             {
                                 Logger.LogWarning("Player look direction is null, skipping this iteration.");
                                 continue;
+
                             }
 
                             Vector3 playerDirection = playerPosition - playerFacing;
@@ -234,40 +264,32 @@ namespace RAID_REVIEW
 
                             var trackingPlayerData = new TrackingPlayerData(player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
                             _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
+
                         }
+
                     }
+
                 }
-            } 
-            
+
+            }
+
             catch (Exception ex)
             {
                 Logger.LogError(ex);
                 Logger.LogError($"{ex.Message}");
+
             }
+
         }
 
         public static bool DetectMod(string modName)
         {
             if (Chainloader.PluginInfos.ContainsKey(modName)) return true;
             return false;
-        }
 
-        private static string getBotType(BotComponent botComponent)
-        {
-            if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) {
-                var mod_SAIN_version = SAIN.AssemblyInfoClass.SAINVersion;
-                var splittedVersion = mod_SAIN_version.Split('.');
-                if (splittedVersion.Length > 2 && int.Parse(splittedVersion[0]) >= 2 && int.Parse(splittedVersion[1]) >= 3 && int.Parse(splittedVersion[2]) >= 3 && botComponent.Info.Profile.IsPlayerScav) return "PLAYER_SCAV";
-                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.bossKnight || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBigPipe || botComponent.Info.Profile.WildSpawnType == WildSpawnType.followerBirdEye) return "GOON";
-                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantPriest || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectantWarrior || botComponent.Info.Profile.WildSpawnType == WildSpawnType.sectactPriestEvent) return "CULTIST";
-                else if (botComponent.Info.Profile.WildSpawnType == WildSpawnType.marksman) return "SNIPER";
-                else if (botComponent.Info.Profile.IsBoss) return "BOSS";
-                else if (botComponent.Info.Profile.IsFollower) return "RAIDER";
-                else if (botComponent.Info.Profile.IsScav) return "SCAV";
-            }
-            return "UNKNOWN";
         }
 
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;
+
     }
 }

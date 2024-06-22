@@ -3,15 +3,17 @@ import * as _ from 'lodash';
 import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
 
-import { TrackingRaidData } from "src/Web/Client/src/types/api_types";
+import { TrackingRaidData, TrackingRaidDataPlayers } from "src/Web/Client/src/types/api_types";
 import { positional_data, positional_data__grouped } from "../PositionalData/CompileRaidPositionalData";
 import { calculateTotalDistance } from "../PositionalData/CalculateDistancesTravelled";
 import { getRaidData } from '../Collection/GetRaidData';
+import { TrackingPlayer } from 'src/types';
 
 export interface StatisticsPayload {
+    raidId: string,
     location: string
     status: string
-    time: string
+    time: number
     players: {
       total: number
       usec: number
@@ -56,43 +58,44 @@ async function generateStatisticsPayload(raid: TrackingRaidData, positions: posi
     }
 
     // Should speed up data reads
-    let playerDic = _.groupBy(raid.players ,'playerId');
+    let playerDic = _.groupBy(raid.players ,'playerId') as unknown as { [key:string] : TrackingRaidDataPlayers };
 
     // Iterations
     let playersLen = raid.players.length;
     let killsLen = raid.kills.length;
     let lootingsLen = raid.looting.length;
-    let longest = [playersLen, killsLen, lootingsLen].sort((a, b) => (a - b))[0];
+    let longest = [playersLen, killsLen].sort((a, b) => (a - b))[0];
     for (let i = 0; i < longest; i++) {
         const player = raid.players[i];
         const kill = raid.kills[i];
-        const lootings = raid.looting[i];
 
         if (player) {
             if (player.team) {
                 let lowercaseTeam = player.team.toLowerCase();
-                players[lowercaseTeam] = players[lowercaseTeam] + 1;
-                }
+                players[lowercaseTeam]++;
             }
+        }
                 
-            if (kill) {
-            let killedPlayer = playerDic[kill.killedId][0];
-            if (killedPlayer.team) {
+        if (kill) {
+            let killedPlayer = playerDic[kill.killedId];
+            if (killedPlayer && killedPlayer.team) {
                 let lowercaseTeam = killedPlayer.team.toLowerCase();
-                kills[lowercaseTeam] = kills[lowercaseTeam] + 1;
+                kills[lowercaseTeam]++;
             }
         }
         
     }
 
     // Final Payload
-    const data = { 
+    const data = {
+        raidId: raid.raidId,
         location: raid.location,
         status: raid.exitStatus,
-        time: raid.timeInRaid,
+        time: Number(raid.timeInRaid),
         players,
         kills,
         lootings: lootingsLen,
+        positions: _.chain(positions).valuesIn().flatMapDeep().value().length,
         distanceTravelled : calculateTotalDistance(positions)
     }
 
@@ -102,7 +105,7 @@ async function generateStatisticsPayload(raid: TrackingRaidData, positions: posi
 async function sendStatisticsPayload(statisticsPayload : StatisticsPayload) : Promise<void> {
 
     try {
-        await fetch(`https://telemetry.raid-review.online/statistics`, {
+        await fetch(`https://telemetry.raid-review.online/`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

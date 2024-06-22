@@ -1,0 +1,158 @@
+{
+    "PLAYER_SCAV": {
+        "name": "Player Scav",
+        "type": "PLAYER_SCAV"
+    },
+    "SCAV": {
+        "name": "Scav",
+        "type": "SCAV"
+    },
+    "SCAV|SCAV": {
+        "name": "Scav",
+        "type": "SCAV"
+    },
+    "SCAV GROUP|SCAV": {
+        "name": "Scav Group",
+        "type": "SCAV"
+    },
+    "CRAZY SCAV EVENT|SCAV": {
+        "name": "Crazy Scav Event",
+        "type": "SCAV"
+    },
+    "SCAV SNIPER|SNIPER": {
+        "name": "Scav Sniper",
+        "type": "SNIPER"
+    },
+    "TAGGED AND CURSED SCAV|SCAV": {
+        "name": "Tagged and Cursed Scav",
+        "type": "SCAV"
+    },
+    "KNIGHT|GOON": {
+        "name": "Knight",
+        "type": "GOON"
+    },
+    "BIGPIPE|GOON": {
+        "name": "Big Pipe",
+        "type": "GOON"
+    },
+    "BIRDEYE|GOON": {
+        "name": "Bird Eye",
+        "type": "GOON"
+    },
+    "ROGUE|FOLLOWER": {
+        "name": "Rogue",
+        "type": "FOLLOWER"
+    },
+    "RAIDER|FOLLOWER": {
+        "name": "Raider",
+        "type": "FOLLOWER"
+    },
+    "BLOODHOUND|BLOODHOUND": {
+        "name": "Bloodhound",
+        "type": "BLOODHOUND"
+    },
+    "CULTIST PRIEST|CULT": {
+        "name": "Cultist Priest",
+        "type": "CULT"
+    },
+    "CULTIST|CULT": {
+        "name": "Cultist",
+        "type": "CULT"
+    },
+    "KILLA|BOSS": {
+        "name": "Killa",
+        "type": "BOSS"
+    },
+    "RASHALA|BOSS": {
+        "name": "Rashala",
+        "type": "BOSS"
+    },
+    "RASHALA GUARD|FOLLOWER": {
+        "name": "Rashala Guard",
+        "type": "FOLLOWER"
+    },
+    "SHTURMAN|BOSS": {
+        "name": "Shturman",
+        "type": "BOSS"
+    },
+    "SHTURMAN GUARD|FOLLOWER": {
+        "name": "Shturman Guard",
+        "type": "FOLLOWER"
+    },
+    "TAGILLA|BOSS": {
+        "name": "Tagilla",
+        "type": "BOSS"
+    },
+    "TAGILLA GUARD|FOLLOWER": {
+        "name": "Tagilla Guard",
+        "type": "FOLLOWER"
+    },
+    "SANITAR|BOSS": {
+        "name": "Sanitar",
+        "type": "BOSS"
+    },
+    "SANITAR GUARD|FOLLOWER": {
+        "name": "Sanitar Guard",
+        "type": "FOLLOWER"
+    },
+    "GLUHAR|BOSS": {
+        "name": "Gluhar",
+        "type": "BOSS"
+    },
+    "GLUHAR GUARD SNIPE|FOLLOWER": {
+        "name": "Gluhar Guard (Sniper)",
+        "type": "FOLLOWER"
+    },
+    "GLUHAR GUARD SCOUT|FOLLOWER": {
+        "name": "Gluhar Guard (Scout)",
+        "type": "FOLLOWER"
+    },
+    "GLUHAR GUARD SECURITY|FOLLOWER": {
+        "name": "Gluhar Guard (Security)",
+        "type": "FOLLOWER"
+    },
+    "GLUHAR GUARD ASSAULT|FOLLOWER": {
+        "name": "Gluhar Guard (Assault)",
+        "type": "FOLLOWER"
+    },
+    "ZRYACHIY|BOSS": {
+        "name": "Zryachiy",
+        "type": "BOSS"
+    },
+    "ZRYACHIY GUARD|FOLLOWER": {
+        "name": "Zryachiy Guard",
+        "type": "FOLLOWER"
+    },
+    "KABAN|BOSS": {
+        "name": "Kaban",
+        "type": "BOSS"
+    },
+    "KABAN GUARD|FOLLOWER": {
+        "name": "Kaban Guard",
+        "type": "FOLLOWER"
+    },
+    "KABAN SNIPER|FOLLOWER": {
+        "name": "Kaban Sniper",
+        "type": "FOLLOWER"
+    },
+    "KOLONTAY|BOSS": {
+        "name": "Kolontay",
+        "type": "BOSS"
+    },
+    "KOLONTAY ASSAULT|FOLLOWER": {
+        "name": "Kolontay Assault",
+        "type": "FOLLOWER"
+    },
+    "KOLONTAY SECURITY|FOLLOWER": {
+        "name": "Kolontay Security",
+        "type": "FOLLOWER"
+    },
+    "BTR|OTHER": {
+        "name": "BTR",
+        "type": "OTHER"
+    },
+    "UNKNOWN": {
+        "name": "",
+        "type": ""
+    }
+}

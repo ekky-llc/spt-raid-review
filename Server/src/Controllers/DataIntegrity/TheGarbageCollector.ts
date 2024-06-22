@@ -17,7 +17,7 @@ async function GarbageCollectOldRaids(db: Database<sqlite3.Database, sqlite3.Sta
             console.log(`[RAID-REVIEW] Garbage collector deleting old raids, only keeping data for the last '${config.autoDeleteLimit}' raids.`);
 
             // Get raids that are offset by {config.autoDeleteLimit}.
-            const oldRaids_sql = `SELECT * FROM raid ORDER BY created_at DESC LIMIT 1000000 OFFSET ${config.autoDeleteLimit};`
+            const oldRaids_sql = `SELECT * FROM raid WHERE timeInRaid > 10 ORDER BY created_at DESC LIMIT 1000000 OFFSET ${config.autoDeleteLimit};`
             const oldRaids = await db.all(oldRaids_sql);
             
             // Delete these raids, including temp and positional data.

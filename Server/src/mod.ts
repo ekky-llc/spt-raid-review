@@ -1,6 +1,7 @@
 // @ts-ignore
 import { DependencyContainer } from "tsyringe";
-import { Server, WebSocket, WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
+import cron from 'node-cron';
 import sqlite3 from "sqlite3";
 import { Database } from "sqlite";
 import _ from 'lodash';
@@ -14,21 +15,18 @@ import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
 import { MailSendService } from "@spt-aki/services/MailSendService";
 
 import config from '../config.json';
-import WebServer from "./Web/Server/Express";
-import { ExtractKeysAndValues } from "./Utils/utils";
-import { WriteLineToFile } from "./Controllers/FileSystem/DataSaver";
-import { database } from "./Database/sqlite";
-import CompileRaidPositionalData from "./Controllers/PositionalData/CompileRaidPositionalData";
 import { NotificationLimiter } from './types'
+import WebServer from "./Web/Server/Express";
+import { database } from "./Database/sqlite";
+import { ExtractKeysAndValues } from "./Utils/utils";
 import { NOTIFICATION_LIMITER_DEFAULT } from "./Utils/constant";
-import { isTelemetryEnabled } from "./Controllers/Telemetry/Telemetry";
-import { sendStatistics } from "./Controllers/Telemetry/RaidStatistics";
-import { IncomingMessage } from "http";
+import { WriteLineToFile } from "./Controllers/FileSystem/DataSaver";
 import { MigratePositionsStructure } from "./Controllers/PositionalData/PositionsMigration";
 import { CheckForMissingMainPlayer } from "./Controllers/DataIntegrity/CheckForMissingMainPlayer";
-import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 import { NoOneLeftBehind } from "./Controllers/DataIntegrity/NoOneLeftBehind";
 import { GarbageCollectOldRaids, GarbageCollectUnfinishedRaids } from "./Controllers/DataIntegrity/TheGarbageCollector";
+import { sendStatistics } from "./Controllers/Telemetry/RaidStatistics";
+import CompileRaidPositionalData from "./Controllers/PositionalData/CompileRaidPositionalData";
 
 export let session_id = null;
 export let profile_id = null;
@@ -50,6 +48,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   wss: WebSocketServer;
   logger: ILogger;
   raid_id: string;
+  raids_to_process: string[];
   notificationLimiter: NotificationLimiter;
   post_process: boolean;
   saveServer: SaveServer;
@@ -59,6 +58,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   constructor() {
     this.wss = null;
     this.raid_id = "";
+    this.raids_to_process = [];
     this.database = null;
     this.post_process = true;
     this.notificationLimiter = NOTIFICATION_LIMITER_DEFAULT;
@@ -135,9 +135,32 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     // Storage Saving Helpers
     await GarbageCollectOldRaids(this.database);
     await GarbageCollectUnfinishedRaids(this.database);
+    if (config.autoDeleteCronJob) {
+      cron.schedule('0 */1 * * *', async () => {
+        await GarbageCollectOldRaids(this.database);
+        await GarbageCollectUnfinishedRaids(this.database);
+      });
+    }
+
+    // Automatic Processor
+    const post_raid_processing = cron.schedule('*/1 * * * *', async () => {
+      if (this.raids_to_process.length > 0) {
+        for (let i = 0; i < this.raids_to_process.length; i++) {
+          const raidIdToProcess = this.raids_to_process[i];
+          let positional_data = CompileRaidPositionalData(raidIdToProcess);
+          let telemetryEnabled = config.telemetry;
+          if (telemetryEnabled) {
+            console.log(`[RAID-REVIEW] Telemetry is enabled.`)
+            await sendStatistics(this.database, profile_id, raidIdToProcess, positional_data);
+          } else {
+            console.log(`[RAID-REVIEW] Telemetry is disabled.`)
+          }
+        }
+      }
+    }, { scheduled: false });
+    post_raid_processing.start();
 
     this.saveServer = container.resolve<SaveServer>("SaveServer");
-    this.mailSendService = container.resolve<MailSendService>("MailSendService");
     console.log(`[RAID-REVIEW] SPT Server Connected.`);
 
     this.wss = new WebSocketServer({
@@ -188,13 +211,11 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
               payload_object.profileId = profile_id;
             }
 
-
             const { keys, values } = ExtractKeysAndValues(payload_object);
-
             switch (data.Action) {
               case "START":
-                this.post_process = false;
-                console.log(`[RAID-REVIEW] Disabling Post Processing`);
+                post_raid_processing.stop();
+                console.log(`[RAID-REVIEW] Disabled Post Processing`);
 
                 this.raid_id = payload_object.id;
                 console.log(`[RAID-REVIEW] RAID IS SET: ${this.raid_id}`);
@@ -241,8 +262,8 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 this.raid_id = "";
                 console.log(`[RAID-REVIEW] Clearing Raid Id`);
 
-                this.post_process = true;
-                console.log(`[RAID-REVIEW] Enabling Post Processing`);
+                post_raid_processing.start();
+                console.log(`[RAID-REVIEW] Enabled Post Processing`);
                 break;
                 
               case "PLAYER_CHECK":
@@ -260,7 +281,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 ])
                 .catch((e: Error) => console.error(e));
 
-                // Stop duplicates
+                // Stops duplicates, it's hacky, but it's working...
                 if (playerExists && playerExists.length) {
                   return;
                 }
@@ -304,12 +325,6 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
                 filename = `${this.raid_id}_positions`;
                 WriteLineToFile('positions', '', '', filename, keys, values);
-
-                if(this.notificationLimiter.position && this.raid_id) {
-                  console.log(`[RAID-REVIEW] Recieved 'position' trigger.`)
-                  this.notificationLimiter.position = true;
-                  ws.send("RECORDING__DEBUG__POSITION");
-                }
 
                 break;
 

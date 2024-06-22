@@ -14,7 +14,12 @@ export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Stateme
     const keys = ["kills", "looting", "player"];
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      const sqlKeyQuery = `SELECT * FROM ${key} WHERE raidId = ? ORDER BY ${key === 'player' ? 'spawnTime' : 'time'} ASC`;
+      
+      let sqlKeyQuery = `SELECT * FROM ${key} WHERE raidId = ? ORDER BY time ASC`; 
+      if (key === 'player') {
+        sqlKeyQuery = `SELECT * FROM ${key} WHERE raidId = ? ORDER BY spawnTime ASC, "group" ASC`;
+      }
+
       const sqlKeyValues = [raidId];
       const sqlResult = await db.all(sqlKeyQuery, sqlKeyValues).catch((e: Error) => console.error(e));
       raid[key] = sqlResult || [];

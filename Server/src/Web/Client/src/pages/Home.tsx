@@ -3,22 +3,20 @@ import api from "../api/api";
 import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
 
 import './Home.css'
-import { useState } from "react";
+// import { useState } from "react";
 
 export async function loader() {
     const profiles = await api.getProfiles();
 
-    const hideUpdateMessage = !window.localStorage.getItem('hide_message__v0.0.4');
+    // const hideUpdateMessage = !window.localStorage.getItem('hide_message__v0.0.4');
 
-    console.log(hideUpdateMessage)
-
-    return { profiles, hideUpdateMessage}
+    return { profiles }
 }
 
 export default function Home() {
     const [ searchParams ] = useSearchParams();
-    const { profiles, hideUpdateMessage } = useLoaderData() as { profiles: IAkiProfile[], hideUpdateMessage: boolean };
-    const [ showMessage, setShowMessage ] = useState(hideUpdateMessage);
+    const { profiles } = useLoaderData() as { profiles: IAkiProfile[], hideUpdateMessage: boolean };
+    // const [ showMessage, setShowMessage ] = useState(hideUpdateMessage);
     
     function renderError(profileId: string) {
         const error = searchParams.get('error');
@@ -37,10 +35,10 @@ export default function Home() {
         }
     }
 
-    function updateHideMessage() {
-        setShowMessage(false);
-        window.localStorage.setItem('hide_message__v0.0.4', 'true');
-    }
+    // function updateHideMessage() {
+    //     setShowMessage(false);
+    //     window.localStorage.setItem('hide_message__v0.0.4', 'true');
+    // }
 
     return (
         <main className="h-screen w-screen text-eft grid place-content-center font-mono relative">

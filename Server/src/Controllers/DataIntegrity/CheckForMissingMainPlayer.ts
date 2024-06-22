@@ -9,7 +9,7 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
 
     // Get All The Raids
     const raids_sql = `SELECT * FROM raid WHERE timeInRaid > 0;`;
-    const raids = await db.all(raids_sql).catch((e: Error) => console.error(e));
+    const raids = await db.all(raids_sql).catch((e: Error) => console.error(e)) as any[];
     const raidsByPlayer = _.groupBy(raids, 'profileId');
     
     // Check the player table, and find the raids where the Main Player is missing.
@@ -21,7 +21,7 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
         for (let j = 0; j < raidsByPlayer[player].length; j++) {
 
             const raid = raidsByPlayer[player][j];
-            const playerCheck_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ?`;
+            const playerCheck_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ? AND type = 'HUMAN'`; // Prevents Scav Raids from being 
             const playerCheck = await db.all(playerCheck_sql, [
                 raid.raidId,
                 raid.profileId
