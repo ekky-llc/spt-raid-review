@@ -1,6 +1,6 @@
 {
     "name": "raid-review",
-    "version": "0.0.4A",
+    "version": "0.0.6",
     "main": "src/mod.js",
     "license": "MIT",
     "author": "ekky",

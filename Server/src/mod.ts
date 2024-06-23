@@ -148,6 +148,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
         for (let i = 0; i < this.raids_to_process.length; i++) {
           const raidIdToProcess = this.raids_to_process[i];
           let positional_data = CompileRaidPositionalData(raidIdToProcess);
+          
           let telemetryEnabled = config.telemetry;
           if (telemetryEnabled) {
             console.log(`[RAID-REVIEW] Telemetry is enabled.`)
@@ -155,6 +156,8 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
           } else {
             console.log(`[RAID-REVIEW] Telemetry is disabled.`)
           }
+
+          this.raids_to_process = [];
         }
       }
     }, { scheduled: false });

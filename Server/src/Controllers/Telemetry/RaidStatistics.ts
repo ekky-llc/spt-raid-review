@@ -67,10 +67,9 @@ async function generateStatisticsPayload(raid: TrackingRaidData, positions: posi
     raid.players.forEach(player => {
         if (player && player.team) {
             let lowercaseTeam = player.team.toLowerCase();
-            if (!players[lowercaseTeam]) {
-                players[lowercaseTeam] = 0;
+            if (!players[lowercaseTeam] !== undefined) {
+                players[lowercaseTeam]++;
             }
-            players[lowercaseTeam]++;
         }
     });
 
@@ -81,10 +80,9 @@ async function generateStatisticsPayload(raid: TrackingRaidData, positions: posi
         let killedPlayer = playerDic[kill.killedId];
         if (killedPlayer && killedPlayer.team) {
             let lowercaseTeam = killedPlayer.team.toLowerCase();
-            if (!kills[lowercaseTeam]) {
-                kills[lowercaseTeam] = 0;
+            if (kills[lowercaseTeam] !== undefined) {
+                kills[lowercaseTeam]++;
             }
-            kills[lowercaseTeam]++;
         }
     });
 

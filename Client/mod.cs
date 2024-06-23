@@ -24,7 +24,7 @@ using System.Linq;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.4A")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.6")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
