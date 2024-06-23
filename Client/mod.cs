@@ -24,7 +24,7 @@ using System.Linq;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.4")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.4A")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
@@ -62,6 +62,7 @@ namespace RAID_REVIEW
         public static ConfigEntry<string> ServerAddress;
         public static ConfigEntry<string> ServerWsPort;
         public static ConfigEntry<string> ServerHttpPort;
+        public static ConfigEntry<bool> DisableDataSending;
         public static ConfigEntry<bool> ServerTLS;
         public static GameObject Hook;
 
@@ -85,6 +86,7 @@ namespace RAID_REVIEW
             ServerWsPort = Config.Bind<string>("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");
             ServerHttpPort = Config.Bind<string>("Server", "3. Server HTTP Port", "7829", "Listen port of the raid review http server.");
             ServerTLS = Config.Bind<bool>("Server", "4. TLS", false, "Enable if you are using an SSL Certificate infront of your http server.");
+            DisableDataSending = Config.Bind<bool>("Server", "5. Disable Recording", false, "Enable if you want to stop data from being sent to Raid-Review.");
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");

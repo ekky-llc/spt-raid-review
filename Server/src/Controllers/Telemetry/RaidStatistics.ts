@@ -61,31 +61,34 @@ async function generateStatisticsPayload(raid: TrackingRaidData, positions: posi
     let playerDic = _.groupBy(raid.players ,'playerId') as unknown as { [key:string] : TrackingRaidDataPlayers };
 
     // Iterations
-    let playersLen = raid.players.length;
-    let killsLen = raid.kills.length;
     let lootingsLen = raid.looting.length;
-    let longest = [playersLen, killsLen].sort((a, b) => (a - b))[0];
-    for (let i = 0; i < longest; i++) {
-        const player = raid.players[i];
-        const kill = raid.kills[i];
 
-        if (player) {
-            if (player.team) {
-                let lowercaseTeam = player.team.toLowerCase();
-                players[lowercaseTeam]++;
+    players.total = raid.players.length;
+    raid.players.forEach(player => {
+        if (player && player.team) {
+            let lowercaseTeam = player.team.toLowerCase();
+            if (!players[lowercaseTeam]) {
+                players[lowercaseTeam] = 0;
             }
+            players[lowercaseTeam]++;
         }
-                
-        if (kill) {
-            let killedPlayer = playerDic[kill.killedId];
-            if (killedPlayer && killedPlayer.team) {
-                let lowercaseTeam = killedPlayer.team.toLowerCase();
-                kills[lowercaseTeam]++;
-            }
-        }
-        
-    }
+    });
 
+    
+    // Iterating through kills to count kills per team
+    kills.total = raid.kills.length;
+    raid.kills.forEach(kill => {
+        let killedPlayer = playerDic[kill.killedId];
+        if (killedPlayer && killedPlayer.team) {
+            let lowercaseTeam = killedPlayer.team.toLowerCase();
+            if (!kills[lowercaseTeam]) {
+                kills[lowercaseTeam] = 0;
+            }
+            kills[lowercaseTeam]++;
+        }
+    });
+
+    
     // Final Payload
     const data = {
         raidId: raid.raidId,

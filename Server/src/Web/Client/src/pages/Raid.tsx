@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 import api from "../api/api";
 import en from "../assets/en.json";
+import BotMapping from '../assets/botMapping.json'
 
 import "./Raid.css";
 import { TrackingRaidData, TrackingRaidDataPlayers } from "../types/api_types";
@@ -56,9 +57,6 @@ export default function Raid() {
     }
 
     const groupedPlayers = _.chain(raidData.players).map(p => {
-      if (p.team === 'Savage') {
-        p.group = 99
-      }
       return {
         ...p,
         group : Number(p.group)
@@ -193,8 +191,17 @@ export default function Raid() {
   }
 
   function getPlayerBrain(player: TrackingRaidDataPlayers): string {
-    if(player) {
-      switch (player.type){
+    if (player) {
+    
+      // @ts-ignore
+      let botMapping = BotMapping[player.type];
+      if (!botMapping) {
+          botMapping = {
+              type: 'UNKNOWN'
+          };
+      }
+    
+      switch (botMapping.type){
           case 'BOSS':
               return "BOSS"
           case 'RAIDER':
@@ -213,8 +220,9 @@ export default function Raid() {
               } 
               return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
       }
-  }
-  return "(UNKNOWN)"
+    }
+
+    return "(UNKNOWN)"
   }
 
   function generateMapPlaybackButton(positionDataStatus: string) {
