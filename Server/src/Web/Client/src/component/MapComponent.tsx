@@ -739,6 +739,10 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 };
             }
 
+            if((player.team === "Bear" || player.team === "Usec") && player.mod_SAIN_brain != "UNKNOWN"){
+                return `(${player.mod_SAIN_brain.trim()})`;
+            }
+
             if (isGoon(player)) botMapping.type = "GOON";
 
             if (player.mod_SAIN_brain === 'PLAYER') brainOutput = "(Human)"
