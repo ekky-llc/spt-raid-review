@@ -201,6 +201,14 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
+export function isGoon(player) {
+    if (player !== undefined) {
+        let goons = ["Big Pipe", "Birdeye", "Knight"];
+        return goons.includes(player.name);
+    }
+    return false;
+}
+
 export default function MapComponent({ raidData, profileId, raidId, positions }) {
     const navigate = useNavigate();
     const [ searchParams ] = useSearchParams();
@@ -721,6 +729,8 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
         if (player) {
 
+            console.log(player.type)
+
             let brainOutput = '(Unknown)'
             let botMapping = BotMapping[player.type];
             if (!botMapping) {
@@ -729,24 +739,27 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 };
             }
 
+            if (isGoon(player)) botMapping.type = "GOON";
+
             if (player.mod_SAIN_brain === 'PLAYER') brainOutput = "(Human)"
             if (player.mod_SAIN_brain != null) brainOutput = `(${player.mod_SAIN_brain.trim()})`;
 
+            if (botMapping.type === 'UNKNOWN') brainOutput =`(${player.team === "Savage" ? 'Scav' : 'PMC'})`
+            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) brainOutput = "(PMC)";
+            if (botMapping.type === 'SCAV') brainOutput = `(Scav)`;
+
             if (botMapping.type === 'BOSS') brainOutput = `(Boss)`;
+
             if (botMapping.type === 'GOON') brainOutput = `(Goon)`;
             if (botMapping.type === 'FOLLOWER') brainOutput = `(Follower)`;
             if (botMapping.type === 'RAIDER') brainOutput = `(Raider)`;
+            if (botMapping.type === 'ROGUE') brainOutput = `(Rogue)`;
             if (botMapping.type === 'CULT') brainOutput = `(Cultist)`;
             if (botMapping.type === 'SNIPER') brainOutput = `(Sniper)`;
             if (botMapping.type === 'PLAYER_SCAV') brainOutput = `(${player.mod_SAIN_brain.trim()} - Player Scav)`;
             if (botMapping.type === 'BLOODHOUND') brainOutput = `(Bloodhound)`;
-            if (botMapping.type === 'UNKNOWN') brainOutput =`(${player.team === "Savage" ? 'Scav' : 'PMC'})`
-
-            // Catch All
-            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) brainOutput = "(PMC)";
 
             return brainOutput;
-
         }
     }
 
@@ -758,11 +771,17 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 type: 'UNKNOWN'
             };
         }
+
+        if (isGoon(player)) {
+            botMapping.type = "GOON";
+        }
+
         switch (botMapping.type) {
             case 'SCAV':
                 return "#33FF57"; // Green - Scav
             case 'BOSS':
                 return "#FF0000"; // Red - Boss
+            case 'ROGUE':
             case 'FOLLOWER':
                 return "#ff7b00"; // Orange - Follower
             case 'BLOODHOUND':

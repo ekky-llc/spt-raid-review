@@ -259,8 +259,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   ])
                   .catch((e: Error) => console.error(e));
 
-                // Reset the notification limiter for the next raid
-                this.notificationLimiter = NOTIFICATION_LIMITER_DEFAULT;
+                this.raids_to_process.push(this.raid_id)
 
                 this.raid_id = "";
                 console.log(`[RAID-REVIEW] Clearing Raid Id`);
@@ -326,8 +325,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
               case "POSITION":
 
+              if (this.raid_id) {
                 filename = `${this.raid_id}_positions`;
                 WriteLineToFile('positions', '', '', filename, keys, values);
+              }
 
                 break;
 

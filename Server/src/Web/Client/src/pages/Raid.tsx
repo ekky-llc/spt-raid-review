@@ -10,6 +10,7 @@ import "./Raid.css";
 import { TrackingRaidData, TrackingRaidDataPlayers } from "../types/api_types";
 import { locations } from "./Profile";
 import { getCookie } from "../modules/utils";
+import { isGoon } from "../component/MapComponent";
 
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
@@ -57,6 +58,11 @@ export default function Raid() {
     }
 
     const groupedPlayers = _.chain(raidData.players).map(p => {
+
+      if (isGoon(p)) {
+        p.group = 12345;
+      }
+
       return {
         ...p,
         group : Number(p.group)
@@ -200,6 +206,10 @@ export default function Raid() {
               type: 'UNKNOWN'
           };
       }
+      
+      if (isGoon(player)) {
+        botMapping.type = "GOON";
+      }
     
       switch (botMapping.type){
           case 'BOSS':
@@ -212,13 +222,15 @@ export default function Raid() {
               return "SNIPER"
           case 'GOON':
               return "GOON"
+          case 'ROGUE':
+              return "ROGUE"
           case 'CULTIST':
               return "CULTIST"
           default:
               if(player.team === "Savage") {
                 return ""
               } 
-              return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+              return player.mod_SAIN_brain != null ? `${player.mod_SAIN_brain}` : "(PMC)"
       }
     }
 

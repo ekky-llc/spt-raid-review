@@ -53,12 +53,17 @@ namespace RAID_REVIEW
         {
             return Task.Run(() =>
             {
+                // If enabled / true, stop sending data
                 if (RAID_REVIEW.DisableDataSending.Value) return;
+
+                // Else keep going
                 try
                 {
-                    WsPayload wsPayload = new WsPayload();
-                    wsPayload.Action = Action;
-                    wsPayload.Payload = Payload;
+                    WsPayload wsPayload = new WsPayload
+                    {
+                        Action = Action,
+                        Payload = Payload
+                    };
                     ws.Send(JsonConvert.SerializeObject(wsPayload));
                 }
                 catch (System.Exception ex)

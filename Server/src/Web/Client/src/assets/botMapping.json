@@ -41,11 +41,11 @@
     },
     "ROGUE|FOLLOWER": {
         "name": "Rogue",
-        "type": "FOLLOWER"
+        "type": "ROGUE"
     },
     "RAIDER|FOLLOWER": {
         "name": "Raider",
-        "type": "FOLLOWER"
+        "type": "RAIDER"
     },
     "BLOODHOUND|BLOODHOUND": {
         "name": "Bloodhound",
