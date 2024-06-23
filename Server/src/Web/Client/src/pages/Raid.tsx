@@ -222,13 +222,15 @@ export default function Raid() {
               return "SNIPER"
           case 'GOON':
               return "GOON"
+          case 'ROGUE':
+              return "ROGUE"
           case 'CULTIST':
               return "CULTIST"
           default:
               if(player.team === "Savage") {
                 return ""
               } 
-              return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain})` : "(PMC)"
+              return player.mod_SAIN_brain != null ? `${player.mod_SAIN_brain}` : "(PMC)"
       }
     }
 
