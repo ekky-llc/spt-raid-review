@@ -718,7 +718,10 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
     }
 
     function getPlayerBrain(player: TrackingRaidDataPlayers): string {
-        if(player) {
+
+        if (player) {
+
+            let brainOutput = '(Unknown)'
             let botMapping = BotMapping[player.type];
             if (!botMapping) {
                 botMapping = {
@@ -726,21 +729,25 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 };
             }
 
-            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) {
-                return "(PMC)"
-            } 
-            
-            else if (player.team === "Savage") {
-                return "(Scav)"
-            } 
+            if (player.mod_SAIN_brain === 'PLAYER') brainOutput = "(Human)"
+            if (player.mod_SAIN_brain != null) brainOutput = `(${player.mod_SAIN_brain.trim()})`;
 
-            else if (player.mod_SAIN_brain === 'PLAYER') {
-                return "(Human)"
-            }
+            if (botMapping.type === 'BOSS') brainOutput = `(Boss)`;
+            if (botMapping.type === 'GOON') brainOutput = `(Goon)`;
+            if (botMapping.type === 'FOLLOWER') brainOutput = `(Follower)`;
+            if (botMapping.type === 'RAIDER') brainOutput = `(Raider)`;
+            if (botMapping.type === 'CULT') brainOutput = `(Cultist)`;
+            if (botMapping.type === 'SNIPER') brainOutput = `(Sniper)`;
+            if (botMapping.type === 'PLAYER_SCAV') brainOutput = `(${player.mod_SAIN_brain.trim()} - Player Scav)`;
+            if (botMapping.type === 'BLOODHOUND') brainOutput = `(Bloodhound)`;
+            if (botMapping.type === 'UNKNOWN') brainOutput =`(${player.team === "Savage" ? 'Scav' : 'PMC'})`
 
-            return player.mod_SAIN_brain != null ? `(${player.mod_SAIN_brain.replace(/([A-Z])/g, " $1").trim()})` : "(PMC)"
+            // Catch All
+            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) brainOutput = "(PMC)";
+
+            return brainOutput;
+
         }
-        return "(UNKNOWN)"
     }
 
     function getPlayerColor(player: TrackingRaidDataPlayers, index: number): string {
@@ -802,9 +809,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                                 <li className="flex items-center justify-between player-legend-item px-2" key={player.profileId} onMouseEnter={() => setPlayerFocus(index)} onMouseLeave={() => setPlayerFocus(null)} onClick={() => {setFollowPlayer(followPlayer === player.profileId ? null : player.profileId); setFollowPlayerZoomed(false);}}>
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : getPlayerColor(player, index)}}></span>
-                                        <span>
-                                            {player.name} {getPlayerBrain(player)}
-                                        </span>
+                                        <div>
+                                            <span>{player.name} {getPlayerBrain(player)}</span>
+                                        </div>
                                     </div>
                                     { followPlayer === player.profileId ? 
                                         <span className='text-xs'>
