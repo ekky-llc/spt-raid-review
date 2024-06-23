@@ -10,6 +10,7 @@ import "./Raid.css";
 import { TrackingRaidData, TrackingRaidDataPlayers } from "../types/api_types";
 import { locations } from "./Profile";
 import { getCookie } from "../modules/utils";
+import { isGoon } from "../component/MapComponent";
 
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
@@ -57,6 +58,11 @@ export default function Raid() {
     }
 
     const groupedPlayers = _.chain(raidData.players).map(p => {
+
+      if (isGoon(p)) {
+        p.group = 12345;
+      }
+
       return {
         ...p,
         group : Number(p.group)
@@ -199,6 +205,10 @@ export default function Raid() {
           botMapping = {
               type: 'UNKNOWN'
           };
+      }
+      
+      if (isGoon(player)) {
+        botMapping.type = "GOON";
       }
     
       switch (botMapping.type){

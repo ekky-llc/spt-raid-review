@@ -201,6 +201,14 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
+export function isGoon(player) {
+    if (player !== undefined) {
+        let goons = ["Big Pipe", "Birdeye", "Knight"];
+        return goons.includes(player.name);
+    }
+    return false;
+}
+
 export default function MapComponent({ raidData, profileId, raidId, positions }) {
     const navigate = useNavigate();
     const [ searchParams ] = useSearchParams();
@@ -715,14 +723,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         } else {
           return false;
         }
-    }
-
-    function isGoon(player) {
-        if (player !== undefined) {
-            let goons = ["Big Pipe", "Birdeye", "Knight"];
-            return goons.includes(player.name);
-        }
-        return false;
     }
 
     function getPlayerBrain(player: TrackingRaidDataPlayers): string {

@@ -87,7 +87,7 @@ namespace RAID_REVIEW
             ServerWsPort =          Config.Bind<string> ("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");
             ServerHttpPort =        Config.Bind<string> ("Server", "3. Server HTTP Port", "7829", "Listen port of the raid review http server.");
             ServerTLS =             Config.Bind<bool>   ("Server", "4. TLS", false, "Enable if you are using an SSL Certificate infront of your http server.");
-            DisableDataSending =    Config.Bind<bool>   ("Server", "5. Disable Recording", false, "Enable/Check if you want to stop all data from being sent to raid review.");
+            DisableDataSending =    Config.Bind<bool>   ("Server", "5. Disable Recording", false, "[WARNING] Only enable if you want to stop all data from being sent to raid review, may require restart.");
 
             PlayerTracking =        Config.Bind<bool>   ("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking =          Config.Bind<bool>   ("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
@@ -176,9 +176,9 @@ namespace RAID_REVIEW
                         {
                             BotComponent botComponent = null;
 
-                            int maxRetries = 5;
+                            int maxRetries = 10;
                             int retryCount = 0;
-                            int retryIntervalMilliseconds = 1000;
+                            int retryIntervalMilliseconds = 2000;
 
                             while (botComponent == null && retryCount < maxRetries)
                             {
@@ -188,9 +188,7 @@ namespace RAID_REVIEW
                                 {
                                     await Task.Delay(retryIntervalMilliseconds); // Wait for the specified interval
                                     retryCount++;
-
                                 }
-
                             }
 
 
@@ -210,8 +208,13 @@ namespace RAID_REVIEW
 
                         else
                         {
-                            trackingPlayer.mod_SAIN_brain = player.Side == EPlayerSide.Savage ? trackingPlayer.mod_SAIN_brain = "SCAV" : trackingPlayer.mod_SAIN_brain = "PMC";
+                            if (player.Side == EPlayerSide.Savage) {
+                                trackingPlayer.mod_SAIN_brain = "SCAV";
+                            }
 
+                            if (player.Side == EPlayerSide.Usec || player.Side == EPlayerSide.Bear) {
+                                trackingPlayer.mod_SAIN_brain = "PMC";
+                            }
                         }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
