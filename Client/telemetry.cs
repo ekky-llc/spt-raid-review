@@ -53,7 +53,7 @@ namespace RAID_REVIEW
         {
             return Task.Run(() =>
             {
-                if (!RAID_REVIEW.DisableDataSending.Value) return;
+                if (RAID_REVIEW.DisableDataSending.Value) return;
                 try
                 {
                     WsPayload wsPayload = new WsPayload();

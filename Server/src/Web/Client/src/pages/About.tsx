@@ -18,7 +18,7 @@ export default function About() {
                 </p>
                 <div className='flex gap-8 p-2 border border-eft'>
                     <p>
-                        <strong>Current Version</strong>: v0.0.5
+                        <strong>Current Version</strong>: v0.0.6
                     </p>
                     <p>
                         <strong>Compatibility</strong>: SPT v3.8.x
