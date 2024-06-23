@@ -151,6 +151,10 @@
         "name": "BTR",
         "type": "OTHER"
     },
+    "CUSTOM|BOSS": {
+        "name": "Custom Boss",
+        "type": "BOSS"
+    },
     "UNKNOWN": {
         "name": "",
         "type": ""
