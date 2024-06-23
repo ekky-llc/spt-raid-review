@@ -6,7 +6,7 @@ import './Home.css'
 // import { useState } from "react";
 
 export async function loader() {
-    const profiles = await api.getProfiles();
+    let profiles = await api.getProfiles();
 
     // const hideUpdateMessage = !window.localStorage.getItem('hide_message__v0.0.4');
 
@@ -42,8 +42,8 @@ export default function Home() {
 
     return (
         <main className="h-screen w-screen text-eft grid place-content-center font-mono relative">
-            <h1 className="text-center text-2xl mb-2 font-bold">SELECT YOUR PROFILE</h1>
-            <div className="grid gap-4 bg-black/75 p-6">
+            <h1 className="text-center text-2xl mb-2 font-bold">{profiles.length > 6 ? (`SELECT YOUR Prof.. woah... why so many?${profiles.length >= 12 ? '... seriously?' : ''}`) : 'SELECT YOUR PROFILE'}</h1>
+            <div className={`grid gap-4 bg-black/75 p-6 ${profiles.length >= 6 ? `profile-collector ${profiles.length >= 12 ? 'even-more' : ''}` : ''}`}>
                 {profiles.length > 0 ? profiles.map((profile) => (
                 <Link key={profile.info.id} to={`/p/${profile.info.id}`} className="border border-eft hover:bg-orange-200/20">
                     <div className="home__profile-card flex p-2">

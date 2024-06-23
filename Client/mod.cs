@@ -78,18 +78,20 @@ namespace RAID_REVIEW
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Mod Loaded");
 
             // Configuration Bindings
-            LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the web client.");
-            InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
-            RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", true, "Enables notifications as recording starts and ends.");
-            VerboseNotifications = Config.Bind<bool>("Main", "Verbose Notifications", false, "Enables all notifications [DEBUG MODE].");
-            ServerAddress = Config.Bind<string>("Server", "1. Server IP", "127.0.0.1", "IP address of the server.");
-            ServerWsPort = Config.Bind<string>("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");
-            ServerHttpPort = Config.Bind<string>("Server", "3. Server HTTP Port", "7829", "Listen port of the raid review http server.");
-            ServerTLS = Config.Bind<bool>("Server", "4. TLS", false, "Enable if you are using an SSL Certificate infront of your http server.");
-            DisableDataSending = Config.Bind<bool>("Server", "5. Disable Recording", false, "Enable if you want to stop data from being sent to Raid-Review.");
-            PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
-            KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
-            LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
+            LaunchWebpageKey =      Config.Bind         ("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the web client.");
+            InsertMenuItem =        Config.Bind<bool>   ("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
+            RecordingNotification = Config.Bind<bool>   ("Main", "Recording Notification", true, "Enables notifications as recording starts and ends.");
+            VerboseNotifications =  Config.Bind<bool>   ("Main", "Verbose Notifications", false, "Enables all notifications [DEBUG MODE].");
+
+            ServerAddress =         Config.Bind<string> ("Server", "1. Server IP", "127.0.0.1", "IP address of the server.");
+            ServerWsPort =          Config.Bind<string> ("Server", "2. Server WS Port", "7828", "Listen port of the raid review websocket server.");
+            ServerHttpPort =        Config.Bind<string> ("Server", "3. Server HTTP Port", "7829", "Listen port of the raid review http server.");
+            ServerTLS =             Config.Bind<bool>   ("Server", "4. TLS", false, "Enable if you are using an SSL Certificate infront of your http server.");
+            DisableDataSending =    Config.Bind<bool>   ("Server", "5. Disable Recording", false, "Enable/Check if you want to stop all data from being sent to raid review.");
+
+            PlayerTracking =        Config.Bind<bool>   ("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
+            KillTracking =          Config.Bind<bool>   ("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
+            LootTracking =          Config.Bind<bool>   ("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
 
             // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
@@ -114,7 +116,6 @@ namespace RAID_REVIEW
             try
             {
                 // UPDATE LIMITER
-
                 if (updateInterval == 0.0f)
                     updateInterval = 1.0f / PlayerTrackingInterval;
 
@@ -130,7 +131,6 @@ namespace RAID_REVIEW
                 }
 
                 // IF MAP NOT LOADED, RETURN
-
                 if (!MapLoaded())
                     return;
 
@@ -139,7 +139,6 @@ namespace RAID_REVIEW
 
 
                 // IF IN MENU, RETURN
-
                 if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
                     return;
 
@@ -266,7 +265,6 @@ namespace RAID_REVIEW
 
                             var trackingPlayerData = new TrackingPlayerData(player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
                             _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
-
                         }
 
                     }
