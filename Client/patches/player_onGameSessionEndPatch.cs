@@ -26,6 +26,7 @@ namespace RAID_REVIEW
                 RAID_REVIEW.inRaid = false;
 
                 RAID_REVIEW.stopwatch.Stop();
+                RAID_REVIEW.trackingRaid.sessionId = RAID_REVIEW.sessionId;
                 RAID_REVIEW.trackingRaid.profileId = __instance.ProfileId;
                 RAID_REVIEW.trackingRaid.exitStatus = exitStatus;
                 RAID_REVIEW.trackingRaid.exitName = exitName;

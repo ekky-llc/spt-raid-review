@@ -23,40 +23,26 @@ import { sendStatistics } from "./Controllers/Telemetry/RaidStatistics";
 import CompileRaidPositionalData from "./Controllers/PositionalData/CompileRaidPositionalData";
 import { errorPacketHandler, messagePacketHandler } from "./Controllers/PacketHandler/packetHandler";
 import { WebSocketConfig } from "./constant";
-import { RaidManager } from "./Controllers/RaidManager/RaidManager";
-import { GetInstalledMods } from "./Controllers/Integrations/modDetection";
-
-// export let session_id = null;
-// export let profile_id = null;
-
-// export function setSessionId(sessionId: string) {
-//   session_id = sessionId;
-//   return;
-// }
-
-// export function setProfileId(profileId: string) {
-//   profile_id = profileId;
-//   return;
-// }
-
-// export function getSessiondata() {
-//   return { session_id, profile_id };
-// }
-
+import { RaidManager } from "./Controllers/RaidManager/raidManager";
+import { ModDetector } from "./Controllers/Integrations/modDetection";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   saveServer: SaveServer;
+  profileHelper: ProfileHelper;
+  profiles: Record<string,IAkiProfile>;
   logger: ILogger;
 
   wss: WebSocketServer;
   database: Database<sqlite3.Database, sqlite3.Statement>;
+  modDetector: ModDetector;
   raidManager: RaidManager;
   raids_to_process: string[];
 
   constructor() {
     this.wss = null;
+    this.database = null;
     this.raidManager = new RaidManager();
     this.raids_to_process = [];
-    this.database = null;
   }
 
   public preAkiLoad(container: DependencyContainer): void {
@@ -69,20 +55,9 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
       [
         {
           url: "/client/game/start",
-          action: (
-            url: string,
-            info: any,
-            sessionId: string,
-            output: string
-          ) => {
-            setSessionId(sessionId);
-            const profileHelper =
-              container.resolve<ProfileHelper>("ProfileHelper");
-            const profile = profileHelper.getFullProfile(sessionId);
-            setProfileId(profile.info.id);
-            console.log(`[RAID-REVIEW] PROFILE_ID: ${profile.info.id}`);
-            console.log(`[RAID-REVIEW] PROFILE_NICKNAME: ${profile.info.username}`);
-            return output;
+          action: (url: string,info: any,sessionId: string,output: string) => {
+            this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
+            this.profiles = this.profileHelper.getProfiles();
           },
         }
       ],
@@ -96,8 +71,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     console.log(`[RAID-REVIEW] Database Connected`);
 
     // Get Installed Mods
-    const InstalledMods = GetInstalledMods(container);
-    console.log(InstalledMods)
+    this.modDetector = new ModDetector();
 
     // Data Position Migration
     // @ekky @ 2024-06-18: Added this for the move from v0.0.3 to v0.0.4
@@ -146,7 +120,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     this.wss = new WebSocketServer(WebSocketConfig);
     this.wss.on("connection", async (ws) => {
       ws.on("error", errorPacketHandler);
-      ws.on("message", (str: string) => messagePacketHandler(str, this.raidManager, post_raid_processing));
+      ws.on("message", (str: string) => messagePacketHandler(str, this.raidManager, this.modDetector,this.profiles, post_raid_processing));
     });
     console.log(`[RAID-REVIEW] Websocket Server Listening on 'ws://127.0.0.1:7828'.`);
 

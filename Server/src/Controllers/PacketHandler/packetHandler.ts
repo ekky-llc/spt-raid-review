@@ -2,9 +2,12 @@ import { ExtractKeysAndValues } from "../../Utils/utils";
 import cron from 'node-cron';
 import { WriteLineToFile } from "../FileSystem/DataSaver";
 import { NoOneLeftBehind } from "../DataIntegrity/NoOneLeftBehind";
-import { RaidManager } from "../RaidManager/RaidManager";
+import { RaidManager, RaidManagerPlayerMap } from "../RaidManager/raidManager";
+import { ModDetector } from "../Integrations/modDetection";
+import { CONSTANTS } from "src/constant";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 
-async function messagePacketHandler(str: string, raidManager: RaidManager, post_raid_processing: cron.ScheduledTask) {
+async function messagePacketHandler(str: string, raidManager: RaidManager, modDetector: ModDetector, profiles : Record<string, IAkiProfile>, post_raid_processing: cron.ScheduledTask) {
 
     try {
         if (str.includes('WS_CONNECTED')) {
@@ -18,17 +21,36 @@ async function messagePacketHandler(str: string, raidManager: RaidManager, post_
         if (data && data.Action && data.Payload) {
           const payload_object = JSON.parse(data.Payload);
 
-          let raidManagerProfile = raidManager.getProfile(payload_object.profileId);
+          let raidManagerProfile = raidManager.getProfile(payload_object.sessionId);
           if (!raidManagerProfile) return;
 
           let raidId = raidManagerProfile.raidId;
-          if (!raidId) return;
 
           const { keys, values } = ExtractKeysAndValues(payload_object);
           switch (data.Action) {
             case "START":
-
               console.log(`[RAID-REVIEW] Recieved 'START' trigger.`)
+
+              // FIKA Raid Handler
+              const isFikaInstalled = modDetector.isModInstalled(CONSTANTS.MOD_SIGNATURES.SAIN);
+              if (isFikaInstalled.client && isFikaInstalled.server) {
+                console.log(`[RAID-REVIEW] SERVER Mod Detected: FIKA Server.`);
+                console.log(`[RAID-REVIEW] CLIENT Mod Detected: FIKA Client.`);
+
+                // Some funky FIKA Stuff.
+              }
+
+              // SPT Raid Handler
+              else {
+                const raidId = crypto.randomUUID();
+                const players = null as RaidManagerPlayerMap;
+                players.set(payload_object.sessionId, profiles[payload_object.profileId]);
+                raidManager.addRaid(raidId, {
+                  raidId,
+                  players,
+                  timeout: 30
+                })
+              }
 
               post_raid_processing.stop();
               console.log(`[RAID-REVIEW] Disabled Post Processing`);

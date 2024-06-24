@@ -34,6 +34,7 @@ namespace RAID_REVIEW
         public static float PlayerTrackingInterval = 5f;
 
         // RAID_REVIEW
+        public static string sessionId = null;
         public static bool inRaid = false;
         public static bool tracking = false;
         public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
@@ -142,6 +143,10 @@ namespace RAID_REVIEW
                 if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
                     return;
 
+                if (sessionId == null && myPlayer != null) {
+                    sessionId = myPlayer.ProfileId;
+                }
+
                 // PLAYER TRACKING LOOP
                 IEnumerable<Player> allPlayers = gameWorld.AllPlayersEverExisted;
                 long captureTime = stopwatch.ElapsedMilliseconds;
@@ -158,6 +163,7 @@ namespace RAID_REVIEW
 
                         trackingPlayer = new TrackingPlayer
                         {
+                            sessionId = sessionId,
                             profileId = player.ProfileId,
                             name = player.Profile.Nickname,
                             level = player.Profile.Info.Level,
@@ -247,7 +253,7 @@ namespace RAID_REVIEW
                             float angle = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
                             float dir = angle;
 
-                            var trackingPlayerData = new TrackingPlayerData(player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
+                            var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
                             _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                         }
 
