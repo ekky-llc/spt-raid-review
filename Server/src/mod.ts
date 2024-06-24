@@ -12,7 +12,6 @@ import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { StaticRouterModService } from "@spt-aki/services/mod/StaticRouter/StaticRouterModService";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
-import { MailSendService } from "@spt-aki/services/MailSendService";
 
 import config from '../config.json';
 import WebServer from "./Web/Server/Express";
@@ -25,23 +24,24 @@ import CompileRaidPositionalData from "./Controllers/PositionalData/CompileRaidP
 import { errorPacketHandler, messagePacketHandler } from "./Controllers/PacketHandler/packetHandler";
 import { WebSocketConfig } from "./constant";
 import { RaidManager } from "./Controllers/RaidManager/RaidManager";
+import { GetInstalledMods } from "./Controllers/Integrations/modDetection";
 
-export let session_id = null;
-export let profile_id = null;
+// export let session_id = null;
+// export let profile_id = null;
 
-export function setSessionId(sessionId: string) {
-  session_id = sessionId;
-  return;
-}
+// export function setSessionId(sessionId: string) {
+//   session_id = sessionId;
+//   return;
+// }
 
-export function setProfileId(profileId: string) {
-  profile_id = profileId;
-  return;
-}
+// export function setProfileId(profileId: string) {
+//   profile_id = profileId;
+//   return;
+// }
 
-export function getSessiondata() {
-  return { session_id, profile_id };
-}
+// export function getSessiondata() {
+//   return { session_id, profile_id };
+// }
 
 class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
   saveServer: SaveServer;
@@ -95,6 +95,10 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     this.database = await database();
     console.log(`[RAID-REVIEW] Database Connected`);
 
+    // Get Installed Mods
+    const InstalledMods = GetInstalledMods(container);
+    console.log(InstalledMods)
+
     // Data Position Migration
     // @ekky @ 2024-06-18: Added this for the move from v0.0.3 to v0.0.4
     await MigratePositionsStructure(this.database);
@@ -140,9 +144,9 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     console.log(`[RAID-REVIEW] SPT Server Connected.`);
 
     this.wss = new WebSocketServer(WebSocketConfig);
-    this.wss.on("connection", async (ws: WebSocket) => {
+    this.wss.on("connection", async (ws) => {
       ws.on("error", errorPacketHandler);
-      ws.on("message", (str) => messagePacketHandler(ws, str, this.raidManager, post_raid_processing));
+      ws.on("message", (str: string) => messagePacketHandler(str, this.raidManager, post_raid_processing));
     });
     console.log(`[RAID-REVIEW] Websocket Server Listening on 'ws://127.0.0.1:7828'.`);
 

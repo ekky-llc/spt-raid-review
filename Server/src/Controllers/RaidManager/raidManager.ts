@@ -8,7 +8,8 @@ interface RaidManagerRaid {
 
 interface RaidManagerProfile {
     profile: IAkiProfile,
-    timeout: Number
+    timeout?: Number
+    raidId?: string, 
 }
 
 export class RaidManager {
@@ -21,7 +22,7 @@ export class RaidManager {
     }
 
     // Profile Handlers
-    addProfile(id: string, data: any[]): void {
+    addProfile(id: string, data: RaidManagerProfile): void {
         this.profiles.set(id, data);
     }
 
@@ -39,25 +40,33 @@ export class RaidManager {
 
 
     // Raid Handlers
-    addRaid(id: string, data: RaidManagerRaid): void {
-        this.raids.set(id, data);
-    }
-
-    addPlayerToRaid() : void {
-
-    }
-
-    removeRaid(id: string): void {
-        this.raids.delete(id);
+    addRaid(raidId: string, raidData: RaidManagerRaid): void {
+        this.raids.set(raidId, raidData);
     }
 
     getRaids(): Map<string, RaidManagerRaid> {
         return this.raids;
     }
 
-    getRaid(id: string): RaidManagerRaid {
-        return this.raids.get(id);
+    getRaid(raidId: string): RaidManagerRaid {
+        return this.raids.get(raidId);
+    }
+    
+    // Player To Raid Handler
+    addPlayerToRaid(raidId: string, playerProfile: IAkiProfile) : void {
+        let raid = this.getRaid(raidId)
+        raid.players.set(playerProfile.info.id, playerProfile);
+        this.raids.set(raidId, raid);
     }
 
+    removePlayerFromRaid(raidId: string, playerProfile: IAkiProfile) : void {
+        let raid = this.getRaid(raidId)
+        raid.players.delete(playerProfile.info.id);
+        this.raids.set(raidId, raid);
+    }
+
+    removeRaid(raidId: string): void {
+        this.raids.delete(raidId);
+    }
 
 }
