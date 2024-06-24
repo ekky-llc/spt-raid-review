@@ -202,14 +202,26 @@ namespace RAID_REVIEW
                                     trackingPlayer.type = BotHelper.getBotType(botComponent);
                                 }
 
+                            } 
+                            else 
+                            {
+                                if (player.Side == EPlayerSide.Savage)
+                                {
+                                    trackingPlayer.mod_SAIN_brain = "SCAV";
+                                    trackingPlayer.type = "SCAV|SCAV";
+                                }
+
+                                if (player.Side == EPlayerSide.Usec || player.Side == EPlayerSide.Bear)
+                                {
+                                    trackingPlayer.mod_SAIN_brain = "PMC";
+                                }
                             }
-
                         }
-
                         else
                         {
                             if (player.Side == EPlayerSide.Savage) {
                                 trackingPlayer.mod_SAIN_brain = "SCAV";
+                                trackingPlayer.type = "SCAV|SCAV";
                             }
 
                             if (player.Side == EPlayerSide.Usec || player.Side == EPlayerSide.Bear) {
