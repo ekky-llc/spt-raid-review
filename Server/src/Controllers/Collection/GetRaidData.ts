@@ -2,11 +2,11 @@ import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
 import { FileExists } from "../FileSystem/DataSaver";
 
-export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Statement>, profileId: string, raidId: string) {
+export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Statement>, raidId: string) {
 
     // Need to fix this; N+1 Problem
-    const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = ? AND timeInRaid > 10 AND raidId = ?`;
-    const sqlRaidValues = [profileId, raidId];
+    const sqlRaidQuery = `SELECT * FROM raid WHERE timeInRaid > 10 AND raidId = ?`;
+    const sqlRaidValues = [raidId];
     const raid = await db
       .get(sqlRaidQuery, sqlRaidValues)
       .catch((e: Error) => console.error(e));

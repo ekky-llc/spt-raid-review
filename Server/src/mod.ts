@@ -152,7 +152,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
           let telemetryEnabled = config.telemetry;
           if (telemetryEnabled) {
             console.log(`[RAID-REVIEW] Telemetry is enabled.`)
-            await sendStatistics(this.database, profile_id, raidIdToProcess, positional_data);
+            await sendStatistics(this.database, raidIdToProcess, positional_data);
           } else {
             console.log(`[RAID-REVIEW] Telemetry is disabled.`)
           }

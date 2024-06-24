@@ -249,14 +249,14 @@ function StartWebServer(
       try {
         let { profileId, raidId } = req.params;
 
-        const raid = await getRaidData(db, profileId, raidId);
+        const raid = await getRaidData(db, raidId);
 
         if (raid.positionsTracked === "RAW") {
             let positional_data = CompileRaidPositionalData(raidId);
             let telemetryEnabled = config.telemetry;
             if (telemetryEnabled) {
               console.log(`[RAID-REVIEW] Telemetry is enabled.`)
-              await sendStatistics(db, profileId, raidId, positional_data);
+              await sendStatistics(db, raidId, positional_data);
             } else {
               console.log(`[RAID-REVIEW] Telemetry is disabled.`)
             }

@@ -29,8 +29,8 @@ export interface StatisticsPayload {
     distanceTravelled: number
 }
 
-export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Statement>, profileId: string, raidId: string, positions: positional_data__grouped): Promise<void> {
-    const raidData = await getRaidData(db, profileId, raidId);
+export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Statement>, raidId: string, positions: positional_data__grouped): Promise<void> {
+    const raidData = await getRaidData(db, raidId);
     console.log(`[RAID-REVIEW] Generating statistics payload.`)
 
     const payload = await generateStatisticsPayload(raidData, positions);
