@@ -10,7 +10,6 @@ namespace RAID_REVIEW
 
     public class TrackingRaid
     {
-        public string id { get; set; }
         public string profileId { get; set; }
         public string location { get; set; }
         public string detectedMods { get; set; }

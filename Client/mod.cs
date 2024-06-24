@@ -144,7 +144,6 @@ namespace RAID_REVIEW
 
                 // PLAYER TRACKING LOOP
                 IEnumerable<Player> allPlayers = gameWorld.AllPlayersEverExisted;
-
                 long captureTime = stopwatch.ElapsedMilliseconds;
                 foreach (Player player in allPlayers)
                 {
@@ -154,7 +153,6 @@ namespace RAID_REVIEW
 
                     TrackingPlayer trackingPlayer = new TrackingPlayer();
                     bool isBeingTracked = trackingPlayers.TryGetValue(player.ProfileId, out trackingPlayer);
-
                     if (!isBeingTracked)
                     {
 
@@ -167,31 +165,15 @@ namespace RAID_REVIEW
                             group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0,
                             spawnTime = stopwatch.ElapsedMilliseconds,
                             type = player.IsAI ? "BOT" : "HUMAN",
-                            mod_SAIN_brain = "UNKNOWN"
+                            mod_SAIN_brain = player.IsAI ? "UNKNOWN" : "PLAYER"
                         };
 
                         // Get player mod_SAIN brain type name
-
                         if (SOLARINT_SAIN__DETECTED)
                         {
                             BotComponent botComponent = null;
 
-                            int maxRetries = 10;
-                            int retryCount = 0;
-                            int retryIntervalMilliseconds = 2000;
-
-                            while (botComponent == null && retryCount < maxRetries)
-                            {
-                                botComponent = player.gameObject.GetComponent<BotComponent>();
-
-                                if (botComponent == null)
-                                {
-                                    await Task.Delay(retryIntervalMilliseconds); // Wait for the specified interval
-                                    retryCount++;
-                                }
-                            }
-
-
+                            botComponent = player.AIData.BotOwner.gameObject.GetComponent<BotComponent>();
                             if (botComponent != null)
                             {
                                 var brain = botComponent.Info.Personality;
@@ -224,7 +206,6 @@ namespace RAID_REVIEW
 
 
                     // Checks if a player / bot has died since the last check...
-
                     if (player.HealthController.IsAlive)
                     {
 

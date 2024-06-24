@@ -45,7 +45,6 @@ namespace RAID_REVIEW
 
                     RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
-                        id = Guid.NewGuid().ToString("D"),
                         profileId = RAID_REVIEW.myPlayer.ProfileId,
                         time = DateTime.Now,
                         detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "",
