@@ -106,7 +106,10 @@ namespace RAID_REVIEW
                     if (RAID_REVIEW.gameWorld != null)
                     {
                         RAID_REVIEW.sainBotController = RAID_REVIEW.gameWorld.GetComponent<SAINBotController>();
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Found");
+                        if(RAID_REVIEW.sainBotController != null)
+                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Found");
+                        else
+                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Not Found");
                     }
                     else
                     {
