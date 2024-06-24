@@ -201,14 +201,6 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export function isGoon(player) {
-    if (player !== undefined) {
-        let goons = ["Big Pipe", "Birdeye", "Knight"];
-        return goons.includes(player.name);
-    }
-    return false;
-}
-
 export default function MapComponent({ raidData, profileId, raidId, positions }) {
     const navigate = useNavigate();
     const [ searchParams ] = useSearchParams();
@@ -743,8 +735,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 return `(${player.mod_SAIN_brain.trim()})`;
             }
 
-            if (isGoon(player)) botMapping.type = "GOON";
-
             if (player.mod_SAIN_brain === 'PLAYER') brainOutput = "(Human)"
             if (player.mod_SAIN_brain != null) brainOutput = `(${player.mod_SAIN_brain.trim()})`;
 
@@ -774,10 +764,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
             botMapping = {
                 type: 'UNKNOWN'
             };
-        }
-
-        if (isGoon(player)) {
-            botMapping.type = "GOON";
         }
 
         switch (botMapping.type) {

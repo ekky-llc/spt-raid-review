@@ -21,6 +21,7 @@ using SAIN.SAINComponent.Classes.Info;
 using EFT.Communications;
 using System.Threading.Tasks;
 using System.Linq;
+using SAIN.Components;
 
 namespace RAID_REVIEW
 {
@@ -72,6 +73,9 @@ namespace RAID_REVIEW
         {
             get; set;
         }
+        public static SAINBotController sainBotController { get; set; }
+        public static bool searchingForSainComponents = false;
+        public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
 
         void Awake()
         {
@@ -170,63 +174,14 @@ namespace RAID_REVIEW
                             mod_SAIN_brain = "UNKNOWN"
                         };
 
-                        // Get player mod_SAIN brain type name
-
-                        if (SOLARINT_SAIN__DETECTED)
+                        if (player.Side == EPlayerSide.Savage)
                         {
-                            BotComponent botComponent = null;
-
-                            int maxRetries = 10;
-                            int retryCount = 0;
-                            int retryIntervalMilliseconds = 2000;
-
-                            while (botComponent == null && retryCount < maxRetries)
-                            {
-                                botComponent = player.gameObject.GetComponent<BotComponent>();
-
-                                if (botComponent == null)
-                                {
-                                    await Task.Delay(retryIntervalMilliseconds); // Wait for the specified interval
-                                    retryCount++;
-                                }
-                            }
-
-
-                            if (botComponent != null)
-                            {
-                                var brain = botComponent.Info.Personality;
-                                trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), brain);
-
-                                if (!botComponent.Info.Profile.IsPMC)
-                                {
-                                    trackingPlayer.type = BotHelper.getBotType(botComponent);
-                                }
-
-                            } 
-                            else 
-                            {
-                                if (player.Side == EPlayerSide.Savage)
-                                {
-                                    trackingPlayer.mod_SAIN_brain = "SCAV";
-                                    trackingPlayer.type = "SCAV|SCAV";
-                                }
-
-                                if (player.Side == EPlayerSide.Usec || player.Side == EPlayerSide.Bear)
-                                {
-                                    trackingPlayer.mod_SAIN_brain = "PMC";
-                                }
-                            }
+                            trackingPlayer.mod_SAIN_brain = "SCAV";
+                            trackingPlayer.type = "SCAV|SCAV";
                         }
-                        else
+                        else if (player.Side == EPlayerSide.Usec || player.Side == EPlayerSide.Bear)
                         {
-                            if (player.Side == EPlayerSide.Savage) {
-                                trackingPlayer.mod_SAIN_brain = "SCAV";
-                                trackingPlayer.type = "SCAV|SCAV";
-                            }
-
-                            if (player.Side == EPlayerSide.Usec || player.Side == EPlayerSide.Bear) {
-                                trackingPlayer.mod_SAIN_brain = "PMC";
-                            }
+                            trackingPlayer.mod_SAIN_brain = "PMC";
                         }
 
                         trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
