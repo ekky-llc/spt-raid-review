@@ -304,7 +304,16 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   .catch((e: Error) => console.error(e));
 
                 break;
-
+              case "PLAYER_UPDATE":
+                const player_update_sql = 'UPDATE player SET mod_SAIN_brain = ?, type = ? WHERE raidId = ? AND profileId = ?';
+                this.database.run(player_update_sql, [
+                  payload_object.mod_SAIN_brain,
+                  payload_object.type,
+                  this.raid_id,
+                  payload_object.profileId
+                ])
+                .catch((e: Error) => console.error(e));
+                break;
               case "KILL":
                 const kill_sql = `INSERT INTO kills (raidId, time, profileId, killedId, weapon, distance, bodyPart, positionKiller, positionKilled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database

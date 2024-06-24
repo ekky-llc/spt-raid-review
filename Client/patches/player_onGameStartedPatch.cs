@@ -3,10 +3,13 @@ using Comfort.Common;
 using EFT;
 using EFT.Communications;
 using Newtonsoft.Json;
+using SAIN.Components;
+using SAIN;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
@@ -75,6 +78,12 @@ namespace RAID_REVIEW
 
                     NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
 
+                    if(RAID_REVIEW.SOLARINT_SAIN__DETECTED)
+                    {
+                        RAID_REVIEW.searchingForSainComponents = true;
+                        _ = CheckForSainComponents();
+                    }
+
                     return;
                 }
                 return;
@@ -84,6 +93,48 @@ namespace RAID_REVIEW
             {
                 Logger.LogError($"{ex.Message}");
             }
+        }
+
+        public static async Task CheckForSainComponents()
+        {
+            while (RAID_REVIEW.searchingForSainComponents)
+            {
+                await Task.Delay(10000);
+                if (RAID_REVIEW.sainBotController == null)
+                {
+                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: Looking For SAIN Bot Controller");
+                    if (RAID_REVIEW.gameWorld != null)
+                    {
+                        RAID_REVIEW.sainBotController = RAID_REVIEW.gameWorld.GetComponent<SAINBotController>();
+                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Found");
+                    }
+                    else
+                    {
+                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: GameWorld Not Found");
+                    }
+                }
+                else
+                {
+                    foreach (var botComponent in RAID_REVIEW.sainBotController.Bots.Values)
+                    {
+                        var profileId = botComponent.Player.ProfileId;
+                        if (!RAID_REVIEW.updatedBots.ContainsKey(profileId) && RAID_REVIEW.trackingPlayers.ContainsKey(profileId))
+                        {
+                            var trackingPlayer = RAID_REVIEW.trackingPlayers[profileId];
+                            trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), botComponent.Info.Personality);
+                            if (!botComponent.Info.Profile.IsPMC)
+                            {
+                                trackingPlayer.type = BotHelper.getBotType(botComponent);
+                            }
+                            RAID_REVIEW.trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
+                            RAID_REVIEW.updatedBots[trackingPlayer.profileId] = trackingPlayer;
+                            Logger.LogInfo($"RAID_REVIEW :::: INFO :::: Updating player {trackingPlayer.name} with brain {trackingPlayer.mod_SAIN_brain} and type {trackingPlayer.type}");
+                            _ = Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
+                        }
+                    }
+                }
+            }
+            return;
         }
     }
 }
