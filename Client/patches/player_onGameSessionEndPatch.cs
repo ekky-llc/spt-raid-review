@@ -24,6 +24,9 @@ namespace RAID_REVIEW
 
                 RAID_REVIEW.tracking = false;
                 RAID_REVIEW.inRaid = false;
+                RAID_REVIEW.searchingForSainComponents = false;
+                RAID_REVIEW.updatedBots.Clear();
+                RAID_REVIEW.sainBotController = null;
 
                 RAID_REVIEW.stopwatch.Stop();
                 RAID_REVIEW.trackingRaid.sessionId = RAID_REVIEW.sessionId;
