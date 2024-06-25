@@ -12,6 +12,7 @@ export interface Player {
     spawnTime : number;
     mod_SAIN_brain : string;
     type : string;
+    mod_SAIN_difficulty : string;
 };
 
 async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>, raidId: string, players : Player[]) {
@@ -27,7 +28,7 @@ async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>
         const playerExists = await db.get(checkQuery, [raidId, player.profileId]);
         if (playerExists === undefined) {
             playersMissingFromRaid++;
-            const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             db.run(player_sql, [
                 raidId,
                 player.profileId,
@@ -37,7 +38,8 @@ async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>
                 player.group,
                 player.spawnTime,
                 player.mod_SAIN_brain,
-                player.type
+                player.type,
+                player.mod_SAIN_difficulty
               ])
               .catch((e: Error) => console.error(e));
               playersInserted++;

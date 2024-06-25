@@ -171,7 +171,8 @@ namespace RAID_REVIEW
                             group = player?.AIData?.BotOwner?.BotsGroup?.Id ?? 0,
                             spawnTime = stopwatch.ElapsedMilliseconds,
                             type = player.IsAI ? "BOT" : "HUMAN",
-                            mod_SAIN_brain = "UNKNOWN"
+                            mod_SAIN_brain = "UNKNOWN",
+                            mod_SAIN_difficulty = ""
                         };
 
                         if (player.Side == EPlayerSide.Savage)

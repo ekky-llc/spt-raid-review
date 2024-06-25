@@ -228,6 +228,19 @@ export default function Raid() {
     return "(UNKNOWN)"
   }
 
+  function getPlayerDifficultyAndBrain(player: TrackingRaidDataPlayers): string {
+    if (player) {
+      let difficulty = player.mod_SAIN_difficulty;
+      let brain = getPlayerBrain(player);
+      if (difficulty !== null && difficulty !== "") {
+        return `${difficulty} - ${brain}`;
+      }
+      return `${brain}`;
+    }
+
+    return ""
+  }
+
   function generateMapPlaybackButton(positionDataStatus: string) {
 
     if (positionDataStatus === 'RAW') {
@@ -397,7 +410,7 @@ export default function Raid() {
                             </div>
                             <span>
                             {/* @ts-ignore */}
-                              {getPlayerBrain(player)} [{player.level}] {team[player.team]}
+                              [{getPlayerDifficultyAndBrain(player)}] [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}
