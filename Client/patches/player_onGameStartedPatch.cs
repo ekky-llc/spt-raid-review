@@ -60,6 +60,7 @@ namespace RAID_REVIEW
 
                     var newTrackingPlayer = new TrackingPlayer
                     {
+                        sessionId = RAID_REVIEW.sessionId,
                         profileId = RAID_REVIEW.myPlayer.ProfileId,
                         name = RAID_REVIEW.myPlayer.Profile.Nickname,
                         level = RAID_REVIEW.myPlayer.Profile.Info.Level,

@@ -116,7 +116,7 @@ namespace RAID_REVIEW
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Connected to backend");
 
         }
-        async void Update()
+        void Update()
         {
             try
             {
