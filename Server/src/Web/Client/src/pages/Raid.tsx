@@ -251,8 +251,7 @@ export default function Raid() {
       }
       return `${brain}`;
     }
-
-    return ""
+    return "?";
   }
 
   function generateMapPlaybackButton(positionDataStatus: string) {
