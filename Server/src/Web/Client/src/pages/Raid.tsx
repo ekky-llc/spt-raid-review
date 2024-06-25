@@ -231,11 +231,14 @@ export default function Raid() {
   function getPlayerDifficultyAndBrain(player: TrackingRaidDataPlayers): string {
     if (player) {
       let difficulty = player.mod_SAIN_difficulty;
-      let brain = getPlayerBrain(player);
-      if (difficulty !== null && difficulty !== "") {
-        return `${difficulty} - ${brain}`;
+      if(player.team !== "Savage") {
+        let brain = getPlayerBrain(player);
+        if (difficulty !== null && difficulty !== "") {
+          return `${difficulty} - ${brain}`;
+        }
+        return `${brain}`;
       }
-      return `${brain}`;
+      return difficulty;
     }
 
     return ""

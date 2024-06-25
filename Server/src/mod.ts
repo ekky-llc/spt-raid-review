@@ -288,7 +288,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   return;
                 }
 
-                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database
                   .run(player_sql, [
                     this.raid_id,

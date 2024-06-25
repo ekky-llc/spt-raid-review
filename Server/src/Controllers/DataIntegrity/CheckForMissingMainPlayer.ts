@@ -57,7 +57,7 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
     for (let i = 0; i < missingPlayers.length; i++) {
 
         const missingPlayer = missingPlayers[i];
-        const raidInsert_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        const raidInsert_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         await db.run(raidInsert_sql, [
             missingPlayer.raidId,
             missingPlayer.profileId,

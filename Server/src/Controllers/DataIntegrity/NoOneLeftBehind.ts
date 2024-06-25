@@ -28,7 +28,7 @@ async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>
         const playerExists = await db.get(checkQuery, [raidId, player.profileId]);
         if (playerExists === undefined) {
             playersMissingFromRaid++;
-            const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             db.run(player_sql, [
                 raidId,
                 player.profileId,
