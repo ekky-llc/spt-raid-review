@@ -238,6 +238,9 @@ export default function Raid() {
         }
         return `${brain}`;
       }
+      else if (difficulty === null || difficulty === "") {
+        return `?`;
+      }
       return difficulty;
     }
 
