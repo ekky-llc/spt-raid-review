@@ -725,6 +725,11 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
             let brainOutput = 'Unknown'
             let botMapping = BotMapping[player.type];
+            if (player.name === "Knight") {
+                botMapping = {
+                  type: 'GOON'
+                };
+              }
             if (!botMapping) {
                 botMapping = {
                     type: 'UNKNOWN'
@@ -773,6 +778,11 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
     function getPlayerColor(player: TrackingRaidDataPlayers, index: number): string {
 
         let botMapping = BotMapping[player.type];
+        if (player.name === "Knight") {
+            botMapping = {
+              type: 'GOON'
+            };
+          }
         if (!botMapping) {
             botMapping = {
                 type: 'UNKNOWN'

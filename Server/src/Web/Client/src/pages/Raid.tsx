@@ -196,6 +196,11 @@ export default function Raid() {
     
       // @ts-ignore
       let botMapping = BotMapping[player.type];
+      if (player.name === "Knight") {
+        botMapping = {
+          type: 'GOON'
+        };
+      }
       if (!botMapping) {
           botMapping = {
               type: 'UNKNOWN'
@@ -231,17 +236,17 @@ export default function Raid() {
   function getPlayerDifficultyAndBrain(player: TrackingRaidDataPlayers): string {
     if (player) {
       let difficulty = player.mod_SAIN_difficulty;
-      if(player.team !== "Savage") {
-        let brain = getPlayerBrain(player);
-        if (difficulty !== null && difficulty !== "") {
-          return `${difficulty} - ${brain}`;
+      let brain = getPlayerBrain(player);
+      if (difficulty !== null && difficulty !== "") {
+        if(player.team === "Savage" && brain === "") {
+          return difficulty;
         }
-        return `${brain}`;
+        return `${difficulty} - ${brain}`;
       }
-      else if (difficulty === null || difficulty === "") {
-        return `?`;
+      else if (player.team === "Savage") {
+        return "?";
       }
-      return difficulty;
+      return `${brain}`;
     }
 
     return ""
