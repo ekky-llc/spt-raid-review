@@ -220,7 +220,7 @@ export default function Raid() {
               return "GOON"
           case 'ROGUE':
               return "ROGUE"
-          case 'CULTIST':
+          case 'CULT':
               return "CULTIST"
           default:
               if(player.team === "Savage") {
@@ -244,7 +244,10 @@ export default function Raid() {
         return `${difficulty} - ${brain}`;
       }
       else if (player.team === "Savage") {
-        return "?";
+        if(brain !== null && brain !== "") {
+          return `${brain}`;
+        }
+        else return "?";
       }
       return `${brain}`;
     }
