@@ -212,6 +212,8 @@ export default function Raid() {
               return "BOSS"
           case 'RAIDER':
               return "RAIDER"
+          case 'FOLLOWER':
+              return "FOLLOWER"
           case 'PLAYER_SCAV':
               return "PLAYER SCAV"
           case 'SNIPER':
@@ -222,6 +224,8 @@ export default function Raid() {
               return "ROGUE"
           case 'CULT':
               return "CULTIST"
+          case 'BLOODHOUND':
+              return "BLOODHOUND"
           default:
               if(player.team === "Savage") {
                 return ""
