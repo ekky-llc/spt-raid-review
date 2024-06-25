@@ -306,7 +306,6 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
 
                 break;
               case "PLAYER_UPDATE":
-                WriteLineToFile('PLAYER_UPDATE', '', '', 'debug', keys, values);
                 const player_update_sql = 'UPDATE player SET mod_SAIN_brain = ?, type = ?, mod_SAIN_difficulty = ? WHERE raidId = ? AND profileId = ?';
                 this.database.run(player_update_sql, [
                   payload_object.mod_SAIN_brain,
