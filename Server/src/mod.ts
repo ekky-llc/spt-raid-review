@@ -288,7 +288,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                   return;
                 }
 
-                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 this.database
                   .run(player_sql, [
                     this.raid_id,
@@ -299,16 +299,18 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                     payload_object.group,
                     payload_object.spawnTime,
                     payload_object.mod_SAIN_brain,
-                    payload_object.type
+                    payload_object.type,
+                    payload_object.mod_SAIN_difficulty
                   ])
                   .catch((e: Error) => console.error(e));
 
                 break;
               case "PLAYER_UPDATE":
-                const player_update_sql = 'UPDATE player SET mod_SAIN_brain = ?, type = ? WHERE raidId = ? AND profileId = ?';
+                const player_update_sql = 'UPDATE player SET mod_SAIN_brain = ?, type = ?, mod_SAIN_difficulty = ? WHERE raidId = ? AND profileId = ?';
                 this.database.run(player_update_sql, [
                   payload_object.mod_SAIN_brain,
                   payload_object.type,
+                  payload_object.mod_SAIN_difficulty,
                   this.raid_id,
                   payload_object.profileId
                 ])

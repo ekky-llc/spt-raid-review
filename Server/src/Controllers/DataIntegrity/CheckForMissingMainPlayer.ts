@@ -40,7 +40,8 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
                     group : 0,
                     spawnTime : 5,
                     mod_SAIN_brain : "PLAYER",
-                    type : "HUMAN"
+                    type : "HUMAN",
+                    mod_SAIN_difficulty : ""
                 })
             }
         }
@@ -56,7 +57,7 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
     for (let i = 0; i < missingPlayers.length; i++) {
 
         const missingPlayer = missingPlayers[i];
-        const raidInsert_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        const raidInsert_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         await db.run(raidInsert_sql, [
             missingPlayer.raidId,
             missingPlayer.profileId,
@@ -66,7 +67,8 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
             missingPlayer.group,
             missingPlayer.spawnTime,
             missingPlayer.mod_SAIN_brain,
-            missingPlayer.type
+            missingPlayer.type,
+            missingPlayer.mod_SAIN_difficulty
         ]).catch((e: Error) => console.error(e));
     }
 
