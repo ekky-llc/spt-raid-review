@@ -1,6 +1,6 @@
 import config from '../../config.json';
-import { DeleteFile, WriteLineToFile } from 'src/Controllers/FileSystem/DataSaver';
-import { ReadFolderContents } from 'src/Controllers/FileSystem/FileReader';
+import { DeleteFile, WriteLineToFile } from '../Controllers/FileSystem/DataSaver';
+import { ReadFolderContents } from '../Controllers/FileSystem/FileReader';
 
 /**
  * Abstraction for `console.log`, so that we can switch logging libraries in the future
@@ -19,13 +19,13 @@ export class Logger {
      */
     public init() : void {
         if (config.enableLogFiles) {
-            const existingLogs = ReadFolderContents('logging', null, null, false);
+            const existingLogs = ReadFolderContents('logging', '', '', false);
             if (existingLogs.length > config.maximumLogFiles) {
                 existingLogs.sort((a, b) => {
                     // Expects filenames to be <utc-milliseconds>_raid_review.log
                     return parseInt(a.split('_')[0]) - parseInt(b.split('_')[0]);
                 });
-                DeleteFile('logs', null, null, existingLogs[0])
+                DeleteFile('logs', '', '', existingLogs[0])
             }
             this.logfilename = `${new Date().getTime()}_raid_review.log`;
             this.log(`New log file created for session '${this.logfilename}', this can be found in the '/logs' directory of the mod folder.`)
@@ -64,8 +64,9 @@ export class Logger {
 
     public error(str: string, dump: any = null): void {
         console.error(`[RAID-REVIEW] ${str}`);
-        if (dump) {
-            console.error(`[RAID-REVIEW:DUMP] ${str}`);
+
+        if (str || dump) {
+            console.error(`[RAID-REVIEW:DUMP] ${dump}`);
         }
     }
 

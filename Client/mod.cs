@@ -70,10 +70,7 @@ namespace RAID_REVIEW
 
         // Other Mods
         public static bool MODS_SEARCHED = false;
-        public static bool SOLARINT_SAIN__DETECTED
-        {
-            get; set;
-        }
+        public static bool SOLARINT_SAIN__DETECTED { get; set; }
         public static SAINBotController sainBotController { get; set; }
         public static bool searchingForSainComponents = false;
         public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
@@ -259,7 +256,6 @@ namespace RAID_REVIEW
         {
             if (Chainloader.PluginInfos.ContainsKey(modName)) return true;
             return false;
-
         }
 
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;

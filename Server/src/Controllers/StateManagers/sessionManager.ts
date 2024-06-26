@@ -29,9 +29,9 @@ export class SessionManager {
     protected logger : Logger
 
     constructor(logger : Logger) {
-        this.raids = new Map<string, SessionManagerRaid>()
-        this.profiles = new Map<string, SessionManagerPlayer>()
-        this.timeoutIntervals = new Map<string, NodeJS.Timeout>()
+        this.raids = new Map<string, SessionManagerRaid>
+        this.profiles = new Map<string, SessionManagerPlayer>
+        this.timeoutIntervals = new Map<string, NodeJS.Timeout>
         this.logger = logger;
     }
 
@@ -82,7 +82,8 @@ export class SessionManager {
 
     // Profile Handlers
     addProfile(profileId: string, data: SessionManagerPlayer): void {
-        this.profiles.set(profileId, data)
+        this.profiles.set(profileId, data);
+        this.logger.log(`Registered player '${profileId}' to the session manager.`);
     }
 
     removeProfile(profileId: string): void {
@@ -107,13 +108,9 @@ export class SessionManager {
 
     // Raid Handlers
     addRaid(raidId: string, raidData: SessionManagerRaid): void {
-        this.raids.set(raidId, raidData)
-        this.addTimeoutInterval(raidId, 'raid')
-        this.logger.log(
-            `Registered raid '${raidId}' for player(s) '${Array.from(
-                raidData.players.keys()
-            ).join(',')}'.`
-        )
+        this.raids.set(raidId, raidData);
+        this.addTimeoutInterval(raidId, 'raid');
+        this.logger.log(`Registered raid '${raidId}' for player(s) '${Array.from(raidData.players.keys()).join(',')}'.`);
     }
 
     removeRaid(raidId: string, removalReason: string): void {

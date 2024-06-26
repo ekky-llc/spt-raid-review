@@ -9,6 +9,7 @@ import { SessionManager, SessionManagerPlayerMap } from "../StateManagers/sessio
 import { ModDetector } from "../Integrations/modDetection";
 import { CONSTANTS } from "../../constant";
 import { Logger } from '../../Utils/logger';
+import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile';
 
 async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, post_raid_processing: cron.ScheduledTask) {
     try {
@@ -17,9 +18,13 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
         let str: string;
         if (typeof rawData === 'string') {
             str = rawData;
-        } else if (rawData instanceof Buffer) {
+        } 
+        
+        else if (rawData instanceof Buffer) {
             str = rawData.toString('utf-8');
-        } else {
+        } 
+        
+        else {
             logger.error(`Unsupported message format received.`, rawData);
             return;
         }
@@ -36,7 +41,9 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
             const payload_object = JSON.parse(data.Payload);
 
             // Debug payloads
-            logger.debug(payload_object);
+            if (data.Action !== "POSITION") {
+                logger.debug(JSON.stringify(payload_object));
+            }
 
             // "sessionId" is the profileId of the player we're getting the data from
             let sessionManagerProfile = sessionManager.getProfile(payload_object.sessionId);
@@ -46,8 +53,10 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
             let raidId = sessionManagerProfile.raidId;
 
             // Keeps the raid and profile alive (...takes approx. 3 minutes to timeout).
-            sessionManager.pingRaid(raidId);
-            sessionManager.pingProfile(payload_object.sessionId);
+            if (raidId) {
+                sessionManager.pingRaid(raidId);
+                sessionManager.pingProfile(payload_object.sessionId);
+            }
 
             // Fika Check
             const isFikaInstalled = modDetector.isModInstalled(CONSTANTS.MOD_SIGNATURES.FIKA);
@@ -58,18 +67,27 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     logger.log(`Recieved 'START' trigger.`);
 
                     // FIKA Raid Handler
-                    if (isFikaInstalled.client && isFikaInstalled.server) {
-                        logger.log(`SERVER Mod Detected: FIKA Server.`);
-                        logger.log(`CLIENT Mod Detected: FIKA Client.`);
-                    }
+                    // if (isFikaInstalled.client || isFikaInstalled.server) {
+                    //     logger.log(`SERVER Mod Detected: FIKA Server.`);
+                    //     logger.log(`CLIENT Mod Detected: FIKA Client.`);
+                    // }
 
-                    // SPT Raid Start Handler
-                    else {
-                        const raidId = crypto.randomUUID();
-                        const players = null as SessionManagerPlayerMap;
-                        players.set(payload_object.sessionId, sessionManagerProfile.profile);
-                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });
-                    }
+                    // // SPT Raid Start Handler
+                    // else {
+                    //     raidId = crypto.randomUUID();
+                    //     const players = {} as SessionManagerPlayerMap;
+                    //     players.set(payload_object.sessionId, sessionManagerProfile.profile);
+                    //     sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });
+                    // }
+                    
+                    raidId = crypto.randomUUID();
+                    logger.debug(`[START:RAID_GENERATOR] RAID_ID: '${raidId}'`);
+
+                    const players = new Map<string, IAkiProfile>();
+                    players.set(payload_object.sessionId, sessionManagerProfile.profile);
+                    sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });
+
+                    logger.debug(`[START:RAIDS] ` +  JSON.stringify(Array.from(sessionManager.getRaids().entries())));
 
                     post_raid_processing.stop();
                     logger.log(`Disabled Post Processing: Raid Started`);
@@ -81,14 +99,18 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         payload_object.location,
                         payload_object.time,
                         payload_object.timeInRaid,
-                        payload_object.exitName || "",
-                        payload_object.exitStatus || -1,
+                        "",
+                        "",
                         payload_object.detectedMods || "",
-                    ]).catch((e:Error) => logger.error(`[SQL_ERR]`, e));
+                    ]).catch((e:Error) => logger.error(`[SQL_ERR:START_RAID]`, e));
 
                     break;
 
                 case "END":
+
+                    logger.debug(`[END:RAIDS] ` +  + JSON.stringify(Array.from(sessionManager.getRaids().entries())));
+                    logger.debug(`[END:PROFILES] ` +  + JSON.stringify(Array.from(sessionManager.getProfiles().entries())));
+
                     const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                     db
                         .run(end_raid_sql, [
@@ -101,9 +123,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                             payload_object.exitStatus || -1,
                             payload_object.detectedMods || "",
                         ])
-                        .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
-
-                    this.raids_to_process.push(raidId);
+                        .catch((e: Error) => logger.error(`[SQL_ERR:END_RAID]`, e));
 
                     // FIKA Raid Handler
                     if (isFikaInstalled.client && isFikaInstalled.server) {
@@ -130,7 +150,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         raidId, 
                         payload_object.profileId
                     ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
+                    .catch((e: Error) => logger.error(`[SQL_ERR:UPDATE_PLAYER]`, e));
 
                     break;
 
@@ -140,7 +160,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         raidId, 
                         payload_object.profileId
                     ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
+                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_EXISTS]`, e));
 
                     // Stops duplicates, it's hacky, but it's working...
                     if (playerExists && playerExists.length) {
@@ -159,7 +179,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         payload_object.mod_SAIN_brain,
                         payload_object.type,
                     ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR]`, e));;
+                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_INSERT]`, e));;
 
                     break;
 
@@ -177,7 +197,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                             payload_object.positionKiller,
                             payload_object.positionKilled,
                         ])
-                        .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
+                        .catch((e: Error) => logger.error(`[SQL_ERR:ADD_KILL]`, e));
 
                     break;
 
@@ -201,7 +221,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                             payload_object.itemName, 
                             payload_object.added
                         ])
-                        .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
+                        .catch((e: Error) => logger.error(`[SQL_ERR:ADD_LOOTING]`, e));
 
                     break;
 
@@ -209,9 +229,8 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     break;
             }
         }
-    } catch (error) {
-        logger.error(`Message recieved was not valid JSON Object, something broke.`);
-        logger.error(`[WS_DATA_ERR]`, error);
+    } catch (err) {
+        logger.error(`[WS_DATA_ERR]`, err);
         logger.error(`[WS_DATA_ERR]`, rawData);
     }
 }

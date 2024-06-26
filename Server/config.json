@@ -5,7 +5,7 @@
 
     
     "comment__enableDebugLogs": "[DEBUG] [DEFAULT: false] Enable debug logging.",
-    "enableDebugLogs": false,
+    "enableDebugLogs": true,
     "comment__enableLogFiles": "[DEBUG] [DEFAULT: true] If enabled, dumps normal logs `/logs` meant for support/debugging purposes.",
     "enableLogFiles": true,
     "comment__enableVerboseLogFiles": "[DEBUG] [DEFAULT: true] If enabled, dumps all logs `/logs` meant for support/debugging purposes.",
@@ -35,5 +35,5 @@
 
 
     "comment__authentication": "[AUTH] [DEFAULT: false] Enable Basic Authentication; use this setting if you'd like to password-protect the web server.",
-    "authentication": false
+    "authentication": true
 }

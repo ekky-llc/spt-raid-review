@@ -8,7 +8,6 @@ import _ from 'lodash'
 
 import type { IPreAkiLoadMod } from '@spt-aki/models/external/IPreAkiLoadMod'
 import type { IPostAkiLoadMod } from '@spt-aki/models/external/IPostAkiLoadMod'
-import type { ILogger } from '@spt-aki/models/spt/utils/ILogger'
 import { StaticRouterModService } from '@spt-aki/services/mod/StaticRouter/StaticRouterModService'
 import { SaveServer } from '@spt-aki/servers/SaveServer'
 import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
@@ -57,13 +56,15 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 {
                     url: '/client/game/start',
                     action: (_url: string, __info: any, sessionId: string, output: string) => {
-                        this.profileHelper = container.resolve<ProfileHelper>('ProfileHelper')
                         const profile = this.profileHelper.getFullProfile(sessionId)
                         this.sessionManager.addProfile(profile.info.id, {
                             profile,
                             raidId: null,
                             timeout: 0,
                         })
+
+                        this.logger.debug(`[ROUTE:/CLIENT/GAME/START]: ` + JSON.stringify(Array.from(this.sessionManager.getProfiles().entries())));
+
                         return output
                     },
                 },
@@ -73,6 +74,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
     }
 
     public async postAkiLoad(container: DependencyContainer): Promise<void> {
+        this.profileHelper = container.resolve<ProfileHelper>('ProfileHelper');
         this.database = await database(this.logger)
         this.logger.log(`Database Connected`)
 
@@ -117,9 +119,9 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                         }
                     }
                     this.raids_to_process = [];
-                } else {
-                    post_raid_processing.stop()
                     this.logger.log(`Disabled Post Processing: Post raid processing completed.`)
+                } else {
+                    post_raid_processing.stop();
                 }
             },
             { scheduled: false }
