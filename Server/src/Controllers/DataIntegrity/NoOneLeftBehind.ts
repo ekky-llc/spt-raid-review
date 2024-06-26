@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import sqlite3 from 'sqlite3';
 import { Database } from "sqlite"
+import { Logger } from '../../Utils/logger';
 
 export interface Player {
     raidId : string;
@@ -14,8 +15,8 @@ export interface Player {
     type : string;
 };
 
-async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>, raidId: string, players : Player[]) {
-    console.log(`[RAID-REVIEW] Validating that all players/bots are accounted for.`)
+async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger, raidId: string, players : Player[]) {
+    logger.log(`Validating that all players/bots are accounted for.`)
 
     // Filter out the ones already there
     let playersMissingFromRaid = 0;
@@ -39,13 +40,14 @@ async function NoOneLeftBehind(db: Database<sqlite3.Database, sqlite3.Statement>
                 player.mod_SAIN_brain,
                 player.type
               ])
-              .catch((e: Error) => console.error(e));
+              .catch((e: Error) => logger.error(`[ERR:MISSING_MAIN_PLAYER] `, e));
               playersInserted++;
         }
     }
-    console.log(`[RAID-REVIEW] There was a total of '${playersMissingFromRaid}' and '${playersInserted}' escorted back to the database.`)
 
-    console.log(`[RAID-REVIEW] Validated that all players/bots are accounted for.`)
+    logger.log(`There was a total of '${playersMissingFromRaid}' and '${playersInserted}' escorted back to the database.`)
+    logger.log(`Validated that all players/bots are accounted for.`)
+
     return;
 }
 

@@ -1,7 +1,8 @@
 import fs from 'fs';
 import { DependencyContainer } from "tsyringe"
 import { PreAkiModLoader } from "@spt-aki/loaders/PreAkiModLoader"
-import { CONSTANTS, MOD_SIGNATURES } from 'src/constant';
+import { MOD_SIGNATURES } from '../../constant';
+import { Logger } from '../../Utils/logger';
 
 export interface RaidReviewDetectedMods {
     client : string[],
@@ -13,11 +14,12 @@ export interface IsInstalledRes {
     server: boolean
 }
 export class ModDetector {
-
     public client : string[]
     public server : string[]
+    protected logger: Logger
 
-    constructor() {
+    constructor(logger: Logger) {
+        this.logger = logger;
         this.client = [];
         this.server = [];
     }
@@ -25,7 +27,16 @@ export class ModDetector {
     getInstalledMods(container: DependencyContainer) : RaidReviewDetectedMods {
         const ModLoader : PreAkiModLoader = container.resolve<PreAkiModLoader>("PreAkiModLoader");
     
-        this.client = fs.readdirSync(`${__dirname}/../../../../../../BepInEx/plugins/`);
+        const clientPluginsPath = `${__dirname}/../../../../../../BepInEx/plugins/`;
+        const isLocalInstall = fs.existsSync(clientPluginsPath)
+        if (isLocalInstall) {
+            this.client = fs.readdirSync(clientPluginsPath);
+        } 
+        
+        else {
+            this.logger.log(`You're a smart cookie, appears to be a remote host installation? Client plugins could not be detected.`)
+        }
+
         this.server = ModLoader.getImportedModsNames() || [];
     
         return {

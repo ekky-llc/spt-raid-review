@@ -16,7 +16,6 @@ namespace RAID_REVIEW
         public string detectedMods { get; set; }
         public DateTime time { get; set; }
         public long timeInRaid { get; set; }
-
         public string exitName { get; set; }
         public ExitStatus exitStatus { get; set; }
     }

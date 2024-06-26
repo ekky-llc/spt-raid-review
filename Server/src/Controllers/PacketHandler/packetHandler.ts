@@ -1,15 +1,31 @@
-import { ExtractKeysAndValues } from "../../Utils/utils";
+import sqlite3 from 'sqlite3';
+import { Database } from "sqlite"
 import cron from "node-cron";
+import type { RawData } from 'ws';
+import { ExtractKeysAndValues } from "../../Utils/utils";
 import { WriteLineToFile } from "../FileSystem/DataSaver";
 import { NoOneLeftBehind } from "../DataIntegrity/NoOneLeftBehind";
 import { SessionManager, SessionManagerPlayerMap } from "../StateManagers/sessionManager";
 import { ModDetector } from "../Integrations/modDetection";
-import { CONSTANTS } from "src/constant";
+import { CONSTANTS } from "../../constant";
+import { Logger } from '../../Utils/logger';
 
-async function messagePacketHandler(str: string, sessionManager: SessionManager, modDetector: ModDetector, post_raid_processing: cron.ScheduledTask) {
+async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, post_raid_processing: cron.ScheduledTask) {
     try {
-        if (str.includes("WS_CONNECTED")) {
-            console.log(`[RAID-REVIEW] Web Socket Client Connected`);
+
+        // Convert RawData to string if it's a buffer
+        let str: string;
+        if (typeof rawData === 'string') {
+            str = rawData;
+        } else if (rawData instanceof Buffer) {
+            str = rawData.toString('utf-8');
+        } else {
+            logger.error(`Unsupported message format received.`, rawData);
+            return;
+        }
+
+        if (str.includes('WS_CONNECTED')) {
+            logger.log(`Web Socket Client Connected`);
             return;
         }
 
@@ -18,6 +34,9 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
 
         if (data && data.Action && data.Payload) {
             const payload_object = JSON.parse(data.Payload);
+
+            // Debug payloads
+            logger.debug(payload_object);
 
             // "sessionId" is the profileId of the player we're getting the data from
             let sessionManagerProfile = sessionManager.getProfile(payload_object.sessionId);
@@ -31,17 +50,17 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
             sessionManager.pingProfile(payload_object.sessionId);
 
             // Fika Check
-            const isFikaInstalled = modDetector.isModInstalled(CONSTANTS.MOD_SIGNATURES.SAIN);
+            const isFikaInstalled = modDetector.isModInstalled(CONSTANTS.MOD_SIGNATURES.FIKA);
 
             const { keys, values } = ExtractKeysAndValues(payload_object);
             switch (data.Action) {
                 case "START":
-                    console.log(`[RAID-REVIEW] Recieved 'START' trigger.`);
+                    logger.log(`Recieved 'START' trigger.`);
 
                     // FIKA Raid Handler
                     if (isFikaInstalled.client && isFikaInstalled.server) {
-                        console.log(`[RAID-REVIEW] SERVER Mod Detected: FIKA Server.`);
-                        console.log(`[RAID-REVIEW] CLIENT Mod Detected: FIKA Client.`);
+                        logger.log(`SERVER Mod Detected: FIKA Server.`);
+                        logger.log(`CLIENT Mod Detected: FIKA Client.`);
                     }
 
                     // SPT Raid Start Handler
@@ -53,10 +72,10 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
                     }
 
                     post_raid_processing.stop();
-                    console.log(`[RAID-REVIEW] Disabled Post Processing`);
+                    logger.log(`Disabled Post Processing: Raid Started`);
 
                     const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                    this.database.run(start_raid_sql, [
+                    db.run(start_raid_sql, [
                         raidId,
                         payload_object.profileId,
                         payload_object.location,
@@ -65,13 +84,13 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
                         payload_object.exitName || "",
                         payload_object.exitStatus || -1,
                         payload_object.detectedMods || "",
-                    ]);
+                    ]).catch((e:Error) => logger.error(`[SQL_ERR]`, e));
 
                     break;
 
                 case "END":
                     const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                    this.database
+                    db
                         .run(end_raid_sql, [
                             raidId,
                             payload_object.profileId,
@@ -82,7 +101,7 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
                             payload_object.exitStatus || -1,
                             payload_object.detectedMods || "",
                         ])
-                        .catch((e: Error) => console.error(e));
+                        .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
 
                     this.raids_to_process.push(raidId);
 
@@ -96,21 +115,32 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
                     }
 
                     post_raid_processing.start();
-                    console.log(`[RAID-REVIEW] Enabled Post Processing`);
+                    logger.log(`Enabled Post Processing: Raid Finished`);
                     break;
 
                 case "PLAYER_CHECK":
-                    await NoOneLeftBehind(this.database, raidId, payload_object);
+                    await NoOneLeftBehind(db, logger, raidId, payload_object);
                     break;
 
                 case "PLAYER_UPDATE":
                     const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, type = ? WHERE raidId = ? AND profileId = ?";
-                    this.database.run(player_update_sql, [payload_object.mod_SAIN_brain, payload_object.type, this.raid_id, payload_object.profileId]).catch((e: Error) => console.error(e));
+                    db.run(player_update_sql, [
+                        payload_object.mod_SAIN_brain, 
+                        payload_object.type, 
+                        raidId, 
+                        payload_object.profileId
+                    ])
+                    .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
+
                     break;
 
                 case "PLAYER":
                     const playerExists_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ?`;
-                    const playerExists = await this.database.all(playerExists_sql, [raidId, payload_object.profileId]).catch((e: Error) => console.error(e));
+                    const playerExists = await db.all(playerExists_sql, [
+                        raidId, 
+                        payload_object.profileId
+                    ])
+                    .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
 
                     // Stops duplicates, it's hacky, but it's working...
                     if (playerExists && playerExists.length) {
@@ -118,25 +148,24 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
                     }
 
                     const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    this.database
-                        .run(player_sql, [
-                            raidId,
-                            payload_object.profileId,
-                            payload_object.level,
-                            payload_object.team,
-                            payload_object.name,
-                            payload_object.group,
-                            payload_object.spawnTime,
-                            payload_object.mod_SAIN_brain,
-                            payload_object.type,
-                        ])
-                        .catch((e: Error) => console.error(e));
+                    db.run(player_sql, [
+                        raidId,
+                        payload_object.profileId,
+                        payload_object.level,
+                        payload_object.team,
+                        payload_object.name,
+                        payload_object.group,
+                        payload_object.spawnTime,
+                        payload_object.mod_SAIN_brain,
+                        payload_object.type,
+                    ])
+                    .catch((e: Error) => logger.error(`[SQL_ERR]`, e));;
 
                     break;
 
                 case "KILL":
                     const kill_sql = `INSERT INTO kills (raidId, time, profileId, killedId, weapon, distance, bodyPart, positionKiller, positionKilled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    this.database
+                    db
                         .run(kill_sql, [
                             raidId,
                             payload_object.time,
@@ -148,23 +177,31 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
                             payload_object.positionKiller,
                             payload_object.positionKilled,
                         ])
-                        .catch((e: Error) => console.error(e));
+                        .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
 
                     break;
 
                 case "POSITION":
                     if (raidId) {
                         filename = `${raidId}_positions`;
-                        WriteLineToFile("positions", "", "", filename, keys, values);
+                        WriteLineToFile(logger, "positions", "", "", filename, keys, values);
                     }
 
                     break;
 
                 case "LOOT":
                     const loot_sql = `INSERT INTO looting (raidId, profileId, time, qty, itemId, itemName, added) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                    this.database
-                        .run(loot_sql, [raidId, payload_object.profileId, payload_object.time, payload_object.qty, payload_object.itemId, payload_object.itemName, payload_object.added])
-                        .catch((e: Error) => console.error(e));
+                    db
+                        .run(loot_sql, [
+                            raidId, 
+                            payload_object.profileId, 
+                            payload_object.time, 
+                            payload_object.qty, 
+                            payload_object.itemId, 
+                            payload_object.itemName, 
+                            payload_object.added
+                        ])
+                        .catch((e: Error) => logger.error(`[SQL_ERR]`, e));
 
                     break;
 
@@ -173,15 +210,14 @@ async function messagePacketHandler(str: string, sessionManager: SessionManager,
             }
         }
     } catch (error) {
-        console.log(`[RAID-REVIEW] Message recieved was not valid JSON Object, something broke.`);
-        console.log(`[RAID-REVIEW:ERROR]`, error);
-        console.log(`[RAID-REVIEW:DUMP]`, str);
+        logger.error(`Message recieved was not valid JSON Object, something broke.`);
+        logger.error(`[WS_DATA_ERR]`, error);
+        logger.error(`[WS_DATA_ERR]`, rawData);
     }
 }
 
-async function errorPacketHandler(error: Error) {
-    console.log(`[RAID-REVIEW] Websocket Error.`);
-    console.log(`[RAID-REVIEW:ERROR]`, error);
+async function errorPacketHandler(error: Error, logger: Logger) {
+    logger.error(`[WS_ERR]`, error);
 }
 
 export { messagePacketHandler, errorPacketHandler };

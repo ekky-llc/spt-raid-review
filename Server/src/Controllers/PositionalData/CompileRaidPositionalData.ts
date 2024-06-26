@@ -1,5 +1,6 @@
 import fs from 'fs';
 import _ from 'lodash';
+import { Logger } from '../../Utils/logger';
 
 export interface FileImport {
     datapoint: string;
@@ -25,8 +26,8 @@ export interface positional_data__grouped {
 // 2 = 'V2' = { <player-id> : positions[]  }
 const ACTIVE_POSITIONAL_DATA_STRUCTURE = 'V2';
 
-function CompileRaidPositionalData(raid_guid: string) : positional_data__grouped {
-    console.log(`[RAID-REVIEW] Starting - Compiling positional data (${ACTIVE_POSITIONAL_DATA_STRUCTURE}) for '${raid_guid}' into '.json' format.`);
+function CompileRaidPositionalData(raid_guid: string, logger: Logger) : positional_data__grouped {
+    logger.log(`Starting - Compiling positional data (${ACTIVE_POSITIONAL_DATA_STRUCTURE}) for '${raid_guid}' into '.json' format.`);
 
     const file_suffixes = ['positions'];
     const files = [] as FileImport[];
@@ -45,7 +46,7 @@ function CompileRaidPositionalData(raid_guid: string) : positional_data__grouped
     }
 
     if (files.length === 0) {
-        console.log(`[RAID-REVIEW] Finished - Compiling positional data for '${raid_guid}' into '.json' format.`);
+        logger.log(`Finished - Compiling positional data for '${raid_guid}' into '.json' format.`);
         return;
     }
 
@@ -57,7 +58,7 @@ function CompileRaidPositionalData(raid_guid: string) : positional_data__grouped
         const keys = keys_str.replace('\n', '').split(',');
         const rows = data_str.filter((row) => row !== '').map(row => row.split(','));
 
-        console.log(`[RAID-REVIEW]     Found a total of '${rows.length}' recorded positions, processing into data structure '${ACTIVE_POSITIONAL_DATA_STRUCTURE}'.`)
+        logger.log(`    Found a total of '${rows.length}' recorded positions, processing into data structure '${ACTIVE_POSITIONAL_DATA_STRUCTURE}'.`)
         if (file.datapoint === 'positions') {
 
             let allPositions = [];
@@ -80,9 +81,9 @@ function CompileRaidPositionalData(raid_guid: string) : positional_data__grouped
             positional_data__grouped = _.chain(allPositions).orderBy('time', 'asc').groupBy('profileId').value();
         }
     }
-    console.log(`[RAID-REVIEW] Finished - Compiling positional data (${ACTIVE_POSITIONAL_DATA_STRUCTURE}) for '${raid_guid}' into '.json' format.`);
+    logger.log(`Finished - Compiling positional data (${ACTIVE_POSITIONAL_DATA_STRUCTURE}) for '${raid_guid}' into '.json' format.`);
     fs.writeFileSync(`${__dirname}/../../../data/positions/${raid_guid}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`, JSON.stringify(positional_data__grouped), 'utf-8');
-    console.log(`[RAID-REVIEW] Saved file  '${raid_guid}_positions.json' to folder '<mod_folder>/data/positions'.`);
+    logger.log(`Saved file  '${raid_guid}_positions.json' to folder '<mod_folder>/data/positions'.`);
 
     return positional_data__grouped;
 };

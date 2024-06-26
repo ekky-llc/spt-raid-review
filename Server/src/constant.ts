@@ -7,6 +7,10 @@ export const CONSTANTS = {
             CLIENT: 'SAIN.dll',
             SERVER: 'zSolarint-SAIN-ServerMod',
         },
+        FIKA: {
+            CLIENT: 'Fika.Core.dll',
+            SERVER: 'fika-server',
+        },
     },
 
     // STRING CONSTANTS

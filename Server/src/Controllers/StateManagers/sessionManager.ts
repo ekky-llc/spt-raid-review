@@ -1,5 +1,6 @@
 import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
-import { CONSTANTS } from 'src/constant'
+import { CONSTANTS } from '../../constant'
+import { Logger } from 'src/Utils/logger'
 
 export interface SessionManagerRaid {
     raidId: string
@@ -25,11 +26,13 @@ export class SessionManager {
     protected raids: Map<string, SessionManagerRaid>
     protected profiles: Map<string, SessionManagerPlayer>
     protected timeoutIntervals: Map<string, NodeJS.Timeout>
+    protected logger : Logger
 
-    constructor() {
+    constructor(logger : Logger) {
         this.raids = new Map<string, SessionManagerRaid>()
         this.profiles = new Map<string, SessionManagerPlayer>()
         this.timeoutIntervals = new Map<string, NodeJS.Timeout>()
+        this.logger = logger;
     }
 
     private addTimeoutInterval(timeoutId: string, target: string): void {
@@ -106,8 +109,8 @@ export class SessionManager {
     addRaid(raidId: string, raidData: SessionManagerRaid): void {
         this.raids.set(raidId, raidData)
         this.addTimeoutInterval(raidId, 'raid')
-        console.log(
-            `[RAID-REVIEW] Registered raid '${raidId}' for player(s) '${Array.from(
+        this.logger.log(
+            `Registered raid '${raidId}' for player(s) '${Array.from(
                 raidData.players.keys()
             ).join(',')}'.`
         )
@@ -126,8 +129,8 @@ export class SessionManager {
 
         // Delete Raid
         this.raids.delete(raidId)
-        console.log(
-            `[RAID-REVIEW] Deregistered raid '${raidId}', REASON: ${removalReason}`
+        this.logger.log(
+            `Deregistered raid '${raidId}', REASON: ${removalReason}`
         )
     }
 
