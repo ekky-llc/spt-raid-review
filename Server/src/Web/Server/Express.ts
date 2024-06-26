@@ -51,7 +51,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
 
 
     const basicAuthUsers = {};
-    const userDict = Object.values(profileServer.getProfiles()).map((p : IAkiProfile) => basicAuthUsers[p.info.id] = p.info.password);
+    Object.values(profileServer.getProfiles()).map((p : IAkiProfile) => basicAuthUsers[p.info.username] = p.info.password);
 
     // Basic Auth has been implemented for people who host Fika remotely.
     // It's not the greatest level of protection, but I cannot be arsed to implement oAuth for sucha niche use case.
