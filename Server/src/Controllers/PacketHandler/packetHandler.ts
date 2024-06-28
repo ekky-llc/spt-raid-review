@@ -67,26 +67,26 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     logger.log(`Recieved 'START' trigger.`);
 
                     // FIKA Raid Handler
-                    // if (isFikaInstalled.client || isFikaInstalled.server) {
-                    //     logger.log(`SERVER Mod Detected: FIKA Server.`);
-                    //     logger.log(`CLIENT Mod Detected: FIKA Client.`);
-                    // }
+                    if (isFikaInstalled.client || isFikaInstalled.server) {
+                        logger.log(`SERVER Mod Detected: FIKA Server.`);
+                        logger.log(`CLIENT Mod Detected: FIKA Client.`);
+                    }
 
-                    // // SPT Raid Start Handler
-                    // else {
-                    //     raidId = crypto.randomUUID();
-                    //     const players = {} as SessionManagerPlayerMap;
-                    //     players.set(payload_object.sessionId, sessionManagerProfile.profile);
-                    //     sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });
-                    // }
+                    // SPT Raid Start Handler
+                    else {
+                        raidId = crypto.randomUUID();
+                        logger.debug(`[START:RAID_GENERATOR] RAID_ID: '${raidId}'`);
+    
+                        // Add RaidId to player
+                        let player = sessionManager.getProfile(payload_object.sessionId);
+                        player.raidId = raidId;
+                        
+                        // Create Player Map, and register raid
+                        const players = new Map<string, string>();
+                        players.set(payload_object.sessionId, sessionManagerProfile.profile.info.id);
+                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });    
+                    }
                     
-                    raidId = crypto.randomUUID();
-                    logger.debug(`[START:RAID_GENERATOR] RAID_ID: '${raidId}'`);
-
-                    const players = new Map<string, IAkiProfile>();
-                    players.set(payload_object.sessionId, sessionManagerProfile.profile);
-                    sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });
-
                     logger.debug(`[START:RAIDS] ` +  JSON.stringify(Array.from(sessionManager.getRaids().entries())));
 
                     post_raid_processing.stop();
@@ -108,8 +108,8 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
 
                 case "END":
 
-                    logger.debug(`[END:RAIDS] ` +  + JSON.stringify(Array.from(sessionManager.getRaids().entries())));
-                    logger.debug(`[END:PROFILES] ` +  + JSON.stringify(Array.from(sessionManager.getProfiles().entries())));
+                    logger.debug(`[END:RAIDS] ` + JSON.stringify(Array.from(sessionManager.getRaids().entries())));
+                    logger.debug(`[END:PROFILES] ` + JSON.stringify(Array.from(sessionManager.getProfiles().entries()).map(p => p[1].profile = null)));
 
                     const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                     db

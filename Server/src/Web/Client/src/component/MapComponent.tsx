@@ -494,7 +494,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
     // Positon Renderer
     useEffect(() => {    
         
-        requestAnimationFrame(() => {
 
             let times = [];
 
@@ -582,77 +581,49 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
                 }
             }
+            
+    }, [mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus]);
 
-            for (let i = 0; i < events.length; i++) {
-                const e = events[i];
-                
-                const toBeIndex = findInsertIndex(e.time, sliderTimes);
-                if (toBeIndex < timeCurrentIndex) {
-                    if (!hideEvents && MAP) {
-                        if (preserveHistory || toBeIndex > (timeCurrentIndex - 200) ) {
-                            var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
-                            var killerMarker = L.marker([e.source.z, e.source.x], {icon: killerIcon});
-                            killerMarker.eventTime = e.time; 
-                            killerMarker.eventType = 'killerIcon';
-                            killerMarker.addTo(MAP);
-        
-                            var polyline = L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3, opacity: 0.75 });
-                            polyline.eventTime = e.time; 
-                            polyline.eventType = 'killerLine';
-                            polyline.addTo(MAP);
-                        }
-        
-                        var deathHtml = `<img src="/skull.png" /><span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`;
-                        var deathIcon = L.divIcon({className: 'death-icon tooltip event', html: deathHtml });
-                        var deathMarker = L.marker([e.target.z, e.target.x], {icon: deathIcon});
-                        deathMarker.eventTime = e.time; 
-                        deathMarker.eventType = 'deathIcon';
-                        deathMarker.addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
+    // Slider Time Update
+    useEffect(() => {
+        if (preserveHistory) {
+            setTimeStartLimit(sliderTimes[0]);
+        } else {
+            setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - 200)]);
+        }
+    }, [sliderTimes, timeCurrentIndex, preserveHistory]);
+
+    // Event Update
+    useEffect(() => {
+        for (let i = 0; i < events.length; i++) {
+            const e = events[i];
+            
+            const toBeIndex = findInsertIndex(e.time, sliderTimes);
+            if (toBeIndex < timeCurrentIndex) {
+                if (!hideEvents && MAP) {
+                    if (preserveHistory || toBeIndex > (timeCurrentIndex - 200) ) {
+                        var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
+                        var killerMarker = L.marker([e.source.z, e.source.x], {icon: killerIcon});
+                        killerMarker.eventTime = e.time; 
+                        killerMarker.eventType = 'killerIcon';
+                        killerMarker.addTo(MAP);
+    
+                        var polyline = L.polyline([[e.source.z, e.source.x],[e.target.z, e.target.x]], { color: 'red', weight: 2, dashArray: [10], dashOffset: 3, opacity: 0.75 });
+                        polyline.eventTime = e.time; 
+                        polyline.eventType = 'killerLine';
+                        polyline.addTo(MAP);
                     }
+    
+                    var deathHtml = `<img src="/skull.png" /><span class="tooltiptext event event-map text-sm">${e.profileId === e.killedId ? `<strong>${e.profileNickname}</strong><br/>died` : `<strong>${e.profileNickname}</strong><br/>killed<br/><strong>${e.killedNickname}</strong>`}</span>`;
+                    var deathIcon = L.divIcon({className: 'death-icon tooltip event', html: deathHtml });
+                    var deathMarker = L.marker([e.target.z, e.target.x], {icon: deathIcon});
+                    deathMarker.eventTime = e.time; 
+                    deathMarker.eventType = 'deathIcon';
+                    deathMarker.addTo(MAP).on('click', () => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time));
                 }
             }
-            
-            
-            if (sliderTimes.length === 0) {
-                times = _.chain(times).uniq().sort((t) => t).value();
-                setSliderTimes(times);
-                setTimeStartLimit(times[0]);
-                setTimeEndLimit(times[times.length - 1]);
-                setTimeCurrentIndex(times.length - 1);
-            }
-
-            if (preserveHistory) {
-                setTimeStartLimit(sliderTimes[0])
-            } else {
-                setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - 200)]);
-            }
-
-            function clearMap(m, timeRange) {
-                for (const key in m._layers) {
-                    const layer = m._layers[key];
-                    if (layer._path !== undefined || layer._icon !== undefined) {
-                        if (layer.eventTime) {
-                            const isCurrentEvent = layer.eventTime < timeRange.start || layer.eventTime > timeRange.end;
-                            const isKillerIconOrLine = layer.eventType === 'killerIcon' || layer.eventType === 'killerLine';
-                            if (isCurrentEvent && isKillerIconOrLine) {
-                                m.removeLayer(layer);
-                            }
-
-                            const isFutureEvent = layer.eventTime > timeRange.end;
-                            const isDeathIcon = layer.eventType === 'deathIcon';
-                            if (isDeathIcon && isFutureEvent) {
-                                m.removeLayer(layer);
-                            }
-                        } else {
-                            m.removeLayer(layer);
-                        }
-                    }
-                }
-            }           
-
-        });
-
-    }, [mapData, mapRef, navigate, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus]);
+        }
+    }, [preserveHistory, timeCurrentIndex, sliderTimes ])
 
     // Slider Updater
     useEffect(() => {
@@ -690,6 +661,29 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         return () => clearInterval(interval);
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory]);
     
+    function clearMap(m, timeRange) {
+        for (const key in m._layers) {
+            const layer = m._layers[key];
+            if (layer._path !== undefined || layer._icon !== undefined) {
+                if (layer.eventTime) {
+                    const isCurrentEvent = layer.eventTime < timeRange.start || layer.eventTime > timeRange.end;
+                    const isKillerIconOrLine = layer.eventType === 'killerIcon' || layer.eventType === 'killerLine';
+                    if (isCurrentEvent && isKillerIconOrLine) {
+                        m.removeLayer(layer);
+                    }
+
+                    const isFutureEvent = layer.eventTime > timeRange.end;
+                    const isDeathIcon = layer.eventType === 'deathIcon';
+                    if (isDeathIcon && isFutureEvent) {
+                        m.removeLayer(layer);
+                    }
+                } else {
+                    m.removeLayer(layer);
+                }
+            }
+        }
+    } 
+
     function playPositions() {
         if (timeCurrentIndex === sliderTimes.length - 1) {
             setTimeEndLimit(sliderTimes[0])
@@ -720,8 +714,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
     function getPlayerBrain(player: TrackingRaidDataPlayers): string {
 
         if (player) {
-
-            console.log(player.type)
 
             let brainOutput = '(Unknown)'
             let botMapping = BotMapping[player.type];

@@ -4,7 +4,7 @@ import { Logger } from 'src/Utils/logger'
 
 export interface SessionManagerRaid {
     raidId: string
-    players: Map<string, IAkiProfile>
+    players: Map<string, string>
     timeout: number
 }
 
@@ -44,6 +44,8 @@ export class SessionManager {
             timeoutId,
             setInterval(() => {
                 if (target === 'raid') {
+
+                    // timeoutId would be the 'guid' of the raid
                     const raid = this.getRaid(timeoutId)
                     raid.timeout++
 
@@ -57,6 +59,8 @@ export class SessionManager {
                 }
 
                 if (target === 'player') {
+
+                    // timeoutId would be the 'guid' of the player
                     const player = this.getProfile(timeoutId)
                     player.timeout++
 
@@ -152,7 +156,7 @@ export class SessionManager {
         player.raidId = raidId
 
         const raid = this.getRaid(raidId)
-        raid.players.set(profileId, player.profile)
+        raid.players.set(profileId, profileId)
     }
 
     removePlayerFromRaid(raidId: string, profileId: string): void {
