@@ -25,7 +25,7 @@ using SAIN.Components;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.0.6")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.1.0")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {

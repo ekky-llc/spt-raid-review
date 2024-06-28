@@ -133,6 +133,11 @@ export class SessionManager {
         this.logger.log(
             `Deregistered raid '${raidId}', REASON: ${removalReason}`
         )
+
+        // Create a new log file if all raids are over.
+        if (this.raids.size === 0) {
+            this.logger.init();
+        }
     }
 
     getRaids(): Map<string, SessionManagerRaid> {

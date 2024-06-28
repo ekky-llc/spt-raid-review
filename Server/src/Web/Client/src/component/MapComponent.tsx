@@ -368,6 +368,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
             crs: getCRS(mapData),
             attributionControl: false,
             id: mapData.id,
+            preferCanvas: true
         });
 
         const zoomLevel = map.getZoom();

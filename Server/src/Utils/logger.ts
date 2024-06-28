@@ -14,8 +14,9 @@ export class Logger {
     }
 
     /**
-     * Called when the server is started, and will continue logging to that file.
-     * Is also re-called if server has been running without players, and this is the first player to join.
+     * Creats a new log file, and purges old ones.
+     * - Called when the server is started. (See 'mod.ts')
+     * - Called if the server is active, and the last raid finishes, or is timed out (See 'sessionManager.ts').
      */
     public init() : void {
         if (config.enableLogFiles) {
