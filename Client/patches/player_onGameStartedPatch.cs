@@ -68,7 +68,8 @@ namespace RAID_REVIEW
                         group = 0,
                         spawnTime = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
                         type = "HUMAN",
-                        mod_SAIN_brain = "PLAYER"
+                        mod_SAIN_brain = "PLAYER",
+                        mod_SAIN_difficulty = ""
                     };
 
                     RAID_REVIEW.trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
@@ -126,13 +127,14 @@ namespace RAID_REVIEW
                         {
                             var trackingPlayer = RAID_REVIEW.trackingPlayers[profileId];
                             trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), botComponent.Info.Personality);
+                            trackingPlayer.mod_SAIN_difficulty = botComponent.Info.BotDifficulty.ToString();
                             if (!botComponent.Info.Profile.IsPMC)
                             {
                                 trackingPlayer.type = BotHelper.getBotType(botComponent);
                             }
                             RAID_REVIEW.trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
                             RAID_REVIEW.updatedBots[trackingPlayer.profileId] = trackingPlayer;
-                            Logger.LogInfo($"RAID_REVIEW :::: INFO :::: Updating player {trackingPlayer.name} with brain {trackingPlayer.mod_SAIN_brain} and type {trackingPlayer.type}");
+                            Logger.LogInfo($"RAID_REVIEW :::: INFO :::: Updating player {trackingPlayer.name} with brain {trackingPlayer.mod_SAIN_brain}, type {trackingPlayer.type}, difficulty {trackingPlayer.mod_SAIN_difficulty}");
                             _ = Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
                         }
                     }

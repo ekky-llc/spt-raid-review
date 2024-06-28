@@ -715,8 +715,13 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
         if (player) {
 
-            let brainOutput = '(Unknown)'
+            let brainOutput = 'Unknown'
             let botMapping = BotMapping[player.type];
+            if (player.name === "Knight") {
+                botMapping = {
+                  type: 'GOON'
+                };
+              }
             if (!botMapping) {
                 botMapping = {
                     type: 'UNKNOWN'
@@ -724,34 +729,52 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
             }
 
             if((player.team === "Bear" || player.team === "Usec") && player.mod_SAIN_brain != "UNKNOWN"){
-                return `(${player.mod_SAIN_brain.trim()})`;
+                return `${player.mod_SAIN_brain.trim()}`;
             }
 
-            if (player.mod_SAIN_brain === 'PLAYER') brainOutput = "(Human)"
-            if (player.mod_SAIN_brain != null) brainOutput = `(${player.mod_SAIN_brain.trim()})`;
+            if (player.mod_SAIN_brain === 'PLAYER') brainOutput = "Human"
+            if (player.mod_SAIN_brain != null) brainOutput = `${player.mod_SAIN_brain.trim()}`;
 
-            if (botMapping.type === 'UNKNOWN') brainOutput =`(${player.team === "Savage" ? 'Scav' : 'PMC'})`
-            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) brainOutput = "(PMC)";
-            if (botMapping.type === 'SCAV') brainOutput = `(Scav)`;
+            if (botMapping.type === 'UNKNOWN') brainOutput =`${player.team === "Savage" ? 'Scav' : 'PMC'}`
+            if (player.mod_SAIN_brain === "UNKNOWN" && (player.team === "Bear" || player.team === "Usec")) brainOutput = "PMC";
+            if (botMapping.type === 'SCAV') brainOutput = `Scav`;
 
-            if (botMapping.type === 'BOSS') brainOutput = `(Boss)`;
+            if (botMapping.type === 'BOSS') brainOutput = `Boss`;
 
-            if (botMapping.type === 'GOON') brainOutput = `(Goon)`;
-            if (botMapping.type === 'FOLLOWER') brainOutput = `(Follower)`;
-            if (botMapping.type === 'RAIDER') brainOutput = `(Raider)`;
-            if (botMapping.type === 'ROGUE') brainOutput = `(Rogue)`;
-            if (botMapping.type === 'CULT') brainOutput = `(Cultist)`;
-            if (botMapping.type === 'SNIPER') brainOutput = `(Sniper)`;
-            if (botMapping.type === 'PLAYER_SCAV') brainOutput = `(${player.mod_SAIN_brain.trim()} - Player Scav)`;
-            if (botMapping.type === 'BLOODHOUND') brainOutput = `(Bloodhound)`;
+            if (botMapping.type === 'GOON') brainOutput = `Goon`;
+            if (botMapping.type === 'FOLLOWER') brainOutput = `Follower`;
+            if (botMapping.type === 'RAIDER') brainOutput = `Raider`;
+            if (botMapping.type === 'ROGUE') brainOutput = `Rogue`;
+            if (botMapping.type === 'CULT') brainOutput = `Cultist`;
+            if (botMapping.type === 'SNIPER') brainOutput = `Sniper`;
+            if (botMapping.type === 'PLAYER_SCAV') brainOutput = `${player.mod_SAIN_brain.trim()} - Player Scav`;
+            if (botMapping.type === 'BLOODHOUND') brainOutput = `Bloodhound`;
 
             return brainOutput;
         }
     }
 
+    function getPlayerDifficultyAndBrain(player: TrackingRaidDataPlayers): string {
+        if (player) {
+          let difficulty = player.mod_SAIN_difficulty;
+          let brain = getPlayerBrain(player);
+          if (difficulty !== null && difficulty !== "") {
+            return `${difficulty} - ${brain}`;
+          }
+          return `${brain}`;
+        }
+    
+        return ""
+      }
+
     function getPlayerColor(player: TrackingRaidDataPlayers, index: number): string {
 
         let botMapping = BotMapping[player.type];
+        if (player.name === "Knight") {
+            botMapping = {
+              type: 'GOON'
+            };
+          }
         if (!botMapping) {
             botMapping = {
                 type: 'UNKNOWN'
@@ -811,7 +834,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : getPlayerColor(player, index)}}></span>
                                         <div>
-                                            <span>{player.name} {getPlayerBrain(player)}</span>
+                                            <span>{player.name} ({getPlayerDifficultyAndBrain(player)})</span>
                                         </div>
                                     </div>
                                     { followPlayer === player.profileId ? 

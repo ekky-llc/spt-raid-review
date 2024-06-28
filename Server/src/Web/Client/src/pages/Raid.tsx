@@ -196,6 +196,11 @@ export default function Raid() {
     
       // @ts-ignore
       let botMapping = BotMapping[player.type];
+      if (player.name === "Knight") {
+        botMapping = {
+          type: 'GOON'
+        };
+      }
       if (!botMapping) {
           botMapping = {
               type: 'UNKNOWN'
@@ -207,6 +212,8 @@ export default function Raid() {
               return "BOSS"
           case 'RAIDER':
               return "RAIDER"
+          case 'FOLLOWER':
+              return "FOLLOWER"
           case 'PLAYER_SCAV':
               return "PLAYER SCAV"
           case 'SNIPER':
@@ -215,8 +222,10 @@ export default function Raid() {
               return "GOON"
           case 'ROGUE':
               return "ROGUE"
-          case 'CULTIST':
+          case 'CULT':
               return "CULTIST"
+          case 'BLOODHOUND':
+              return "BLOODHOUND"
           default:
               if(player.team === "Savage") {
                 return ""
@@ -226,6 +235,27 @@ export default function Raid() {
     }
 
     return "(UNKNOWN)"
+  }
+
+  function getPlayerDifficultyAndBrain(player: TrackingRaidDataPlayers): string {
+    if (player) {
+      let difficulty = player.mod_SAIN_difficulty;
+      let brain = getPlayerBrain(player);
+      if (difficulty !== null && difficulty !== "") {
+        if(player.team === "Savage" && brain === "") {
+          return difficulty;
+        }
+        return `${difficulty} - ${brain}`;
+      }
+      else if (player.team === "Savage") {
+        if(brain !== null && brain !== "") {
+          return `${brain}`;
+        }
+        else return "?";
+      }
+      return `${brain}`;
+    }
+    return "?";
   }
 
   function generateMapPlaybackButton(positionDataStatus: string) {
@@ -397,7 +427,7 @@ export default function Raid() {
                             </div>
                             <span>
                             {/* @ts-ignore */}
-                              {getPlayerBrain(player)} [{player.level}] {team[player.team]}
+                              [{getPlayerDifficultyAndBrain(player)}] [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}
