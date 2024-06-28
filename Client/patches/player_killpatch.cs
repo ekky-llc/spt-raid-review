@@ -23,6 +23,7 @@ namespace RAID_REVIEW
                 {
                     var newKill = new TrackingRaidKill
                     {
+                        sessionId = RAID_REVIEW.sessionId,
                         time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
                         profileId = aggressor.ProfileId,
                         killedId = __instance.ProfileId,

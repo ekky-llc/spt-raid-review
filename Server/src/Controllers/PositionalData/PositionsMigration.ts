@@ -4,7 +4,8 @@ import { Database } from "sqlite"
 
 import { ReadFolderContents } from "../FileSystem/FileReader";
 import CompileRaidPositionalData from './CompileRaidPositionalData';
-import { RaidReviewSettings } from 'src/types';
+import { RaidReviewSettings } from '../../types';
+import { Logger } from '../../Utils/logger';
 
 /**
  * Implemented this function as I changed the data structure from a 
@@ -12,22 +13,22 @@ import { RaidReviewSettings } from 'src/types';
  * needed to do this to stop issues from occuring with 
  * @returns {void} 
  */
-async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.Statement>) : Promise<void> {
+async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) : Promise<void> {
 
     const sqlSettingsQuery = `SELECT * FROM setting WHERE key = 'v1_to_v2_migration__completed'`;
-    const data = await db.all(sqlSettingsQuery).catch((e: Error) => console.error(e));
+    const data = await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V2_CHECK] `, e));
     if (data === null) {
-        console.log(`[RAID-REVIEW] Migration failed: v1 to v2 positional data structure, missing settings entry.`)
+        logger.log(`Migration failed: v1 to v2 positional data structure, missing settings entry.`)
         return;
     }
 
     const [ v1_to_v2_migration__completed ] = data as RaidReviewSettings[];
     if (v1_to_v2_migration__completed.key === 'v1_to_v2_migration__completed' && v1_to_v2_migration__completed.value === '0') {
-        console.log(`[RAID-REVIEW] Starting positional data structure migration from 'V1' to 'V2'.`)
+        logger.log(`Starting positional data structure migration from 'V1' to 'V2'.`)
         /** Directory: /user/mods/<mod>/positions */
         const files = ReadFolderContents('positions', '', '', true);
 
-        console.log(`[RAID-REVIEW]     Found a total of '${files.length}' to process.`)
+        logger.log(`    Found a total of '${files.length}' to process.`)
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             
@@ -44,7 +45,7 @@ async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.
             const raidId = splitPath[splitPath.length - 1].split('_')[0] // system filepath -> filename -> raid_id
             const isGuid = raidId.match(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/gi);
             if (isGuid) {
-                CompileRaidPositionalData(raidId);
+                CompileRaidPositionalData(raidId, logger);
                 continue;
             }
 
@@ -53,7 +54,7 @@ async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.
         // Update the database to mark the migration as having been completed
         const sqlSettingsQuery = `UPDATE setting SET value = ? WHERE key = ?`;
         const sqlSettingsValues = ['1', 'v1_to_v2_migration__completed']
-        await db.all(sqlSettingsQuery, sqlSettingsValues).catch((e: Error) => console.error(e));
+        await db.all(sqlSettingsQuery, sqlSettingsValues).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V2_COMP] `,e));
     }
 
 }

@@ -8,6 +8,8 @@
 4. If a player sends data to Raid-Review, there needs to be a check if people are in the same game with Raid-Review, and determine whos data to use as the source of truth.
 5. Figure out how Fika determines a match is over
 
+---
+
 ### 1. I need to be able to determine who is connected to the server
 
 - I don't think it matters who is connected, just who is connected with Raid-Review installed. A route that pings from the Raid-Review client will do the job, and keeps them in a 'connected' list that looks like this `MAP<string, string>`.

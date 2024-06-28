@@ -10,20 +10,19 @@ namespace RAID_REVIEW
 
     public class TrackingRaid
     {
-        public string id { get; set; }
+        public string sessionId { get; set; }
         public string profileId { get; set; }
         public string location { get; set; }
         public string detectedMods { get; set; }
         public DateTime time { get; set; }
         public long timeInRaid { get; set; }
-
         public string exitName { get; set; }
         public ExitStatus exitStatus { get; set; }
     }
 
     public class TrackingPlayer
     { 
-        public int id { get; set; }
+        public string sessionId { get; set; }
         public string profileId { get; set; }
         public int level { get; set; }
         public EPlayerSide team { get; set; }
@@ -35,19 +34,10 @@ namespace RAID_REVIEW
         public string mod_SAIN_difficulty { get; set; }
     }
 
-    public class TrackingExtractedPlayer
-    {
-        public string BotNickname { get; set; }
-        public string ProfileID { get; set; }
-        public string Reason { get; set; }
-        public string ExtractPoint { get; set; }
-        public float TimeExtracted { get; set; }
-
-    }
-
     public class TrackingRaidKill
     {
         public long time { get; set; }
+        public string sessionId { get; set; }
         public string profileId { get; set; }
         public string killedId { get; set; }
         public string weapon {  get; set; }
@@ -60,6 +50,7 @@ namespace RAID_REVIEW
 
     public class TrackingLootItem
     {
+        public string sessionId { get; set; }
         public string profileId { get; set; }
         public long time { get; set; }
         public string itemId { get; set; }
@@ -71,6 +62,7 @@ namespace RAID_REVIEW
 
     public class TrackingPlayerData
     {
+        public string sessionId { get; set; }
         public string profileId { get; set; }
         public long time { get; set; }
         public float x { get; set; }
@@ -79,6 +71,7 @@ namespace RAID_REVIEW
         public float dir { get; set; }
 
         public TrackingPlayerData(
+            string sessionId, 
             string profileId, 
             long time, 
             float x, 
@@ -86,6 +79,7 @@ namespace RAID_REVIEW
             float z, 
             float dir)
         {
+            this.sessionId = sessionId;
             this.profileId = profileId;
             this.time = time;
             this.x = x;

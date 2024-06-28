@@ -4,14 +4,14 @@
     "do_not_delete_2": "[☝🏾 DO NOT MODIFY]",
 
     
-    "comment__enableDebugLogs": "[DEBUG] [DEFAULT: true] Enable debug logging.",
+    "comment__enableDebugLogs": "[DEBUG] [DEFAULT: false] Enable debug logging.",
     "enableDebugLogs": true,
     "comment__enableLogFiles": "[DEBUG] [DEFAULT: true] If enabled, dumps normal logs `/logs` meant for support/debugging purposes.",
     "enableLogFiles": true,
     "comment__enableVerboseLogFiles": "[DEBUG] [DEFAULT: true] If enabled, dumps all logs `/logs` meant for support/debugging purposes.",
     "enableVerboseLogFiles": true,
-    "comment__maximumLogFiles": "[DEBUG] [DEFAULT: 10] If 'LogFiles' are enabled, this is the maximum number of logs allowed to be stored; oldest logs will be deleted.",
-    "maximumLogFiles": 10,
+    "comment__maximumLogFiles": "[DEBUG] [DEFAULT: true] If 'LogFiles' are enabled, this is the maximum number of logs allowed to be stored; oldest logs will be deleted.",
+    "maximumLogFiles": 5,
 
 
     "comment__web_socket_port": "[SERVER] [DEFAULT: 7828] Changes Default Web Socket port; modify this if the port is reserved in your environment.",
@@ -34,7 +34,6 @@
     "autoDeleteLimit": 30,
 
 
-    "comment__authentication": "[AUTH] [DEFAULT: true] Enable Basic Authentication; use this setting if you'd like to password-protect the web server.",
-    "authentication": true,
-    "comment__authentication_extra_info": "The credentials is the username of the profile you use in SPT."
+    "comment__authentication": "[AUTH] [DEFAULT: false] Enable Basic Authentication; use this setting if you'd like to password-protect the web server.",
+    "authentication": true
 }

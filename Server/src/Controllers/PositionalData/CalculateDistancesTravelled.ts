@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
-import { positional_data, positional_data__grouped } from "src/Controllers/PositionalData/CompileRaidPositionalData";
+import { positional_data, positional_data__grouped } from "../../Controllers/PositionalData/CompileRaidPositionalData";
+import { Logger } from 'src/Utils/logger';
 
 export function calculateDistance(point1, point2) {
     const dx = point2.x - point1.x;
@@ -9,7 +10,7 @@ export function calculateDistance(point1, point2) {
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-export function calculateTotalDistance(positions_grouped : positional_data__grouped) : number {
+export function calculateTotalDistance(positions_grouped : positional_data__grouped, logger: Logger) : number {
 
     const positions = _.valuesIn(positions_grouped) as unknown as positional_data[][];
     const distances = [];
@@ -29,7 +30,7 @@ export function calculateTotalDistance(positions_grouped : positional_data__grou
     
     }
     const combinedTotalDistance = _.sumBy(distances);
-    console.log(`[RAID-REVIEW] Total distance traveled: ${combinedTotalDistance}`);
+    logger.log(`Total distance traveled: ${combinedTotalDistance}`);
 
     return combinedTotalDistance;
 }

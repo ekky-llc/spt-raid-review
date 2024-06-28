@@ -48,7 +48,7 @@ namespace RAID_REVIEW
 
                     RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
-                        id = Guid.NewGuid().ToString("D"),
+                        sessionId = RAID_REVIEW.sessionId,
                         profileId = RAID_REVIEW.myPlayer.ProfileId,
                         time = DateTime.Now,
                         detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "",
@@ -60,6 +60,7 @@ namespace RAID_REVIEW
 
                     var newTrackingPlayer = new TrackingPlayer
                     {
+                        sessionId = RAID_REVIEW.sessionId,
                         profileId = RAID_REVIEW.myPlayer.ProfileId,
                         name = RAID_REVIEW.myPlayer.Profile.Nickname,
                         level = RAID_REVIEW.myPlayer.Profile.Info.Level,

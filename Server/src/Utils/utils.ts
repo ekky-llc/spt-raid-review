@@ -1,5 +1,5 @@
 import { Bezier } from 'bezier-js';
-import { positional_data, positional_data__grouped } from 'src/Controllers/PositionalData/CompileRaidPositionalData';
+import { positional_data, positional_data__grouped } from '../Controllers/PositionalData/CompileRaidPositionalData';
 
 function ExtractKeysAndValues(obj: Record<string, any>): { keys: string; values: string } {
     function processObject(inputObj: Record<string, any>, parentKey?: string): { keys: string; values: string } {
