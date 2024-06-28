@@ -143,9 +143,10 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     break;
 
                 case "PLAYER_UPDATE":
-                    const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, type = ? WHERE raidId = ? AND profileId = ?";
+                    const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, mod_SAIN_difficulty, type = ? WHERE raidId = ? AND profileId = ?";
                     db.run(player_update_sql, [
                         payload_object.mod_SAIN_brain, 
+                        payload_object.mod_SAIN_difficulty,
                         payload_object.type, 
                         raidId, 
                         payload_object.profileId
@@ -167,7 +168,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         return;
                     }
 
-                    const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, type, mod_SAIN_brain, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                     db.run(player_sql, [
                         raidId,
                         payload_object.profileId,
@@ -176,8 +177,9 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         payload_object.name,
                         payload_object.group,
                         payload_object.spawnTime,
-                        payload_object.mod_SAIN_brain,
                         payload_object.type,
+                        payload_object.mod_SAIN_brain,
+                        payload_object.mod_SAIN_difficulty
                     ])
                     .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_INSERT]`, e));;
 
