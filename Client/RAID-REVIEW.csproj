@@ -18,6 +18,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Reference Include="0Harmony">
+			<HintPath>dependencies\0Harmony.dll</HintPath>
+			<Private>false</Private>
+		  </Reference>
 		<Reference Include="Aki.Common">
 			<HintPath>dependencies\Aki.Common.dll</HintPath>
 			<Private>false</Private>
@@ -40,6 +44,10 @@
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
 			<HintPath>dependencies\Newtonsoft.Json.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="BepInEx.Harmony.dll">
+			<HintPath>dependencies\BepInEx.Harmony.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="SAIN">

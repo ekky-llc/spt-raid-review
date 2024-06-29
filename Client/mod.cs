@@ -13,11 +13,6 @@ using System.Reflection;
 using System.Numerics;
 using Vector3 = UnityEngine.Vector3;
 using BepInEx.Bootstrap;
-using SAIN;
-using SAIN.Plugin;
-using SAIN.SAINComponent;
-using SAIN.Preset.GlobalSettings.Categories;
-using SAIN.SAINComponent.Classes.Info;
 using EFT.Communications;
 using System.Threading.Tasks;
 using System.Linq;
@@ -71,7 +66,7 @@ namespace RAID_REVIEW
         // Other Mods
         public static bool MODS_SEARCHED = false;
         public static bool SOLARINT_SAIN__DETECTED { get; set; }
-        public static SAINBotController sainBotController { get; set; }
+        public static Type sainBotController { get; set; }
         public static bool searchingForSainComponents = false;
         public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
 
