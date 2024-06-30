@@ -368,7 +368,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
             crs: getCRS(mapData),
             attributionControl: false,
             id: mapData.id,
-            preferCanvas: true
+            preferCanvas: false
         });
 
         const zoomLevel = map.getZoom();
@@ -581,6 +581,14 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                     }
 
                 }
+            }
+
+            if (sliderTimes.length === 0) {
+                times = _.chain(times).uniq().sort((t) => t).value();
+                setSliderTimes(times);
+                setTimeStartLimit(times[0]);
+                setTimeEndLimit(times[times.length - 1]);
+                setTimeCurrentIndex(times.length - 1);
             }
             
     }, [mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus]);
