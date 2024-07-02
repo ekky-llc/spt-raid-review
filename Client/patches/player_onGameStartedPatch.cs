@@ -101,7 +101,7 @@ namespace RAID_REVIEW
         {
             while (RAID_REVIEW.searchingForSainComponents)
             {
-                await Task.Delay(10000);
+                await Task.Delay(5000);
                 if (RAID_REVIEW.sainBotController == null)
                 {
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: Looking For SAIN Bot Controller");
