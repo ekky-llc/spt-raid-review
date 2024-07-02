@@ -42,7 +42,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
 
             // Debug payloads
             if (data.Action !== "POSITION") {
-                logger.debug(JSON.stringify(payload_object));
+                logger.debug(`${data.Action}|${JSON.stringify(payload_object)}`);
             }
 
             // "sessionId" is the profileId of the player we're getting the data from
@@ -60,20 +60,32 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
 
             // Fika Check
             const isFikaInstalled = modDetector.isModInstalled(CONSTANTS.MOD_SIGNATURES.FIKA);
-
             const { keys, values } = ExtractKeysAndValues(payload_object);
             switch (data.Action) {
                 case "START":
                     logger.log(`Recieved 'START' trigger.`);
 
                     // FIKA Raid Handler
-                    if (isFikaInstalled.client || isFikaInstalled.server) {
-                        logger.log(`SERVER Mod Detected: FIKA Server.`);
-                        logger.log(`CLIENT Mod Detected: FIKA Client.`);
+                    if (isFikaInstalled.server) {
+                        logger.debug(`[START:RAID_GENERATOR] IS_FIKA_RAID: TRUE`);
+
+                        raidId = crypto.randomUUID();
+                        logger.debug(`[START:RAID_GENERATOR] RAID_ID: '${raidId}'`);
+    
+                        // Add RaidId to player
+                        let player = sessionManager.getProfile(payload_object.sessionId);
+                        player.raidId = raidId;
+                        
+                        // Create Player Map, and register raid
+                        const players = new Map<string, string>();
+                        players.set(payload_object.sessionId, sessionManagerProfile.profile.info.id);
+                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });  
                     }
 
                     // SPT Raid Start Handler
                     else {
+                        logger.debug(`[START:RAID_GENERATOR] IS_FIKA_RAID: FALSE`);
+
                         raidId = crypto.randomUUID();
                         logger.debug(`[START:RAID_GENERATOR] RAID_ID: '${raidId}'`);
     
@@ -127,6 +139,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
 
                     // FIKA Raid Handler
                     if (isFikaInstalled.client && isFikaInstalled.server) {
+                        sessionManager.removeRaid(raidId, CONSTANTS.REASON_RAID_REMOVAL__CLIENT_PACKET);
                     }
 
                     // SPT Raid End Handler
@@ -143,7 +156,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     break;
 
                 case "PLAYER_UPDATE":
-                    const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, mod_SAIN_difficulty, type = ? WHERE raidId = ? AND profileId = ?";
+                    const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, mod_SAIN_difficulty = ?, type = ? WHERE raidId = ? AND profileId = ?";
                     db.run(player_update_sql, [
                         payload_object.mod_SAIN_brain, 
                         payload_object.mod_SAIN_difficulty,

@@ -29,6 +29,7 @@ import api from '../api/api.js';
 import { start } from 'repl';
 import { PlayerSlider } from './MapPlayerSlider.js';
 import { off } from 'process';
+import { intl } from '../pages/Raid.js';
 
 function getCRS(mapData) {
     let scaleX = 1;
@@ -268,7 +269,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         };
 
         setCurrentMap(locations[raidData.location]);
-        // setCurrentMap("interchange");
+        // setCurrentMap("reserve");
         
         const newEvents = []
         if (raidData && raidData.players) { 
@@ -281,9 +282,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 newEvents.push({
                     time: kill.time,
                     profileId: kill.profileId,
-                    profileNickname : profileNickname ? profileNickname.name : 'Unknown',
+                    profileNickname : profileNickname ? intl(profileNickname.name) : 'Unknown',
                     killedId: kill.killedId,
-                    killedNickname : killedNickname ? killedNickname.name  : 'Unknown',
+                    killedNickname : killedNickname ? intl(killedNickname.name)  : 'Unknown',
                     weapon: kill.weapon,
                     distance: Number(kill.distance),
                     source: JSON.parse(kill.positionKiller),
@@ -828,13 +829,13 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                         ))}
                     </div>
                     <div className="ml-4">
-                        { availableStyles.map(style => (
-                            <button key={style.value} className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`} onClick={() => setSelectedStyle(style.value)}>{style.name}</button>
+                        { availableStyles.map(style => ( style.name ? 
+                            <button key={style.value} className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`} onClick={() => setSelectedStyle(style.value)}>{style.name}</button> : ''
                         ))}
                     </div>
                     <Link to={`/p/${profileId}/raid/${raidId}?return=1`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto' reloadDocument>Close</Link>
                 </nav>
-                <aside className='sidebar bg-black border border-eft mr-3 p-3 overflow-x-auto'>
+                <aside className='sidebar border border-eft mr-3 p-3 overflow-x-auto'>
                     <div className="playerfeed text-eft">
                         <strong>Legend</strong>
                         <ul>
@@ -843,7 +844,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : getPlayerColor(player, index)}}></span>
                                         <div>
-                                            <span>{player.name} ({getPlayerDifficultyAndBrain(player)})</span>
+                                            <span className='capitalize'>{intl(player.name)} ({getPlayerDifficultyAndBrain(player)})</span>
                                         </div>
                                     </div>
                                     { followPlayer === player.profileId ? 

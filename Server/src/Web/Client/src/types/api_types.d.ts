@@ -24,6 +24,7 @@ export interface TrackingPositionalData {
 
 
 export interface TrackingRaidData {
+  detectedMods: any;
   positionsTracked: string;
   id: string;
   raidId: string;
