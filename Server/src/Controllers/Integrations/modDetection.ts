@@ -47,8 +47,8 @@ export class ModDetector {
 
     // Mod Specific Helpers
     isModInstalled(modSignature : MOD_SIGNATURES) : IsInstalledRes {
-        let client = this.client.includes(modSignature.CLIENT);
-        let server = this.client.includes(modSignature.SERVER);
+        let client = !!this.client.find((mod) => mod.includes(modSignature.CLIENT));
+        let server = !!this.client.find((mod) => mod.includes(modSignature.SERVER));
 
         return {
             client,

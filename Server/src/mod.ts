@@ -63,7 +63,9 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                             timeout: 0,
                         })
 
-                        this.logger.debug(`[ROUTE:/CLIENT/GAME/START]: ` + JSON.stringify(Array.from(this.sessionManager.getProfiles().entries())));
+                        // Print 
+                        this.logger.debug(`[ROUTE:/CLIENT/GAME/START] ADDED_PROFILE: ${profile.info.id}`);
+                        this.logger.debug(`[ROUTE:/CLIENT/GAME/START] ACTIVE_PROFILES: ` + Array.from(this.sessionManager.getProfiles().entries()).map(p => profile.info.id).join(', '));
 
                         return output
                     },
