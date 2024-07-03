@@ -68,7 +68,7 @@ done
 # ZIP for Windows
 echo ">> Zipping both server and client mod for Windows"
 cd "dist/${name}__${version}"
-powershell -Command "Compress-Archive -Path '*' -DestinationPath '../${name}__${version}_windows.zip'" > /dev/null
+powershell -Command "Compress-Archive -Force -Path '*' -DestinationPath '../${name}__${version}_windows.zip'" > /dev/null
 cd "$current_dir"
 
 echo "Finished - Windows Distribution"
@@ -84,7 +84,7 @@ cd "$current_dir"
 echo ">> Zipping both server and client mod for upload to Linux"
 cd "$current_dir"
 cd "dist/${name}__${version}"
-powershell -Command "Compress-Archive -Path '*' -DestinationPath 'linux_deploy.zip'" > /dev/null
+powershell -Command "Compress-Archive -Force -Path '*' -DestinationPath 'linux_deploy.zip'" > /dev/null
 
 # Deploy to Linux server
 echo ">> Uploaded package to server"
