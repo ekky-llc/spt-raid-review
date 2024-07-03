@@ -16,7 +16,6 @@ using BepInEx.Bootstrap;
 using EFT.Communications;
 using System.Threading.Tasks;
 using System.Linq;
-using SAIN.Components;
 
 namespace RAID_REVIEW
 {
@@ -66,7 +65,7 @@ namespace RAID_REVIEW
         // Other Mods
         public static bool MODS_SEARCHED = false;
         public static bool SOLARINT_SAIN__DETECTED { get; set; }
-        public static Type sainBotController { get; set; }
+        public static object sainBotController { get; set; }
         public static bool searchingForSainComponents = false;
         public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
 
