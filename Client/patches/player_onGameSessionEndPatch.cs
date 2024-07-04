@@ -29,12 +29,11 @@ namespace RAID_REVIEW
                 RAID_REVIEW.sainBotController = null;
 
                 RAID_REVIEW.stopwatch.Stop();
-                RAID_REVIEW.trackingRaid.sessionId = RAID_REVIEW.sessionId;
-                RAID_REVIEW.trackingRaid.profileId = __instance.ProfileId;
                 RAID_REVIEW.trackingRaid.exitStatus = exitStatus;
                 RAID_REVIEW.trackingRaid.exitName = exitName;
                 RAID_REVIEW.trackingRaid.time = DateTime.Now;
                 RAID_REVIEW.trackingRaid.timeInRaid = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
+                RAID_REVIEW.trackingRaid.type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC";
                 RAID_REVIEW.stopwatch.Reset();
 
                 // Run SAIN Reflection Integration
@@ -55,6 +54,7 @@ namespace RAID_REVIEW
             finally 
             {
                     RAID_REVIEW.trackingPlayers = new Dictionary<string, TrackingPlayer>();
+                    RAID_REVIEW.sessionId = null;
             }
         }
     }

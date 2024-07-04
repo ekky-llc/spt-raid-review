@@ -121,14 +121,16 @@ export default function Profile() {
 
 function RaidSelector(profile: IAkiProfile, raid: any, locations: { [ key :string ] : string }, msToHMS: (ms: number) => string) {
   return <Link to={`/p/${profile.info.id}/raid/${raid.raidId}`} key={raid.raidId} className="raid__selector bg-eft w-full px-4 py-1 text-xl font-black flex flex-col hover:opacity-75 cursor-pointer">
-    <div className="w-full flex items-center">
-      {locations[raid.location] !== undefined ? locations[raid.location] : raid.location}
-      <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(Number(raid.timeInRaid))} </span>
-    </div>
-    <div className="font-light flex justify-between text-sm opacity-75">
-      <div>{raid.exitStatus}</div>
-      <div>{moment(raid.time).calendar()}</div>
-    </div>
+      <div className="w-full flex items-center">
+        <div className="w-full flex items-center">
+          <span>{locations[raid.location] !== undefined ? locations[raid.location] : raid.location}</span>
+          <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(Number(raid.timeInRaid))} </span>
+        </div>
+      </div>
+      <div className="font-light flex justify-between text-sm opacity-75">
+        <div><span className="text-sm">[{ raid.type === "PMC" ? "PMC" : "SCAV" }]</span> {raid.exitStatus}</div>
+        <div>{moment(raid.time).calendar()}</div>
+      </div>
   </Link>;
 }
 

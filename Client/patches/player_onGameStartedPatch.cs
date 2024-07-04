@@ -38,10 +38,11 @@ namespace RAID_REVIEW
                     RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
                         sessionId = RAID_REVIEW.sessionId,
-                        profileId = RAID_REVIEW.myPlayer.ProfileId,
+                        profileId = RAID_REVIEW.sessionId,
                         time = DateTime.Now,
                         detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "",
                         location = RAID_REVIEW.gameWorld.LocationId,
+                        type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC",
                         timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
                     };
 
@@ -83,7 +84,7 @@ namespace RAID_REVIEW
 
             catch (Exception ex)
             {
-                Logger.LogError($"{ex.Message}");
+                Logger.LogError($"{ex}");
             }
         }
 

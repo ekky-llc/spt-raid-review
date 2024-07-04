@@ -16,8 +16,8 @@ import { Logger } from '../../Utils/logger';
 async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) : Promise<void> {
 
     const sqlSettingsQuery = `SELECT * FROM setting WHERE key = 'v1_to_v2_migration__completed'`;
-    const data = await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V2_CHECK] `, e));
-    if (data === null) {
+    const data = await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V2_CHECK] `, e)) as any[];
+    if (data === null && data.length === 0) {
         logger.log(`Migration failed: v1 to v2 positional data structure, missing settings entry.`)
         return;
     }

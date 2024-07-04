@@ -64,8 +64,8 @@ export class SessionManager {
                     const player = this.getProfile(timeoutId)
                     player.timeout++
 
-                    // If raid times out after 5 minutes, remove the profile.
-                    if (player.timeout >= 5) {
+                    // If player times out after 240 minutes, remove the profile.
+                    if (player.timeout >= 240) {
                         if (player.raidId) {
                             this.removePlayerFromRaid(player.raidId, timeoutId)
                         }

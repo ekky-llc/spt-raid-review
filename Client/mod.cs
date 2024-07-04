@@ -108,6 +108,7 @@ namespace RAID_REVIEW
 
             LoggerInstance.Log = Logger;
 
+            StartCoroutine(UpdateCoroutine());
         }
         IEnumerator UpdateCoroutine()
         {
@@ -131,18 +132,22 @@ namespace RAID_REVIEW
                     gameWorld = Singleton<GameWorld>.Instance;
                     myPlayer = gameWorld?.MainPlayer;
 
-
                     // IF IN MENU, RETURN
                     if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
-                        continue;
-
-                    if (sessionId == null && myPlayer != null)
                     {
-                        sessionId = myPlayer.ProfileId;
+                        continue;
+                    }
+
+                    if (sessionId == null && gameWorld != null && myPlayer != null && gameWorld.CurrentProfileId != null)
+                    {
+                        sessionId = gameWorld.CurrentProfileId;
                     }
 
                     // IF RAID HAS NOT STARTED, RETURN
-                    if (!inRaid) continue;
+                    if (!inRaid)
+                    {
+                        continue;
+                    }
 
                     // PLAYER TRACKING LOOP
                     IEnumerable<Player> allPlayers = gameWorld.AllPlayersEverExisted;

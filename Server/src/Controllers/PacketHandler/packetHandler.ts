@@ -104,13 +104,14 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     post_raid_processing.stop();
                     logger.log(`Disabled Post Processing: Raid Started`);
 
-                    const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, type, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                     db.run(start_raid_sql, [
                         raidId,
                         payload_object.profileId,
                         payload_object.location,
                         payload_object.time,
                         payload_object.timeInRaid,
+                        payload_object.type,
                         "",
                         "",
                         payload_object.detectedMods || "",
@@ -123,7 +124,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     logger.debug(`[END:RAIDS] ` + JSON.stringify(Array.from(sessionManager.getRaids().entries())));
                     logger.debug(`[END:PROFILES] ` + JSON.stringify(Array.from(sessionManager.getProfiles().entries()).map(p => p[1].profile = null)));
 
-                    const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, type, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                     db
                         .run(end_raid_sql, [
                             raidId,
@@ -131,6 +132,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                             payload_object.location,
                             payload_object.time,
                             payload_object.timeInRaid,
+                            payload_object.type,
                             payload_object.exitName || "",
                             payload_object.exitStatus || -1,
                             payload_object.detectedMods || "",
