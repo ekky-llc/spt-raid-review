@@ -19,7 +19,7 @@ export async function database(logger: Logger) : Promise<Database<sqlite3.Databa
     });
 
     await db.migrate({
-        migrationsPath : migrations,
+        migrationsPath : migrations
     })
 
     return db;

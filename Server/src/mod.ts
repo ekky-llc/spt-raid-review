@@ -70,6 +70,13 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                         return output
                     },
                 },
+                {
+                    url: '/client/game/keepalive',
+                    action: (_url: string, __info: any, sessionId: string, output: string) => {
+                        this.sessionManager.pingProfile(sessionId);
+                        return output
+                    },
+                }
             ],
             'aki'
         )

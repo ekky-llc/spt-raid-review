@@ -3,9 +3,8 @@ using Comfort.Common;
 using EFT;
 using EFT.Communications;
 using Newtonsoft.Json;
-using SAIN.Components;
-using SAIN;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -23,24 +22,14 @@ namespace RAID_REVIEW
         [PatchPostfix]
         private static void PatchPostFix(ref GameWorld __instance)
         {
-            try {
+            try
+            {
                 if (__instance.LocationId != "hideout")
                 {
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
 
-                    if (!RAID_REVIEW.MODS_SEARCHED)
-                    {
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Searching For Supported Mods");
-                        RAID_REVIEW.MODS_SEARCHED = true;
-                        if (RAID_REVIEW.DetectMod("me.sol.sain"))
-                        {
-                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
-                            RAID_REVIEW.SOLARINT_SAIN__DETECTED = true;
-                            RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Add("SAIN");
-                        }
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
-                    }
-                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
+                    // Check for installed mods
+                    Integrations.ModCheck();
 
                     RAID_REVIEW.inRaid = true;
                     RAID_REVIEW.stopwatch.Reset();
@@ -49,15 +38,15 @@ namespace RAID_REVIEW
                     RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
                         sessionId = RAID_REVIEW.sessionId,
-                        profileId = RAID_REVIEW.myPlayer.ProfileId,
+                        profileId = RAID_REVIEW.sessionId,
                         time = DateTime.Now,
                         detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "",
                         location = RAID_REVIEW.gameWorld.LocationId,
+                        type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC",
                         timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
                     };
 
                     Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
-
                     var newTrackingPlayer = new TrackingPlayer
                     {
                         sessionId = RAID_REVIEW.sessionId,
@@ -78,12 +67,14 @@ namespace RAID_REVIEW
                     RAID_REVIEW.inRaid = true;
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Information Populated");
 
-                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
+                    if (RAID_REVIEW.RecordingNotification.Value && RAID_REVIEW.WebSocketConnected) {
+                        NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
+                    }
 
-                    if(RAID_REVIEW.SOLARINT_SAIN__DETECTED)
+                    if (RAID_REVIEW.SOLARINT_SAIN__DETECTED)
                     {
                         RAID_REVIEW.searchingForSainComponents = true;
-                        _ = CheckForSainComponents();
+                        _ = SAIN_Integration.CheckForSainComponents(true);
                     }
 
                     return;
@@ -93,54 +84,9 @@ namespace RAID_REVIEW
 
             catch (Exception ex)
             {
-                Logger.LogError($"{ex.Message}");
+                Logger.LogError($"{ex}");
             }
         }
 
-        public static async Task CheckForSainComponents()
-        {
-            while (RAID_REVIEW.searchingForSainComponents)
-            {
-                await Task.Delay(5000);
-                if (RAID_REVIEW.sainBotController == null)
-                {
-                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: Looking For SAIN Bot Controller");
-                    if (RAID_REVIEW.gameWorld != null)
-                    {
-                        RAID_REVIEW.sainBotController = RAID_REVIEW.gameWorld.GetComponent<SAINBotController>();
-                        if(RAID_REVIEW.sainBotController != null)
-                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Found");
-                        else
-                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Not Found");
-                    }
-                    else
-                    {
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: GameWorld Not Found");
-                    }
-                }
-                else
-                {
-                    foreach (var botComponent in RAID_REVIEW.sainBotController.Bots.Values)
-                    {
-                        var profileId = botComponent.Player.ProfileId;
-                        if (!RAID_REVIEW.updatedBots.ContainsKey(profileId) && RAID_REVIEW.trackingPlayers.ContainsKey(profileId))
-                        {
-                            var trackingPlayer = RAID_REVIEW.trackingPlayers[profileId];
-                            trackingPlayer.mod_SAIN_brain = Enum.GetName(typeof(EPersonality), botComponent.Info.Personality);
-                            trackingPlayer.mod_SAIN_difficulty = botComponent.Info.BotDifficulty.ToString();
-                            if (!botComponent.Info.Profile.IsPMC)
-                            {
-                                trackingPlayer.type = BotHelper.getBotType(botComponent);
-                            }
-                            RAID_REVIEW.trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
-                            RAID_REVIEW.updatedBots[trackingPlayer.profileId] = trackingPlayer;
-                            Logger.LogInfo($"RAID_REVIEW :::: INFO :::: Updating player {trackingPlayer.name} with brain {trackingPlayer.mod_SAIN_brain}, type {trackingPlayer.type}, difficulty {trackingPlayer.mod_SAIN_difficulty}");
-                            _ = Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
-                        }
-                    }
-                }
-            }
-            return;
-        }
     }
 }

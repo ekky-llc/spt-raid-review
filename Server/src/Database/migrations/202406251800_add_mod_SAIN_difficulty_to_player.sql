@@ -1,2 +1,1 @@
-ALTER TABLE player
-ADD "mod_SAIN_difficulty" TEXT;
+ALTER TABLE player ADD "mod_SAIN_difficulty" TEXT;

@@ -242,6 +242,10 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         if (window.location.pathname.includes('map')) {
             document.querySelector('body').style = "overflow: hidden;";
         }
+
+        return () => {
+            document.querySelector('body').style = "overflow: auto;";
+        }
     },[])
 
     useEffect(() => {
@@ -833,7 +837,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                             <button key={style.value} className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`} onClick={() => setSelectedStyle(style.value)}>{style.name}</button> : ''
                         ))}
                     </div>
-                    <Link to={`/p/${profileId}/raid/${raidId}?return=1`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto' reloadDocument>Close</Link>
+                    <Link to={`/p/${profileId}/raid/${raidId}`} className='text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto'>Close</Link>
                 </nav>
                 <aside className='sidebar border border-eft mr-3 p-3 overflow-x-auto'>
                     <div className="playerfeed text-eft">

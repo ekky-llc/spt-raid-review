@@ -17,6 +17,7 @@ namespace RAID_REVIEW
         public DateTime time { get; set; }
         public long timeInRaid { get; set; }
         public string exitName { get; set; }
+        public string type { get; set; }
         public ExitStatus exitStatus { get; set; }
     }
 

@@ -29,18 +29,21 @@ namespace RAID_REVIEW
                 RAID_REVIEW.sainBotController = null;
 
                 RAID_REVIEW.stopwatch.Stop();
-                RAID_REVIEW.trackingRaid.sessionId = RAID_REVIEW.sessionId;
-                RAID_REVIEW.trackingRaid.profileId = __instance.ProfileId;
                 RAID_REVIEW.trackingRaid.exitStatus = exitStatus;
                 RAID_REVIEW.trackingRaid.exitName = exitName;
                 RAID_REVIEW.trackingRaid.time = DateTime.Now;
                 RAID_REVIEW.trackingRaid.timeInRaid = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
+                RAID_REVIEW.trackingRaid.type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC";
                 RAID_REVIEW.stopwatch.Reset();
 
+                // Run SAIN Reflection Integration
+                if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) _ = SAIN_Integration.CheckForSainComponents(false);
                 Telemetry.Send("PLAYER_CHECK", JsonConvert.SerializeObject(RAID_REVIEW.trackingPlayers.Values));
                 Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
 
-                NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
+                if (RAID_REVIEW.RecordingNotification.Value && RAID_REVIEW.WebSocketConnected) {
+                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
+                }
             }
 
             catch (Exception ex)
@@ -51,6 +54,7 @@ namespace RAID_REVIEW
             finally 
             {
                     RAID_REVIEW.trackingPlayers = new Dictionary<string, TrackingPlayer>();
+                    RAID_REVIEW.sessionId = null;
             }
         }
     }
