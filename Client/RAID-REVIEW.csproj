@@ -50,9 +50,6 @@
 			<HintPath>dependencies\BepInEx.Harmony.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="SAIN">
-		  <HintPath>dependencies\SAIN.dll</HintPath>
-		</Reference>
 		<Reference Include="System.ComponentModel.DataAnnotations">
 		  <HintPath>dependencies\System.ComponentModel.DataAnnotations.dll</HintPath>
 			<Private>false</Private>

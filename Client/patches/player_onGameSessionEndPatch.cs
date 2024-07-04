@@ -37,10 +37,14 @@ namespace RAID_REVIEW
                 RAID_REVIEW.trackingRaid.timeInRaid = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
                 RAID_REVIEW.stopwatch.Reset();
 
+                // Run SAIN Reflection Integration
+                if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) _ = SAIN_Integration.CheckForSainComponents(false);
                 Telemetry.Send("PLAYER_CHECK", JsonConvert.SerializeObject(RAID_REVIEW.trackingPlayers.Values));
                 Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
 
-                NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
+                if (RAID_REVIEW.RecordingNotification.Value && RAID_REVIEW.WebSocketConnected) {
+                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
+                }
             }
 
             catch (Exception ex)
