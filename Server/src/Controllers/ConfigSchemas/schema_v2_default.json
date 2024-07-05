@@ -5,13 +5,11 @@
 
     
     "comment__enableDebugLogs": "[DEBUG] [DEFAULT: false] Enable debug logging.",
-    "enableDebugLogs": true,
+    "enableDebugLogs": false,
     "comment__enableLogFiles": "[DEBUG] [DEFAULT: true] If enabled, dumps normal logs `/logs` meant for support/debugging purposes.",
     "enableLogFiles": true,
-    "comment__enableVerboseLogFiles": "[DEBUG] [DEFAULT: true] If enabled, dumps all logs `/logs` meant for support/debugging purposes.",
-    "enableVerboseLogFiles": true,
-    "comment__maximumLogFiles": "[DEBUG] [DEFAULT: true] If 'LogFiles' are enabled, this is the maximum number of logs allowed to be stored; oldest logs will be deleted.",
-    "maximumLogFiles": 5,
+    "comment__maximumLogFiles": "[DEBUG] [DEFAULT: 10] If 'LogFiles' are enabled, this is the maximum number of logs allowed to be stored; oldest logs will be deleted.",
+    "maximumLogFiles": 10,
 
 
     "comment__web_socket_port": "[SERVER] [DEFAULT: 7828] Changes Default Web Socket port; modify this if the port is reserved in your environment.",
@@ -26,14 +24,15 @@
 
     "comment__autoDelete": "[AUTO-DELETE] [DEFAULT: true] Automatically delete old raids to save disk space; runs on startup.",
     "autoDelete": true,
-    "comment__autoDeleteUnfinishedRaids": "[AUTO-DELETE] [DEFAULT: true] Automatically delete unfinished raids (due to crash, alt+f4, etc.); runs on startup.",
-    "autoDeleteUnfinishedRaids": true,
-    "comment__autoDeleteCronJob": "[AUTO-DELETE] [DEFAULT: false] If true, 'autoDelete' functions will run once an hour; helpful if you don't generally restart the SPT Server.",
-    "autoDeleteCronJob": false,
     "comment__autoDeleteLimit": "[AUTO-DELETE] [DEFAULT: 30] Maximum number of raids allowed to be stored; oldest raid will be deleted.",
     "autoDeleteLimit": 30,
+    "comment__autoDeleteUnfinishedRaids": "[AUTO-DELETE] [WARNING:EXPERIMENTAL] [DEFAULT: false] Automatically delete unfinished raids (due to crash, alt+f4, etc.); runs on startup.",
+    "autoDeleteUnfinishedRaids": false,
+    "comment__autoDeleteCronJob": "[AUTO-DELETE] [DEFAULT: false] If true, 'autoDelete' functions will run once an hour; helpful if you don't generally restart the SPT Server.",
+    "autoDeleteCronJob": false,
 
 
     "comment__authentication": "[AUTH] [DEFAULT: false] Enable Basic Authentication; use this setting if you'd like to password-protect the web server.",
-    "authentication": true
+    "authentication": false,
+    "comment__authentication_extra_info": "The credentials is the username of the profile you use in SPT."
 }

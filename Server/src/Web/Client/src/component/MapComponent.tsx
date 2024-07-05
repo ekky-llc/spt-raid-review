@@ -3,33 +3,24 @@
 import { useEffect, useRef, useMemo, useCallback, useLayoutEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate, useLoaderData, Link } from 'react-router-dom';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import _, { forIn, map, transform } from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
-
-import BotMapping from '../assets/botMapping.json'
-import ItemEnMapping from '../assets/en.json'
-
-import { msToHMS } from '../pages/Profile.js'
+import _, { forIn, map, transform } from 'lodash';
+import { start } from 'repl';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet.awesome-markers/dist/leaflet.awesome-markers.js';
-import 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css';
-import 'leaflet-fullscreen/dist/Leaflet.fullscreen.js';
-import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
-import '../modules/leaflet-control-coordinates.js';
-import '../modules/leaflet-control-groupedlayer.js';
-import '../modules/leaflet-control-raid-info.js';
+
+import api from '../api/api.js';
+import { msToHMS } from '../pages/Profile.js'
 import { calculateNewPosition, findInsertIndex } from '../modules/utils.js'
-
-import './Map.css'
-
 import { useMapImages } from '../modules/maps-index.js';
 import { TrackingPositionalData } from '../types/api_types.js';
-import api from '../api/api.js';
-import { start } from 'repl';
 import { PlayerSlider } from './MapPlayerSlider.js';
-import { off } from 'process';
 import { intl } from '../pages/Raid.js';
+
+import BotMapping from '../assets/botMapping.json'
+
+import 'leaflet/dist/leaflet.css';
+import '../modules/leaflet-heat.js'
+import './Map.css'
 
 function getCRS(mapData) {
     let scaleX = 1;
@@ -75,10 +66,6 @@ function applyRotation(latLng, rotation) {
     return L.latLng(rotatedY, rotatedX);
 }
 
-function pos(position) {
-    return [position.z, position.x];
-}
-
 function getScaledBounds(bounds, scaleFactor) {
     // Calculate the center point of the bounds
     const centerX = (bounds[0][0] + bounds[1][0]) / 2;
@@ -103,37 +90,12 @@ function getScaledBounds(bounds, scaleFactor) {
     return newBounds;
 }
 
-function checkMarkerBounds(position, markerBounds) {
-    if (position.x < markerBounds.TL.x) markerBounds.TL.x = position.x;
-    if (position.z > markerBounds.TL.z) markerBounds.TL.z = position.z;
-    if (position.x > markerBounds.BR.x) markerBounds.BR.x = position.x;
-    if (position.z < markerBounds.BR.z) markerBounds.BR.z = position.z;
-}
-
 function getBounds(bounds) {
     if (!bounds) {
         return undefined;
     }
     return L.latLngBounds([bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]);
     //return [[bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]];
-}
-
-function mouseHoverOutline(event) {
-    const outline = event.target.options.outline;
-    if (event.originalEvent.type === 'mouseover') {
-        outline._path.classList.remove('not-shown');
-    } else if (!outline._path.classList.contains('force-show')) {
-        outline._path.classList.add('not-shown');
-    }
-}
-
-function toggleForceOutline(event) {
-    const outline = event.target.options.outline;
-    outline._path.classList.toggle('force-show');
-    if (outline._path.classList.contains('force-show')) {
-        outline._path.classList.remove('not-shown');
-    }
-    activateMarkerLayer(event);
 }
 
 function calculateProportionalRadius(mapBounds, zoomLevel) {
@@ -202,12 +164,14 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export default function MapComponent({ raidData, profileId, raidId, positions }) {
+export default function MapComponent({ raidData, profileId, raidId, positions, intl_dir }) {
     const navigate = useNavigate();
     const [ searchParams ] = useSearchParams();
     const [ currentMap, setCurrentMap ] = useState('')
 
     // Map
+    const [ heatmapEnabled, setHeatmapEnabled ] = useState(false);
+    const [ heatmapData, setHeatmapData ] = useState([]);
     const [ availableLayers, setAvailableLayers ] = useState([]);
     const [ availableStyles, serAvailableStyles ] = useState([]);
     const [ selectedStyle, setSelectedStyle ] = useState('svg');
@@ -218,6 +182,8 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
     const [ calculatedLayerInfo, setCalculatedLayerInfo ] = useState({});
     const [ playerFocus, setPlayerFocus ] = useState(null);
     const [ proportionalScale, setProportionalScale ] = useState(0);
+    const [MAP, SET_MAP] = useState(null);
+    const [mapHeight, setMapHeight] = useState(600);
 
     // Player
     const [ playing, setPlaying ] = useState(false);
@@ -225,6 +191,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
     const [ timeCurrentIndex, setTimeCurrentIndex ] = useState(0);
     const [ timeStartLimit, setTimeStartLimit ] = useState(0);
     const [ timeEndLimit, setTimeEndLimit ] = useState(0);
+    const [ dropOffIndex, setDropOffIndex ] = useState(200);
     const [ sliderTimes, setSliderTimes ] = useState([]);
     const [ hideSettings, setHideSettings ] = useState(true);
     const [ hidePlayers, setHidePlayers ] = useState(false);
@@ -237,6 +204,31 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
     const focusItem = useRef(searchParams.get('q') ? searchParams.get('q').split(',') : []);
     const mapViewRef = useRef({});
+
+    const ref = useRef();
+    const mapRef = useRef(null);
+
+    const onMapContainerRefChange = useCallback(node => {
+        if (node) {
+            node.style.height = `${mapHeight}px`;
+        }
+    }, [mapHeight]);
+
+    let allMaps = useMapImages();
+
+    const mapData = useMemo(() => {
+        const map = allMaps[currentMap];
+
+        if (map && map.layers) {
+            let newAvailableLayers = map.layers.map(x => ({ name: x.name, value: x.name }));
+            setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
+
+            let newAvailableStyles = [!map.tilePath || { name: 'Satellite', value: 'tile' }, !map.svgPath || { name: 'Map', value: 'svg' }].filter(f => f);
+            serAvailableStyles(newAvailableStyles);
+        }
+
+        return map;
+    }, [allMaps, currentMap]);
 
     useEffect(() => {
         if (window.location.pathname.includes('map')) {
@@ -286,9 +278,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 newEvents.push({
                     time: kill.time,
                     profileId: kill.profileId,
-                    profileNickname : profileNickname ? intl(profileNickname.name) : 'Unknown',
+                    profileNickname : profileNickname ? intl(profileNickname.name, intl_dir) : 'Unknown',
                     killedId: kill.killedId,
-                    killedNickname : killedNickname ? intl(killedNickname.name)  : 'Unknown',
+                    killedNickname : killedNickname ? intl(killedNickname.name, intl_dir)  : 'Unknown',
                     weapon: kill.weapon,
                     distance: Number(kill.distance),
                     source: JSON.parse(kill.positionKiller),
@@ -300,37 +292,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         setEvents(newEvents);
     }, [raidData])
 
-    const ref = useRef();
-    const mapRef = useRef(null);
-    const [MAP, SET_MAP] = useState(null);
-
-    const [mapHeight, setMapHeight] = useState(600);
-
-    const onMapContainerRefChange = useCallback(node => {
-        if (node) {
-            node.style.height = `${mapHeight}px`;
-        }
-    }, [mapHeight]);
-
     useEffect(() => {
         ref?.current?.resetTransform();
     }, [currentMap]);
-
-    let allMaps = useMapImages();
-
-    const mapData = useMemo(() => {
-        const map = allMaps[currentMap];
-
-        if (map && map.layers) {
-            let newAvailableLayers = map.layers.map(x => ({ name: x.name, value: x.name }));
-            setAvailableLayers([{ name: 'Base', value: '' }, ...newAvailableLayers]);
-
-            let newAvailableStyles = [!map.tilePath || { name: 'Satellite', value: 'tile' }, !map.svgPath || { name: 'Map', value: 'svg' }].filter(f => f);
-            serAvailableStyles(newAvailableStyles);
-        }
-
-        return map;
-    }, [allMaps, currentMap]);
 
     // Map Renderer
     useEffect(() => {
@@ -464,7 +428,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         } else {
             overlayLayerGroup.addTo(map);
         }
-    
+
         // Function to handle layer visibility and opacity based on selectedLayer
         const toggleLayers = () => {
             // Set opacity for base layers
@@ -485,7 +449,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 }
             });
         };
-
     
         // Toggle layers when selectedLayer changes
         toggleLayers();
@@ -493,13 +456,35 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         if (map && !mapViewRestored) {
             map.setView(L.latLngBounds(bounds).getCenter(true), undefined, { animate: false });
         }
-    
+            
         mapRef.current = map;
-    }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle]);
+
+        if (heatmapEnabled) {
+            L.heatLayer(heatmapData, { radius: 20, max: 1, blur: 30 }).addTo(map);
+        }
+    }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle, heatmapEnabled, heatmapData]);
     
+    // Heatmap Fetcher
+    useEffect(() => {
+        (async () => {
+            if (heatmapData.length === 0) {
+                const data = await api.getRaidHeatmapData(profileId, raidId);
+                if (data) {
+                    setHeatmapData(data);
+                }
+            }
+        })()
+
+        var overlayParent = document.querySelector('.leaflet-overlay-pane');
+        if (heatmapEnabled) {
+            overlayParent?.classList.add('heatmap-active');
+        } else {
+            overlayParent?.classList.remove('heatmap-active');
+        }
+    }, [ heatmapEnabled ])
+
     // Positon Renderer
     useEffect(() => {    
-        
 
             let times = [];
 
@@ -549,7 +534,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
                     // Focused Player
                     if (playerFocus !== null && playerFocus === i) {
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 }).addTo(MAP).on('click', () => { setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
                         L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP).on('click', () => {setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
                     } 
                     
@@ -557,7 +542,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
 
                         let focusedOpacityPolyLine = preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1;
                         let focusedOpacityCircle =  isPlayerDead ? 0 : 0.1;
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => {setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).on('click', () => {setFollowPlayer(playerId); setFollowPlayerZoomed(false);});
                         if (!isPlayerDead) {
 
                             L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, opacity: focusedOpacityCircle, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP);
@@ -570,7 +555,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                     // Normal rendering
                     if (playerFocus === null) {
                         let focusedOpacityPolyLine = preserveHistory ? 0.8 : isPlayerDead ? 0 : 0.8;
-                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).addTo(MAP).on('click', () => { setFollowPlayer(playerId); setFollowPlayerZoomed(false); });
+                        L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine }).addTo(MAP).on('click', () => { setFollowPlayer(playerId); setFollowPlayerZoomed(false); });
                         if (!isPlayerDead) {
 
                             L.circle(endOfLine, { radius: proportionalScale, color: pickedColor, fillOpacity: 1, fillRule: 'nonzero' }).addTo(MAP);
@@ -603,7 +588,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         if (preserveHistory) {
             setTimeStartLimit(sliderTimes[0]);
         } else {
-            setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - 200)]);
+            setTimeStartLimit(sliderTimes[Math.max(0, timeCurrentIndex - dropOffIndex)]);
         }
     }, [sliderTimes, timeCurrentIndex, preserveHistory]);
 
@@ -615,7 +600,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
             const toBeIndex = findInsertIndex(e.time, sliderTimes);
             if (toBeIndex < timeCurrentIndex) {
                 if (!hideEvents && MAP) {
-                    if (preserveHistory || toBeIndex > (timeCurrentIndex - 200) ) {
+                    if (preserveHistory || toBeIndex > (timeCurrentIndex - dropOffIndex) ) {
                         var killerIcon = L.divIcon({className: 'killer-icon', html: `<img src="/target.png" />`});
                         var killerMarker = L.marker([e.source.z, e.source.x], {icon: killerIcon});
                         killerMarker.eventTime = e.time; 
@@ -656,7 +641,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                 }
     
                 const frame = sliderTimes[prevIndex];
-                const startFrame = sliderTimes[Math.max(0, prevIndex - 200)];
+                const startFrame = sliderTimes[Math.max(0, prevIndex - dropOffIndex)];
     
                 if (!preserveHistory && startFrame) {
                     setTimeStartLimit(startFrame);
@@ -712,7 +697,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
         const frameIndex = findInsertIndex(time, sliderTimes) + 1;
         setTimeCurrentIndex(frameIndex);
         setTimeEndLimit(sliderTimes[frameIndex]);
-        setTimeStartLimit(sliderTimes[frameIndex - 200]);
+        setTimeStartLimit(sliderTimes[frameIndex - dropOffIndex]);
         MAP.flyToBounds(coords, { maxZoom: 4,  animate: true });
         return 
     }
@@ -848,7 +833,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                                     <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit)? "line-through opacity-25": ""}`}>
                                         <span style={{width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background : getPlayerColor(player, index)}}></span>
                                         <div>
-                                            <span className='capitalize'>{intl(player.name)} ({getPlayerDifficultyAndBrain(player)})</span>
+                                            <span className='capitalize'>{intl(player.name, intl_dir)} ({getPlayerDifficultyAndBrain(player)})</span>
                                         </div>
                                     </div>
                                     { followPlayer === player.profileId ? 
@@ -883,7 +868,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                                 <div className="text-black" key={`${e.profileId}_${i}`}>
                                     <span className="tooltiptext event">
                                     [<a className="underline cursor-pointer" onClick={() => highlight([[e.target.z, e.target.x], [e.source.z, e.source.x]], e.time)}>VIEW</a>]{' '}
-                                    <strong>{e.profileNickname}</strong> killed <strong>{e.killedNickname}</strong> ({ItemEnMapping[e.weapon.replace('Name', 'ShortName')]} - {e.distance.toFixed(0)}m)
+                                    <strong>{e.profileNickname}</strong> killed <strong>{e.killedNickname}</strong> ({intl([e.weapon.replace('Name', 'ShortName')], intl_dir)} - {e.distance.toFixed(0)}m)
                                     </span>
                                 </div>
                             ))}
@@ -922,6 +907,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions })
                                 Preserve
                                 <span className="tooltiptext info">If enabled, keeps all activity visible throughout playback, otherwise, only recent activity is kept visible.</span>
                             </button>
+                            <button className={`text-xs p-1 text-sm cursor-pointer ${heatmapEnabled ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHeatmapEnabled(!heatmapEnabled)}>Toggle Heatmap</button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${!hideNerdStats ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideNerdStats(!hideNerdStats)}>Debug</button>
                         </div>
                     </div>

@@ -1,11 +1,12 @@
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLoaderData } from "react-router-dom";
+import moment from "moment";
+
 import api from "../api/api";
+import { getCookie } from "../modules/utils";
 import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
 
 import "./Profile.css";
-import moment from "moment";
-import { useEffect, useState } from "react";
-import { getCookie } from "../modules/utils";
 
 export async function loader(loaderData: any) {
   const profile = await api.getProfile(loaderData.params.profileId);
@@ -45,7 +46,6 @@ export function msToHMS( ms: number ) : string {
 export default function Profile() {
   const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
   const [ isAdmin, setIsAdmin ] = useState(false);
-
 
   useEffect(() => {
 

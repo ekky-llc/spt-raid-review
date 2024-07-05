@@ -53,15 +53,15 @@ async function GarbageCollectUnfinishedRaids(db: Database<sqlite3.Database, sqli
         logger.log(`Garbage collector deleting unfinished raids.`)
 
         // Get raids that are offset by {config.autoDeleteLimit}.
-        const raids_sql = `SELECT * FROM raid;`
+        const raids_sql = `SELECT * FROM raid LIMIT 1000000;`
         const raids = await db.all(raids_sql)
 
         // Filter the raids that don't have a matching end marker
         const raidsWithMissingEndMarker = raids.filter((r) => {
-            const noMatchingEndMarker = raids.filter((rr) => rr.raidId === r.raidId)?.length < 2
+            const noMatchingEndMarker = raids.filter((rr) => rr.raidId === r.raidId)?.length !== 2
             if (noMatchingEndMarker) return true
             return false
-        })
+        });
 
         if (raidsWithMissingEndMarker.length > 0) {
             logger.log(`Found '${raidsWithMissingEndMarker.length}' raids to delete.`)

@@ -8,13 +8,9 @@ An experimental way for the SPT Community to review raid data such as kills and 
 Download your compatible version from the 'Releases' tab, and see the instructions for that version in the description of the release.
 
 ### Contributions / Development
-
 Please see [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can help contribute to this project.
-
 Please see [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
-
 Please see [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) for information regarding using this mod on a remote host, or with Fika.
-
 Please see [TELEMETRY.md](TELEMETRY.md) for information regarding statistics collection.
 
 ### Features
@@ -32,8 +28,6 @@ Please see [TELEMETRY.md](TELEMETRY.md) for information regarding statistics col
 - `[Feature]` Favourite/highlights feature, similar to "twitch clips" for referencing back to specifc moments.
 - `[Feature]` Ballistics/rounds fired stats, visualize this in a focused "firefight" replay.
 - `[Feature]` Profile visulisation over a period of time, see profile stat increases with interactive graphs.
-- `[UI]` Differentiate between Bosses/Raiders/Rogues/Cultists from PMCs and Scavs.
-- `[UI]` Differentiate between PMC/Scav Runs.
 - `[UI]` Improve logos and icons for the playback system.
 - `[Code]` Code clean-up, tons of unused stuff and double ups of functions.
 
@@ -45,6 +39,7 @@ If you have an idea, or wish to contribute feel free to raise an issue or make a
 - SPT Discord, specfically people active in the 'mod-development' and 'dev-community' channels.
 - The folks over at 'tarkov.dev' for having an Open Sourced MIT Licensed repo that I could fork the interactive map from, litterally saved me weeks of work.
 - You for downloading the mod, and taking the time to install it.
+- Chazu, Olli, Stk2008 and anyone else that has helped me fix bugs!
 
 ### Support
 

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import _ from 'lodash';
 
 import api from "../api/api";
-import en from "../assets/en.json";
 import cyr_to_en from '../assets/cyr_to_en.json';
 import BotMapping from '../assets/botMapping.json';
 
@@ -15,6 +14,9 @@ import { getCookie } from "../modules/utils";
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
   const raidId = loaderData.params.raidId as string;
+  const intl = await api.getIntl();
+  
+  const intl_dir : StringIndex = {...intl, ...cyr_to_en};
 
   const raidData = (await api.getRaid(
     profileId,
@@ -25,15 +27,14 @@ export async function loader(loaderData: any) {
     return redirect(`/p/${profileId}`);
   }
 
-  return { profileId, raidData };
+  return { profileId, raidData, intl_dir };
 }
 
 interface StringIndex {
   [key: string]: string;
 }
 
-const intl_dir : StringIndex = {...en, ...cyr_to_en};
-export function intl(string: string) {
+export function intl(string: string, intl_dir: Record<string, string>) {
   const translated = intl_dir[string];
   if (translated) return translated;
   return string;
@@ -48,7 +49,7 @@ export default function Raid() {
   const [ groupingType, setGroupingType ] = useState('group');
   const [ playerGrouping, setPlayerGrouping ] = useState(true);
   const [ showSainDetails, setShowSainDetails ] = useState(false);
-  const { profileId, raidData } = useLoaderData() as { profileId: string; raidData: TrackingRaidData; };
+  const { profileId, raidData, intl_dir } = useLoaderData() as { profileId: string; raidData: TrackingRaidData; intl_dir: Record<string, string>};
 
   useEffect(() => {
     if (raidData === undefined) return;
@@ -135,7 +136,6 @@ export default function Raid() {
 
     setRaidSummary(newRaidSummary);
   }, [raidData, groupingType])
-
 
   const bodypart = {
     Head: "Headshot",
@@ -277,13 +277,13 @@ export default function Raid() {
         if(brain !== null && brain !== "") {
           return `[${brain}]`;
         }
-        else return "?";
+        else return "";
       }
 
       return `[${brain}]`;
     }
 
-    return "[?]";
+    return "";
   }
 
   function generateMapPlaybackButton(positionDataStatus: string) {
@@ -351,24 +351,24 @@ export default function Raid() {
                 <>
                   {/* @ts-ignore */}
                   <span className="opacity-75">{msToHMS(tli.time)} - </span>
-                  <strong>{killer ? intl(killer.name) : "Unknown"}</strong>
+                  <strong>{killer ? intl(killer.name, intl_dir) : "Unknown"}</strong>
                   <span className="opacity-75"> killed </span>
-                  <strong>{killed ? intl(killed.name) : "Unknown"}</strong>
+                  <strong>{killed ? intl(killed.name, intl_dir) : "Unknown"}</strong>
                   <span className="opacity-75"> with a </span>
                     {/* @ts-ignore */}
-                  <strong>{ en[tli.weapon.replace("Name", "ShortName")] } [{bodypart[tli.bodyPart]? bodypart[tli.bodyPart]: tli.bodyPart}] [{ Number(tli.distance).toFixed(2) }m]</strong>
+                  <strong>{ intl([tli.weapon.replace("Name", "ShortName")], intl_dir) } [{bodypart[tli.bodyPart]? bodypart[tli.bodyPart]: tli.bodyPart}] [{ Number(tli.distance).toFixed(2) }m]</strong>
                 </>
               ) : (
                 <>
                   {/* @ts-ignore */}
                   <span className="opacity-75">{msToHMS(tli.time)} - </span>
-                  <strong>{looter ? intl(looter.name) : "Unknown"}</strong>
+                  <strong>{looter ? intl(looter.name, intl_dir) : "Unknown"}</strong>
                   <span className="opacity-75">
                     {Number(tli.added) ? " looted " : " dropped "}
                   </span>{" "}
                   <strong>
                     {/* @ts-ignore */}
-                    {tli.qty}x {en[tli.itemName.replace("Short", "")]}
+                    {tli.qty}x { intl([tli.itemName.replace("Short", "")], intl_dir) }
                   </strong>
                 </>
               )}
@@ -460,7 +460,7 @@ export default function Raid() {
                                     : ""
                                 }
                               >
-                                {intl(player.name)}
+                                {intl(player.name, intl_dir)}
                               </span>
                             </div>
                             <span>
@@ -484,7 +484,7 @@ export default function Raid() {
                               : ""
                           }
                         >
-                          {intl(player.name)}
+                          {intl(player.name, intl_dir)}
                         </span>
                       </div>
                       <span>
