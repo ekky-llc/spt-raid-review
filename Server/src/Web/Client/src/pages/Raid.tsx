@@ -3,18 +3,20 @@ import { useEffect, useState } from "react";
 import _ from 'lodash';
 
 import api from "../api/api";
-import en from "../assets/en.json";
-import BotMapping from '../assets/botMapping.json'
+import cyr_to_en from '../assets/cyr_to_en.json';
+import BotMapping from '../assets/botMapping.json';
 
 import "./Raid.css";
 import { TrackingRaidData, TrackingRaidDataPlayers } from "../types/api_types";
 import { locations } from "./Profile";
 import { getCookie } from "../modules/utils";
-import { isGoon } from "../component/MapComponent";
 
 export async function loader(loaderData: any) {
   const profileId = loaderData.params.profileId as string;
   const raidId = loaderData.params.raidId as string;
+  const intl = await api.getIntl();
+  
+  const intl_dir : StringIndex = {...intl, ...cyr_to_en};
 
   const raidData = (await api.getRaid(
     profileId,
@@ -25,7 +27,17 @@ export async function loader(loaderData: any) {
     return redirect(`/p/${profileId}`);
   }
 
-  return { profileId, raidData };
+  return { profileId, raidData, intl_dir };
+}
+
+interface StringIndex {
+  [key: string]: string;
+}
+
+export function intl(string: string, intl_dir: Record<string, string>) {
+  const translated = intl_dir[string];
+  if (translated) return translated;
+  return string;
 }
 
 export default function Raid() {
@@ -36,7 +48,8 @@ export default function Raid() {
   const [ playersByGroup, setPlayersByGroup ] = useState({} as { [key:string] : TrackingRaidDataPlayers[] })
   const [ groupingType, setGroupingType ] = useState('group');
   const [ playerGrouping, setPlayerGrouping ] = useState(true);
-  const { profileId, raidData } = useLoaderData() as { profileId: string; raidData: TrackingRaidData; };
+  const [ showSainDetails, setShowSainDetails ] = useState(false);
+  const { profileId, raidData, intl_dir } = useLoaderData() as { profileId: string; raidData: TrackingRaidData; intl_dir: Record<string, string>};
 
   useEffect(() => {
     if (raidData === undefined) return;
@@ -58,10 +71,6 @@ export default function Raid() {
     }
 
     const groupedPlayers = _.chain(raidData.players).map(p => {
-
-      if (isGoon(p)) {
-        p.group = 12345;
-      }
 
       return {
         ...p,
@@ -112,6 +121,9 @@ export default function Raid() {
       value: raidData.kills ? raidData.kills.length : 0
     });
 
+    if (raidData.detectedMods.includes('SAIN')) {
+      setShowSainDetails(true);
+    }
 
     let positionsTrackedMap = { "COMPILED" : "Available", "RAW" : "Processing", "NOT_AVAILABLE" : "Not Available" }
     newRaidSummary.push({
@@ -124,7 +136,6 @@ export default function Raid() {
 
     setRaidSummary(newRaidSummary);
   }, [raidData, groupingType])
-
 
   const bodypart = {
     Head: "Headshot",
@@ -150,15 +161,21 @@ export default function Raid() {
   }
 
   function toggleGroupingFilter(type: string) {
-
     if (playerGrouping) {
-      setPlayerGrouping(false);
+      if (groupingType === type) {
+        // If the current type is the same as the clicked type, remove all grouping
+        setPlayerGrouping(false);
+        setGroupingType('');
+      } else {
+        // If the current type is different, switch to the new type
+        setGroupingType(type);
+      }
     } else {
+      // If grouping is currently off, turn it on with the new type
       setGroupingType(type);
       setPlayerGrouping(true);
     }
-    return;
-  }
+  };
 
   function togglePlayerFilter(playerId: string) {
     let newPlayerFilter = [...playerFilter];
@@ -201,14 +218,15 @@ export default function Raid() {
     
       // @ts-ignore
       let botMapping = BotMapping[player.type];
+      if (player.name === "Knight") {
+        botMapping = {
+          type: 'GOON'
+        };
+      }
       if (!botMapping) {
           botMapping = {
               type: 'UNKNOWN'
           };
-      }
-      
-      if (isGoon(player)) {
-        botMapping.type = "GOON";
       }
     
       switch (botMapping.type){
@@ -216,6 +234,8 @@ export default function Raid() {
               return "BOSS"
           case 'RAIDER':
               return "RAIDER"
+          case 'FOLLOWER':
+              return "FOLLOWER"
           case 'PLAYER_SCAV':
               return "PLAYER SCAV"
           case 'SNIPER':
@@ -224,8 +244,10 @@ export default function Raid() {
               return "GOON"
           case 'ROGUE':
               return "ROGUE"
-          case 'CULTIST':
+          case 'CULT':
               return "CULTIST"
+          case 'BLOODHOUND':
+              return "BLOODHOUND"
           default:
               if(player.team === "Savage") {
                 return ""
@@ -235,6 +257,33 @@ export default function Raid() {
     }
 
     return "(UNKNOWN)"
+  }
+
+  function getPlayerDifficultyAndBrain(player: TrackingRaidDataPlayers): string {
+    if (!showSainDetails) return '';
+
+    if (player) {
+      let difficulty = player.mod_SAIN_difficulty;
+      let brain = getPlayerBrain(player);
+
+      if (difficulty !== null && difficulty !== "") {
+        if(player.team === "Savage" && brain === "") {
+          return difficulty;
+        }
+        return `[${difficulty}] [${brain}]`;
+      }
+
+      else if (player.team === "Savage") {
+        if(brain !== null && brain !== "") {
+          return `[${brain}]`;
+        }
+        else return "";
+      }
+
+      return `[${brain}]`;
+    }
+
+    return "";
   }
 
   function generateMapPlaybackButton(positionDataStatus: string) {
@@ -302,24 +351,24 @@ export default function Raid() {
                 <>
                   {/* @ts-ignore */}
                   <span className="opacity-75">{msToHMS(tli.time)} - </span>
-                  <strong>{killer ? killer.name : "Unknown"}</strong>
+                  <strong>{killer ? intl(killer.name, intl_dir) : "Unknown"}</strong>
                   <span className="opacity-75"> killed </span>
-                  <strong>{killed ? killed.name : "Unknown"}</strong>
+                  <strong>{killed ? intl(killed.name, intl_dir) : "Unknown"}</strong>
                   <span className="opacity-75"> with a </span>
                     {/* @ts-ignore */}
-                  <strong>{ en[tli.weapon.replace("Name", "ShortName")] } [{bodypart[tli.bodyPart]? bodypart[tli.bodyPart]: tli.bodyPart}] [{ Number(tli.distance).toFixed(2) }m]</strong>
+                  <strong>{ intl([tli.weapon.replace("Name", "ShortName")], intl_dir) } [{bodypart[tli.bodyPart]? bodypart[tli.bodyPart]: tli.bodyPart}] [{ Number(tli.distance).toFixed(2) }m]</strong>
                 </>
               ) : (
                 <>
                   {/* @ts-ignore */}
                   <span className="opacity-75">{msToHMS(tli.time)} - </span>
-                  <strong>{looter ? looter.name : "Unknown"}</strong>
+                  <strong>{looter ? intl(looter.name, intl_dir) : "Unknown"}</strong>
                   <span className="opacity-75">
                     {Number(tli.added) ? " looted " : " dropped "}
                   </span>{" "}
                   <strong>
                     {/* @ts-ignore */}
-                    {tli.qty}x {en[tli.itemName.replace("Short", "")]}
+                    {tli.qty}x { intl([tli.itemName.replace("Short", "")], intl_dir) }
                   </strong>
                 </>
               )}
@@ -352,29 +401,39 @@ export default function Raid() {
         <div className="border border-eft w-2/6 py-4 px-6">
           <nav className="mb-5 flex justify-between items-start">
             <h2 className="text-xl font-black text-eft mb-3">Players & Bots</h2>
-            <ul className="flex items-center gap-2 border border-eft p-1">
-              <span className="text-eft">Group By:</span>
-              <li
-                className={`text-sm p-2 py-1 text-sm cursor-pointer ${
-                  playerGrouping && groupingType === 'group'
+            <div className="flex gap-4">
+              { raidData.detectedMods.length > 0 ? 
+                <ul className="flex items-center gap-2 border border-eft p-1">
+                  <span className="text-eft">Toggle:</span>
+                  { raidData.detectedMods.includes('SAIN') ? 
+                    <li onClick={() => setShowSainDetails(!showSainDetails)} className={`text-sm p-2 py-1 text-sm cursor-pointer ${showSainDetails ? "bg-eft font-black hover:opacity-75 border border-black/0": "border border-eft text-eft"}`}>SAIN</li>
+                  : ''}
+                </ul>
+              : '' }
+              <ul className="flex items-center gap-2 border border-eft p-1">
+                <span className="text-eft">Group By:</span>
+                <li
+                  className={`text-sm p-2 py-1 text-sm cursor-pointer ${
+                    playerGrouping && groupingType === 'group'
                     ? "bg-eft font-black hover:opacity-75 border border-black/0"
                     : "border border-eft text-eft"
-                }`}
-                onClick={() => toggleGroupingFilter('group')}
-              >
-                Squad
-              </li>
-              <li
-                className={`text-sm p-2 py-1 text-sm cursor-pointer ${
-                  playerGrouping && groupingType === 'team'
+                  }`}
+                  onClick={() => toggleGroupingFilter('group')}
+                  >
+                  Squad
+                </li>
+                <li
+                  className={`text-sm p-2 py-1 text-sm cursor-pointer ${
+                    playerGrouping && groupingType === 'team'
                     ? "bg-eft font-black hover:opacity-75 border border-black/0"
                     : "border border-eft text-eft"
-                }`}
-                onClick={() => toggleGroupingFilter('team')}
-              >
-                Team
-              </li>
-            </ul>
+                  }`}
+                  onClick={() => toggleGroupingFilter('team')}
+                  >
+                  Team
+                </li>
+              </ul>
+            </div>
           </nav>
           <div className="w-full flex gap-4 justify-end mb-2">
               <button className="cursor-pointer bg-eft p-1 text-xs font-black flex hover:opacity-75" onClick={() => setPlayerFilter([])}>Deselect All</button>
@@ -401,12 +460,12 @@ export default function Raid() {
                                     : ""
                                 }
                               >
-                                {player.name}
+                                {intl(player.name, intl_dir)}
                               </span>
                             </div>
                             <span>
-                            {/* @ts-ignore */}
-                              {getPlayerBrain(player)} [{player.level}] {team[player.team]}
+                              {/* @ts-ignore */}
+                              <span className="capitalize">{getPlayerDifficultyAndBrain(player)}</span> [{player.level}] {team[player.team]}
                             </span>
                           </li>
                         ))}
@@ -425,12 +484,12 @@ export default function Raid() {
                               : ""
                           }
                         >
-                          {player.name}
+                          {intl(player.name, intl_dir)}
                         </span>
                       </div>
                       <span>
-                      {/* @ts-ignore */}
-                        [{player.level}] {team[player.team]}
+                        {/* @ts-ignore */}
+                        <span className="capitalize">{getPlayerDifficultyAndBrain(player)}</span> [{player.level}] {team[player.team]}
                       </span>
                     </li>
                   ))

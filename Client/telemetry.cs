@@ -7,6 +7,7 @@ using BepInEx;
 using BepInEx.Logging;
 using Comfort.Common;
 using EFT.Communications;
+using EFT.UI;
 
 namespace RAID_REVIEW
 {
@@ -26,6 +27,8 @@ namespace RAID_REVIEW
 
             ws.OnOpen += (sender, e) => { 
                 Logger.LogInfo("[RAID-REVIEW] WebSocket connected."); 
+                RAID_REVIEW.WebSocketConnected = true;
+                NotificationManagerClass.DisplayMessageNotification("Raid Review Server Connected", ENotificationDurationType.Long);
                 ws.Send("WS_CONNECTED"); 
             };
 
@@ -43,8 +46,12 @@ namespace RAID_REVIEW
                 {
                     ws.Connect();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
+                    NotificationManagerClass.DisplayMessageNotification("Raid Review - Unable to Connect To Server", ENotificationDurationType.Long, ENotificationIconType.Alert);
+                    PreloaderUI.Instance.CloseErrorScreen();
+                    PreloaderUI.Instance.ShowErrorScreen("Raid Review - Server Connection Error", "Raid Review was unable to connect to the Websocket server, please check 'Server IP' in the F12 menu and restart game.");
+                    RAID_REVIEW.WebSocketConnected = false;
                     Logger.LogError($"WebSocket connection error: {ex.Message}");
                 }
             });
@@ -53,22 +60,21 @@ namespace RAID_REVIEW
         {
             return Task.Run(() =>
             {
-                // If enabled / true, stop sending data
-                if (RAID_REVIEW.DisableDataSending.Value) return;
-
-                // Else keep going
-                try
+                if (RAID_REVIEW.EnableRecording.Value) 
                 {
-                    WsPayload wsPayload = new WsPayload
+                    try
                     {
-                        Action = Action,
-                        Payload = Payload
-                    };
-                    ws.Send(JsonConvert.SerializeObject(wsPayload));
-                }
-                catch (System.Exception ex)
-                {
-                    Logger.LogError($"WebSocket send error: {ex.Message}");
+                        WsPayload wsPayload = new WsPayload
+                        {
+                            Action = Action,
+                            Payload = Payload
+                        };
+                        ws.Send(JsonConvert.SerializeObject(wsPayload));
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"WebSocket send error: {ex.Message}");
+                    }
                 }
             });
         }

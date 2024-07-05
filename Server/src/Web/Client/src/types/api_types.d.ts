@@ -24,6 +24,7 @@ export interface TrackingPositionalData {
 
 
 export interface TrackingRaidData {
+  detectedMods: any;
   positionsTracked: string;
   id: string;
   raidId: string;
@@ -48,6 +49,7 @@ export interface TrackingRaidDataPlayers {
   group: number
   spawnTime: number
   mod_SAIN_brain: string
+  mod_SAIN_difficulty: string
 }
 
 export interface TrackingRaidDataKills {

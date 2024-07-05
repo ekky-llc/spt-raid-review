@@ -1,2 +1,1 @@
-ALTER TABLE player
-ADD "type" TEXT;
+ALTER TABLE player ADD "type" TEXT;

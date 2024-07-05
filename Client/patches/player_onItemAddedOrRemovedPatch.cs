@@ -22,15 +22,17 @@ namespace RAID_REVIEW
                 bool isPackingMagazine = location.Container.ID == "cartridges";
                 if (RAID_REVIEW.LootTracking.Value && !isPackingMagazine)
                 {
-                    TrackingLootItem newLootItem = new TrackingLootItem();
-
-                    newLootItem.profileId = __instance.ProfileId;
-                    newLootItem.time = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
-                    newLootItem.itemId = item.Id;
-                    newLootItem.itemName = item.ShortName;
-                    newLootItem.qty = item.StackObjectsCount;
-                    newLootItem.type = item.QuestItem ? "QUEST_ITEM" : "LOOT";
-                    newLootItem.added = added;
+                    TrackingLootItem newLootItem = new TrackingLootItem
+                    {
+                        sessionId = RAID_REVIEW.sessionId,
+                        profileId = __instance.ProfileId,
+                        time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
+                        itemId = item.Id,
+                        itemName = item.ShortName,
+                        qty = item.StackObjectsCount,
+                        type = item.QuestItem ? "QUEST_ITEM" : "LOOT",
+                        added = added
+                    };
 
                     if (!added)
                     {

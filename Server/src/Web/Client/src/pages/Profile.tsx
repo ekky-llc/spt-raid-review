@@ -1,11 +1,12 @@
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLoaderData } from "react-router-dom";
+import moment from "moment";
+
 import api from "../api/api";
+import { getCookie } from "../modules/utils";
 import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
 
 import "./Profile.css";
-import moment from "moment";
-import { useEffect, useState } from "react";
-import { getCookie } from "../modules/utils";
 
 export async function loader(loaderData: any) {
   const profile = await api.getProfile(loaderData.params.profileId);
@@ -45,7 +46,6 @@ export function msToHMS( ms: number ) : string {
 export default function Profile() {
   const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
   const [ isAdmin, setIsAdmin ] = useState(false);
-
 
   useEffect(() => {
 
@@ -121,14 +121,16 @@ export default function Profile() {
 
 function RaidSelector(profile: IAkiProfile, raid: any, locations: { [ key :string ] : string }, msToHMS: (ms: number) => string) {
   return <Link to={`/p/${profile.info.id}/raid/${raid.raidId}`} key={raid.raidId} className="raid__selector bg-eft w-full px-4 py-1 text-xl font-black flex flex-col hover:opacity-75 cursor-pointer">
-    <div className="w-full flex items-center">
-      {locations[raid.location] !== undefined ? locations[raid.location] : raid.location}
-      <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(Number(raid.timeInRaid))} </span>
-    </div>
-    <div className="font-light flex justify-between text-sm opacity-75">
-      <div>{raid.exitStatus}</div>
-      <div>{moment(raid.time).calendar()}</div>
-    </div>
+      <div className="w-full flex items-center">
+        <div className="w-full flex items-center">
+          <span>{locations[raid.location] !== undefined ? locations[raid.location] : raid.location}</span>
+          <span className="font-light ml-auto text-sm opacity-75">Length: {msToHMS(Number(raid.timeInRaid))} </span>
+        </div>
+      </div>
+      <div className="font-light flex justify-between text-sm opacity-75">
+        <div><span className="text-sm">[{ raid.type === "PMC" ? "PMC" : "SCAV" }]</span> {raid.exitStatus}</div>
+        <div>{moment(raid.time).calendar()}</div>
+      </div>
   </Link>;
 }
 

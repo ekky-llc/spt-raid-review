@@ -9,3 +9,6 @@ Server/src/Web/Server/public/assets/*
 Server/src/Web/Server/public/assets/index-7f92f0ab.js
 Server/src/Web/Server/public/assets/index-0c1a950b.css
 Server/tmp
+Tools/**/config.js
+Tools/**/cloudflareDump/data/**
+publish.sh

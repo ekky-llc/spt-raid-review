@@ -1,0 +1,1 @@
+ALTER TABLE raid ADD "type" TEXT NULL;

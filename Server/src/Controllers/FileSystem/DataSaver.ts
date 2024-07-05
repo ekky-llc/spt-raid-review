@@ -1,21 +1,21 @@
 import * as fs from 'fs';
-import * as path from 'path';
+import { Logger } from '../../Utils/logger';
 
-function CreateFolder(parentFolder: string, subFolder: string = '', targetFolder: string = ''): void {
+function CreateFolder(logger: Logger, parentFolder: string, subFolder: string = '', targetFolder: string = ''): void {
 
     let paths = [__dirname , '../../..', 'data', parentFolder, subFolder, targetFolder];
     let finalPath = paths.filter(path => path !== '').join('/');
 
     if (!fs.existsSync(finalPath)) {
         fs.mkdirSync(finalPath, { recursive: true });
-        console.log(`[RAID-REVIEW] Folder created: ${finalPath}`);
+        logger.log(`Folder created: ${finalPath}`);
     }
 }
 
-function CreateFile(parentFolder: string, subFolder: string = '', targetFolder: string, fileName: string, keys: string): void {
-    CreateFolder(parentFolder);
-    CreateFolder(parentFolder, subFolder);
-    CreateFolder(parentFolder, subFolder, targetFolder);
+function CreateFile(logger: Logger, parentFolder: string, subFolder: string = '', targetFolder: string, fileName: string, keys: string): void {
+    CreateFolder(logger, parentFolder);
+    CreateFolder(logger, parentFolder, subFolder);
+    CreateFolder(logger, parentFolder, subFolder, targetFolder);
 
     let paths = [__dirname , '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
     let finalPath = paths.filter(path => path !== '').join('/');
@@ -23,12 +23,12 @@ function CreateFile(parentFolder: string, subFolder: string = '', targetFolder: 
     if (!fs.existsSync(finalPath)) {
         fs.writeFileSync(finalPath, '', 'utf-8');
         fs.appendFileSync(finalPath, keys, 'utf-8');
-        console.log(`[RAID-REVIEW] File created: ${finalPath}`);
+        logger.log(`File created: ${finalPath}`);
     }
 }
 
-function WriteLineToFile(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string, keys: string, value: string): void {
-    CreateFile(parentFolder, subFolder, targetFolder, fileName, keys);
+function WriteLineToFile(logger: Logger, parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string, keys: string, value: string): void {
+    CreateFile(logger, parentFolder, subFolder, targetFolder, fileName, keys);
 
     let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
     let finalPath = paths.filter(path => path !== '').join('/');
@@ -46,7 +46,7 @@ function DeleteFile(parentFolder: string, subFolder: string = '', targetFolder: 
     }
 }
 
-function RenameFile(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string, newFilename: string): void {
+function RenameFile(logger: Logger, parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string, newFilename: string): void {
     try {
         let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
         let finalPath = paths.filter(path => path !== '').join('/');
@@ -61,12 +61,11 @@ function RenameFile(parentFolder: string, subFolder: string = '', targetFolder: 
     } 
 
     catch (error) {
-        console.log(`[RAID-REVIEW]`, error)
-        return null;
+        logger.error(`[ERR:RENAME] `, error)
     }
 }
 
-function ReadFile(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string): string {
+function ReadFile(logger: Logger, parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string): string {
     try {
         let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
         let finalPath = paths.filter(path => path !== '').join('/');
@@ -77,12 +76,12 @@ function ReadFile(parentFolder: string, subFolder: string = '', targetFolder: st
     } 
     
     catch (error) {
-        console.log(`[RAID-REVIEW]`, error)
+        logger.error(`[ERR:READ]`, error)
         return '';
     }
 }
 
-function FileExists(parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string): boolean {
+function FileExists(logger: Logger, parentFolder: string, subFolder: string = '', targetFolder: string = '', fileName: string): boolean {
     try {
         let paths = [__dirname, '../../..', 'data', parentFolder, subFolder, targetFolder, `${fileName}`];
         let finalPath = paths.filter(path => path !== '').join('/');
@@ -91,7 +90,7 @@ function FileExists(parentFolder: string, subFolder: string = '', targetFolder: 
     } 
     
     catch (error) {
-        console.log(`[RAID-REVIEW]`, error)
+        logger.error(`[ERR:EXISTS]`, error)
         return false;
     }
 }

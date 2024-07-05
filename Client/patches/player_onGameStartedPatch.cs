@@ -4,9 +4,11 @@ using EFT;
 using EFT.Communications;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
@@ -20,24 +22,14 @@ namespace RAID_REVIEW
         [PatchPostfix]
         private static void PatchPostFix(ref GameWorld __instance)
         {
-            try {
+            try
+            {
                 if (__instance.LocationId != "hideout")
                 {
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
 
-                    if (!RAID_REVIEW.MODS_SEARCHED)
-                    {
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Searching For Supported Mods");
-                        RAID_REVIEW.MODS_SEARCHED = true;
-                        if (RAID_REVIEW.DetectMod("me.sol.sain"))
-                        {
-                            Logger.LogInfo("RAID_REVIEW :::: INFO :::: Found 'SAIN' Enabling Plugin Features for SAIN.");
-                            RAID_REVIEW.SOLARINT_SAIN__DETECTED = true;
-                            RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Add("SAIN");
-                        }
-                        Logger.LogInfo("RAID_REVIEW :::: INFO :::: Finished Searching For Supported Mods");
-                    }
-                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Settings Loaded");
+                    // Check for installed mods
+                    Integrations.ModCheck();
 
                     RAID_REVIEW.inRaid = true;
                     RAID_REVIEW.stopwatch.Reset();
@@ -45,18 +37,19 @@ namespace RAID_REVIEW
 
                     RAID_REVIEW.trackingRaid = new TrackingRaid
                     {
-                        id = Guid.NewGuid().ToString("D"),
-                        profileId = RAID_REVIEW.myPlayer.ProfileId,
+                        sessionId = RAID_REVIEW.sessionId,
+                        profileId = RAID_REVIEW.sessionId,
                         time = DateTime.Now,
                         detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "",
                         location = RAID_REVIEW.gameWorld.LocationId,
+                        type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC",
                         timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
                     };
 
                     Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
-
                     var newTrackingPlayer = new TrackingPlayer
                     {
+                        sessionId = RAID_REVIEW.sessionId,
                         profileId = RAID_REVIEW.myPlayer.ProfileId,
                         name = RAID_REVIEW.myPlayer.Profile.Nickname,
                         level = RAID_REVIEW.myPlayer.Profile.Info.Level,
@@ -64,7 +57,8 @@ namespace RAID_REVIEW
                         group = 0,
                         spawnTime = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
                         type = "HUMAN",
-                        mod_SAIN_brain = "PLAYER"
+                        mod_SAIN_brain = "PLAYER",
+                        mod_SAIN_difficulty = ""
                     };
 
                     RAID_REVIEW.trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
@@ -73,7 +67,15 @@ namespace RAID_REVIEW
                     RAID_REVIEW.inRaid = true;
                     Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Information Populated");
 
-                    NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
+                    if (RAID_REVIEW.RecordingNotification.Value && RAID_REVIEW.WebSocketConnected) {
+                        NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Started", ENotificationDurationType.Long);
+                    }
+
+                    if (RAID_REVIEW.SOLARINT_SAIN__DETECTED)
+                    {
+                        RAID_REVIEW.searchingForSainComponents = true;
+                        _ = SAIN_Integration.CheckForSainComponents(true);
+                    }
 
                     return;
                 }
@@ -82,8 +84,9 @@ namespace RAID_REVIEW
 
             catch (Exception ex)
             {
-                Logger.LogError($"{ex.Message}");
+                Logger.LogError($"{ex}");
             }
         }
+
     }
 }

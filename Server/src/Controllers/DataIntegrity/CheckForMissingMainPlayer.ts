@@ -2,14 +2,15 @@ import _ from 'lodash';
 import sqlite3 from 'sqlite3';
 import { Database } from "sqlite"
 import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile';
+import { Logger } from '../../Utils/logger';
 
-async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.Statement>, profiles: Record<string, IAkiProfile>) {
+async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger, profiles: Record<string, IAkiProfile>) {
 
-    console.log(`[RAID-REVIEW] Starting 'Missing main player' check.`);
+    logger.log(`Starting 'Missing main player' check.`);
 
     // Get All The Raids
     const raids_sql = `SELECT * FROM raid WHERE timeInRaid > 0;`;
-    const raids = await db.all(raids_sql).catch((e: Error) => console.error(e)) as any[];
+    const raids = await db.all(raids_sql).catch((e: Error) => logger.error(`[ERR:MISSING_PLAYER_ALL_RAIDS] `, e)) as any[];
     const raidsByPlayer = _.groupBy(raids, 'profileId');
     
     // Check the player table, and find the raids where the Main Player is missing.
@@ -25,7 +26,7 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
             const playerCheck = await db.all(playerCheck_sql, [
                 raid.raidId,
                 raid.profileId
-            ]).catch((e: Error) => console.error(e));
+            ]).catch((e: Error) => logger.error(`[ERR:MISSING_PLAYER_CHECK] `, e));
 
             if (playerCheck && playerCheck.length > 0) continue;
 
@@ -40,23 +41,24 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
                     group : 0,
                     spawnTime : 5,
                     mod_SAIN_brain : "PLAYER",
-                    type : "HUMAN"
+                    type : "HUMAN",
+                    mod_SAIN_difficulty : ""
                 })
             }
         }
     }
 
     if (missingPlayers.length === 0) {
-        console.log(`[RAID-REVIEW] All raids appear to be healthy, nice!`);
+        logger.log(`All raids appear to be healthy, nice!`);
         return;
     };
-    console.log(`[RAID-REVIEW] Found '${missingPlayers.length}' unique raids with 'main player' missing.`);
+    logger.log(`Found '${missingPlayers.length}' unique raids with 'main player' missing.`);
 
     // If they are missing, add an entry to the table with a spawnTime of 0
     for (let i = 0; i < missingPlayers.length; i++) {
 
         const missingPlayer = missingPlayers[i];
-        const raidInsert_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        const raidInsert_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, mod_SAIN_brain, type, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         await db.run(raidInsert_sql, [
             missingPlayer.raidId,
             missingPlayer.profileId,
@@ -66,11 +68,12 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
             missingPlayer.group,
             missingPlayer.spawnTime,
             missingPlayer.mod_SAIN_brain,
-            missingPlayer.type
-        ]).catch((e: Error) => console.error(e));
+            missingPlayer.type,
+            missingPlayer.mod_SAIN_difficulty
+        ]).catch((e: Error) => logger.error(`[ERR:MISSING_PLAYER_RAID_INSERT] `, e));
     }
 
-    console.log(`[RAID-REVIEW] Completed 'Missing main player' check, fixed '${missingPlayers.length}' raids.`);
+    logger.log(`Completed 'Missing main player' check, fixed '${missingPlayers.length}' raids.`);
 }
 
 export {

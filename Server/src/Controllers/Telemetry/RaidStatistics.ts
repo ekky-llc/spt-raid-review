@@ -3,11 +3,11 @@ import * as _ from 'lodash';
 import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
 
-import { TrackingRaidData, TrackingRaidDataPlayers } from "src/Web/Client/src/types/api_types";
-import { positional_data, positional_data__grouped } from "../PositionalData/CompileRaidPositionalData";
+import { TrackingRaidData, TrackingRaidDataPlayers } from "../../Web/Client/src/types/api_types";
+import { positional_data__grouped } from "../PositionalData/CompileRaidPositionalData";
 import { calculateTotalDistance } from "../PositionalData/CalculateDistancesTravelled";
 import { getRaidData } from '../Collection/GetRaidData';
-import { TrackingPlayer } from 'src/types';
+import { Logger } from '../../Utils/logger';
 
 export interface StatisticsPayload {
     raidId: string,
@@ -29,18 +29,18 @@ export interface StatisticsPayload {
     distanceTravelled: number
 }
 
-export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Statement>, profileId: string, raidId: string, positions: positional_data__grouped): Promise<void> {
-    const raidData = await getRaidData(db, profileId, raidId);
-    console.log(`[RAID-REVIEW] Generating statistics payload.`)
+export async function sendStatistics(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger, raidId: string, positions: positional_data__grouped): Promise<void> {
+    const raidData = await getRaidData(db, logger, raidId);
+    logger.log(`Generating statistics payload.`)
 
-    const payload = await generateStatisticsPayload(raidData, positions);
-    console.log(`[RAID-REVIEW] Sending statistics payload.`)
+    const payload = await generateStatisticsPayload(logger, raidData, positions);
+    logger.log(`Sending statistics payload.`)
 
-    await sendStatisticsPayload(payload);
-    console.log(`[RAID-REVIEW] Statistics payload recieved.`)
+    await sendStatisticsPayload(payload, logger);
+    logger.log(`Statistics payload recieved.`)
 }
 
-async function generateStatisticsPayload(raid: TrackingRaidData, positions: positional_data__grouped) : Promise<StatisticsPayload> {
+async function generateStatisticsPayload(logger: Logger, raid: TrackingRaidData, positions: positional_data__grouped) : Promise<StatisticsPayload> {
 
     // Data points
     let players = {
@@ -97,13 +97,13 @@ async function generateStatisticsPayload(raid: TrackingRaidData, positions: posi
         kills,
         lootings: lootingsLen,
         positions: _.chain(positions).valuesIn().flatMapDeep().value().length,
-        distanceTravelled : calculateTotalDistance(positions)
+        distanceTravelled : calculateTotalDistance(positions, logger)
     }
 
     return data;
 }
 
-async function sendStatisticsPayload(statisticsPayload : StatisticsPayload) : Promise<void> {
+async function sendStatisticsPayload(statisticsPayload : StatisticsPayload, logger: Logger) : Promise<void> {
 
     try {
         await fetch(`https://telemetry.raid-review.online/`, {
@@ -115,8 +115,8 @@ async function sendStatisticsPayload(statisticsPayload : StatisticsPayload) : Pr
             body: JSON.stringify(statisticsPayload)
         });
     } catch (error) {
-        console.log(`[RAID-REVIEW] There was an issue sending statistics to 'raid-review' server.`);
-        console.log(error);
+        logger.log(`There was an issue sending statistics to 'raid-review' server.`);
+        logger.log(error);
     }
 
 }

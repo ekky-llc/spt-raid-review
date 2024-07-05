@@ -2,12 +2,12 @@
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<AssemblyName>RAID_REVIEW__0.0.6</AssemblyName>
+		<AssemblyName>RAID_REVIEW__0.1.0</AssemblyName>
 		<AssemblyTitle>RAID_REVIEW</AssemblyTitle>
 		<AssemblyDescription>A post raid review tool for SPT</AssemblyDescription>
 		<AssemblyCompany>EkkyLLC</AssemblyCompany>
 		<AssemblyProduct>RAID_REVIEW</AssemblyProduct>
-		<AssemblyVersion>0.0.6</AssemblyVersion>
+		<AssemblyVersion>0.1.0</AssemblyVersion>
 		<Copyright>2024 © Ekky</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>D:\Games\SPT_3.8.1_DEV\BepInEx\plugins\</OutputPath>
@@ -18,6 +18,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Reference Include="0Harmony">
+			<HintPath>dependencies\0Harmony.dll</HintPath>
+			<Private>false</Private>
+		  </Reference>
 		<Reference Include="Aki.Common">
 			<HintPath>dependencies\Aki.Common.dll</HintPath>
 			<Private>false</Private>
@@ -42,8 +46,9 @@
 			<HintPath>dependencies\Newtonsoft.Json.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="SAIN">
-		  <HintPath>dependencies\SAIN.dll</HintPath>
+		<Reference Include="BepInEx.Harmony.dll">
+			<HintPath>dependencies\BepInEx.Harmony.dll</HintPath>
+			<Private>false</Private>
 		</Reference>
 		<Reference Include="System.ComponentModel.DataAnnotations">
 		  <HintPath>dependencies\System.ComponentModel.DataAnnotations.dll</HintPath>

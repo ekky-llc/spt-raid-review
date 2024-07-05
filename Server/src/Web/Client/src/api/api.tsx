@@ -5,6 +5,19 @@ let isDev = window.location.host.includes("5173");
 let hostname = isDev ? 'http://127.0.0.1:7829' : '';
 
 const api = {
+    getIntl: async function() : Promise<{ [key: string] : string }> {
+        let intl = {} as { [key: string] : string };
+        try {
+            const response = await fetch(hostname + '/api/intl');
+            const data = await response.json() as { [key: string] : string };
+            return data;
+        } 
+        
+        catch (error) {
+            return intl;
+        }
+    },
+
     getSettings: async function() : Promise<RaidReviewServerSettings> {
         let settings = {} as RaidReviewServerSettings;
         try {
@@ -177,6 +190,17 @@ const api = {
             return positions;
         } catch (error) {
             return positions;
+        }
+    },
+
+    getRaidHeatmapData : async function(profileId: string, raidId: string) : Promise<any> {
+        let heatmapData = [] as any;
+        try {
+            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions/heatmap`);
+            heatmapData = await response.json() as any;
+            return heatmapData;
+        } catch (error) {
+            return heatmapData;
         }
     }
 }
