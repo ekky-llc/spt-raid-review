@@ -26,7 +26,7 @@
     "autoDelete": true,
     "comment__autoDeleteLimit": "[AUTO-DELETE] [DEFAULT: 30] Maximum number of raids allowed to be stored; oldest raid will be deleted.",
     "autoDeleteLimit": 30,
-    "comment__autoDeleteUnfinishedRaids": "[AUTO-DELETE] [WARNING:EXPERIMENTAL] [DEFAULT: false] Automatically delete unfinished raids (due to crash, alt+f4, etc.); runs on startup.",
+    "comment__autoDeleteUnfinishedRaids": "[AUTO-DELETE] [DEFAULT: false] [WARNING:EXPERIMENTAL] Automatically delete unfinished raids (due to crash, alt+f4, etc.); runs on startup.",
     "autoDeleteUnfinishedRaids": false,
     "comment__autoDeleteCronJob": "[AUTO-DELETE] [DEFAULT: false] If true, 'autoDelete' functions will run once an hour; helpful if you don't generally restart the SPT Server.",
     "autoDeleteCronJob": false,
