@@ -1,6 +1,6 @@
 # Remote Host and Fika Support (WIP)
 
-The FIKA Mod is **not** completely supported at this stage. However, with help from `RavenX8, olli991, kenricv, and others`, changes were implemented to make it more user-friendly.
+The FIKA Mod is **not** completely supported at this stage. However, with help from `RavenX8, olli991, stk2008, kenricv, and others`, changes were implemented to make it more user-friendly.
 
 ## Requirements
 
@@ -26,13 +26,6 @@ If you're hosting SPT/FIKA on a remote host, consider the following changes.
 - If you modified the `config.json` for the server mod to use different ports, please modify the `Server WS Port` and `Server HTTP Port` to reflect those changes.
 - If you are securing the `Raid Review` web server with an SSL Certificate through a proxy, you can enable TLS so the website launches with `https://` instead of `http://`.
 
-```
-⚠️ Important Note For FIKA Users ⚠️
-- Do not allow more than one client to point at the 'Raid-Review' server. 
-- At this time I cannot support multiple clients as I need to properly implement recieving data for multiple active raids and multiple clients on the server.
-- If you do try multiple clients, the data will not be accurate, and will probably cause a ton of bugs.
-```
-
 ### Inbound Port Rules
 
 - Ensure that ports for your host device and any networking devices are open. The default ports are `TCP` with a range of `7828-7829`, unless you have changed them.
@@ -49,5 +42,5 @@ If you're hosting SPT/FIKA on a remote host, consider the following changes.
 
 - Open the `\user\mods\raid_review__x.x.x\config.json` file in VSCode (or your preferred editor).
 - You can enable `Basic Auth`, as well as register "accounts" to log into the web client.
-  - This feature allows for light access control, as raid data can be deleted in `v0.0.4`. 
-  - If you don't trust your friends with just hitting buttons for the sake of it, you can have this added "security".
+  - The username/password is what YOU have set against your SPT profile, if you have not set a password, it will be blank.
+  

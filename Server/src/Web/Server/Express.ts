@@ -10,6 +10,8 @@ import basicAuth from 'express-basic-auth'
 
 import { SaveServer } from '@spt-aki/servers/SaveServer'
 import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
+import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
+import { LocaleService } from '@spt-aki/services/LocaleService'
 
 import config from '../../../config.json'
 import { DeleteFile, ReadFile } from '../../Controllers/FileSystem/DataSaver'
@@ -18,8 +20,6 @@ import { generateInterpolatedFramesBezier } from '../../Utils/utils'
 import { getRaidData } from '../../Controllers/Collection/GetRaidData'
 import { sendStatistics } from '../../Controllers/Telemetry/RaidStatistics'
 import { Logger } from '../../Utils/logger'
-import { SessionManager } from 'src/Controllers/StateManagers/sessionManager'
-import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
 
 const app: Express = express()
 const port = config.web_client_port || 7829
@@ -44,7 +44,7 @@ function isUserAdmin(req: Request, res: Response, next: NextFunction, logger: Lo
     return next();
 }
 
-function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) {
+function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db: Database<sqlite3.Database, sqlite3.Statement>, intl: LocaleService, logger: Logger) {
     app.use(cors())
     app.use(express.json())
     app.use(cookieParser())
@@ -90,6 +90,15 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
 
     app.get('/', (req: Request, res: Response) => {
         return res.sendFile(path.join(__dirname, '/public/index.html'))
+    })
+
+    app.get('/api/intl', async (req: Request, res: Response) => {
+        try {
+            const intl_all = intl.getLocaleDb();
+            res.json(intl_all)
+        } catch (error) {
+            res.json(null)
+        } 
     })
 
     app.get('/api/server/settings', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
@@ -272,6 +281,38 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         }
 
         return []
+    })
+
+    app.get('/api/profile/:profileId/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
+        let { raidId } = req.params
+
+        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
+        let positionalData = JSON.parse(positionalDataRaw)
+        positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
+
+        const flattenedData = _.chain(positionalData).valuesIn().flatMapDeep().value();
+
+        const points = flattenedData.map(entry => [entry.z, entry.x, 1]);
+        const pointMap = new Map();
+
+        points.forEach(([z, x, intensity]) => {
+            const key = `${z},${x}`;
+            if (pointMap.has(key)) {
+                if (pointMap.get(key)[2] < 100) {
+                    pointMap.get(key)[2] += intensity;
+                }
+            } else {
+                pointMap.set(key, [z, x, intensity]);
+            }
+        });
+
+        const aggregatedPoints = Array.from(pointMap.values());
+
+        if (aggregatedPoints.length > 0) {
+            return res.json(aggregatedPoints);
+        }
+
+        return res.json([]);
     })
 
     app.get('/api/profile/:profileId/raids/:raidId/positions/compile', async (req: Request, res: Response) => {

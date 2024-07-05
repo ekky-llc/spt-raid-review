@@ -264,3 +264,11 @@
   aside {
     background-color: rgba(0, 0, 0, 0.75);
   }
+
+  .leaflet-overlay-pane.heatmap-active svg {
+    display: none!important;
+  }
+
+  .leaflet-heatmap-layer {
+    z-index: 9999;
+  }

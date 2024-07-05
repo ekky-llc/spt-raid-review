@@ -37,29 +37,23 @@ export class Logger {
     public log(str: string): void {
         console.log(`[RAID-REVIEW] ${str}`);
 
-        if (config.enableLogFiles) {
-            this.appendToLogFile(str);
-        }
+        this.appendToLogFile(str);
     }
 
 
     public debug(str: string): void {
         if (config.enableDebugLogs) {
             console.debug(`[RAID-REVIEW] ${str}`);
-
-            if (config.enableVerboseLogFiles) {
-                this.appendToLogFile(str);
-            }
         }
+
+        this.appendToLogFile(str);
     }
 
 
     public warn(str: string): void {
         console.warn(`[RAID-REVIEW] ${str}`);
 
-        if (config.enableVerboseLogFiles) {
-            this.appendToLogFile(str);
-        }
+        this.appendToLogFile(str);
     }
     
 
