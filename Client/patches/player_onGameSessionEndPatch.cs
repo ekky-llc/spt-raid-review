@@ -19,6 +19,9 @@ namespace RAID_REVIEW
         [PatchPostfix]
         private static void PatchPostFix(ref Player __instance, ExitStatus exitStatus, float pastTime, string locationId, string exitName)
         {
+
+            if (locationId == "hideout") return;
+
             try { 
                 Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Completed, Saving Tracking Data");
 

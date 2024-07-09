@@ -17,6 +17,8 @@ namespace RAID_REVIEW
         [PatchPostfix]
         private static void PatchPostFix(ref Player __instance, Item item, ItemAddress location, bool added)
         {
+            if (__instance.Location == "hideout") return;
+
             try
             {
                 bool isPackingMagazine = location.Container.ID == "cartridges";

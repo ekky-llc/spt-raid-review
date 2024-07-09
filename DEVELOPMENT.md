@@ -38,17 +38,17 @@ If the build is successful, the output will be in the destination path configure
 3. Install dependencies by running `npm install`.
 4. Start making your changes.
 
-## Custom Web Server `/Server/src/Web/Server`
+## Custom Web Server `/Server/src/Server`
 
 No setup required. Project dependencies are listed in `/Server/package.json`. Currently, this cannot be run/tested outside of the SPT Server. Hot-reload for debugging is not implemented yet.
 
-## Custom Web Client `/Server/src/Web/Client`
+## Custom Web Client `/Private`
 
 ### Development Setup
 
 1. Open the project in VSCode.
 2. Edit the `base_directory` file, replacing the path with the full path of your SPT Installation for development/debugging.
-3. Open Terminal and navigate to `/Server/src/Web/Client`.
+3. Open Terminal and navigate to `/Private`.
 4. Install dependencies by running `npm install`.
 5. Start the development server with hot-reload using `npm run dev`.
 6. Start making your changes.
@@ -64,9 +64,9 @@ If the build is successful, the output will be in the destination path configure
 - **Client Mod** `/Client`
   - Work in Visual Studio 2022, make changes, build, and launch the game.
 - **Server Mod** `/Server/src/mod.ts`
-- **Web Server** `/Server/src/Web/Server/express.ts` 
+- **Web Server** `/Server/src/Server/express.ts` 
   - Work in Visual Studio Code, make changes, build, and launch the server.
-- **Web Client** `/Server/src/Web/Client`
+- **Web Client** `/Private`
   - Work in Visual Studio Code, launch the SPT Server with a RAID-REVIEW build deployed, make changes, build, and launch the server.
 
 # Data Capture Process Overview

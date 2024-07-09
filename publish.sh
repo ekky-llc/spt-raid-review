@@ -2,7 +2,7 @@
 
 # Default
 default_name="raid_review"
-default_version="0.1.0"
+default_version="0.1.1"
 current_dir=$(pwd)
 linux_server_user=blackdog
 linux_server_host=192.168.40.254

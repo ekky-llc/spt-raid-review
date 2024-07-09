@@ -11,6 +11,8 @@ import { Logger } from '../../Utils/logger'
  * @param db Sqlite database instance
  */
 async function GarbageCollectOldRaids(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) {
+    logger.debug(`'config.autoDelete' is set to: '${config.autoDelete}'`);
+
     if (config.autoDelete) {
         logger.log(`Garbage collector deleting old raids, only keeping data for the last '${config.autoDeleteLimit}' raids.`)
 
@@ -49,6 +51,8 @@ async function GarbageCollectOldRaids(db: Database<sqlite3.Database, sqlite3.Sta
  * @param db Sqlite database instance
  */
 async function GarbageCollectUnfinishedRaids(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) {
+    logger.debug(`'config.autoDeleteUnfinishedRaids' is set to: '${config.autoDeleteUnfinishedRaids}'`);
+
     if (config.autoDeleteUnfinishedRaids) {
         logger.log(`Garbage collector deleting unfinished raids.`)
 
