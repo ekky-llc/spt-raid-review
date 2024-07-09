@@ -4,7 +4,7 @@
     "main": "src/mod.js",
     "license": "MIT",
     "author": "ekky",
-    "akiVersion": "~3.8.x",
+    "sptVersion": "~3.9.X",
     "scripts": {
         "setup": "npm i",
         "build": "node ./build.mjs",

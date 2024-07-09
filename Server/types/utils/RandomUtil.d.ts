@@ -1,6 +1,6 @@
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { MathUtil } from "@spt-aki/utils/MathUtil";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ICloner } from "@spt/utils/cloners/ICloner";
+import { MathUtil } from "@spt/utils/MathUtil";
 /**
  * Array of ProbabilityObjectArray which allow to randomly draw of the contained objects
  * based on the relative probability of each of its elements.
@@ -18,8 +18,8 @@ import { MathUtil } from "@spt-aki/utils/MathUtil";
  */
 export declare class ProbabilityObjectArray<K, V = undefined> extends Array<ProbabilityObject<K, V>> {
     private mathUtil;
-    private jsonUtil;
-    constructor(mathUtil: MathUtil, jsonUtil: JsonUtil, ...items: ProbabilityObject<K, V>[]);
+    private cloner;
+    constructor(mathUtil: MathUtil, cloner: ICloner, ...items: ProbabilityObject<K, V>[]);
     filter(callbackfn: (value: ProbabilityObject<K, V>, index: number, array: ProbabilityObject<K, V>[]) => any): ProbabilityObjectArray<K, V>;
     /**
      * Calculates the normalized cumulative probability of the ProbabilityObjectArray's elements normalized to 1
@@ -44,7 +44,7 @@ export declare class ProbabilityObjectArray<K, V = undefined> extends Array<Prob
      * @param       {string}                        key                     The key of the element whose data shall be retrieved
      * @returns     {object}                                                The data object
      */
-    data(key: K): V;
+    data(key: K): V | undefined;
     /**
      * Get the relative probability of an element by its key
      *
@@ -93,7 +93,7 @@ export declare class ProbabilityObjectArray<K, V = undefined> extends Array<Prob
 export declare class ProbabilityObject<K, V = undefined> {
     key: K;
     relativeProbability: number;
-    data: V;
+    data?: V;
     /**
      * Constructor for the ProbabilityObject
      * @param       {string}                        key                         The key of the element
@@ -103,9 +103,9 @@ export declare class ProbabilityObject<K, V = undefined> {
     constructor(key: K, relativeProbability: number, data?: V);
 }
 export declare class RandomUtil {
-    protected jsonUtil: JsonUtil;
+    protected cloner: ICloner;
     protected logger: ILogger;
-    constructor(jsonUtil: JsonUtil, logger: ILogger);
+    constructor(cloner: ICloner, logger: ILogger);
     getInt(min: number, max: number): number;
     getIntEx(max: number): number;
     getFloat(min: number, max: number): number;
@@ -131,12 +131,13 @@ export declare class RandomUtil {
         [x: string]: any;
     }): any;
     /**
-     * Draw from normal distribution
-     * @param   {number}    mu      Mean of the normal distribution
+     * Generate a normally distributed random number
+     * Uses the Box-Muller transform
+     * @param   {number}    mean    Mean of the normal distribution
      * @param   {number}    sigma   Standard deviation of the normal distribution
      * @returns {number}            The value drawn
      */
-    randn(mu: number, sigma: number): number;
+    getNormallyDistributedRandomNumber(mean: number, sigma: number, attempt?: number): number;
     /**
      * Draw Random integer low inclusive, high exclusive
      * if high is not set we draw from 0 to low (exclusive)
@@ -149,11 +150,11 @@ export declare class RandomUtil {
      * Draw a random element of the provided list N times to return an array of N random elements
      * Drawing can be with or without replacement
      * @param   {array}     list            The array we want to draw randomly from
-     * @param   {integer}   count               The number of times we want to draw
-     * @param   {boolean}   replacement     Draw with or without replacement from the input array(defult true)
+     * @param   {integer}   count           The number of times we want to draw
+     * @param   {boolean}   replacement     Draw with or without replacement from the input array(default true)
      * @return  {array}                     Array consisting of N random elements
      */
-    drawRandomFromList<T>(list: Array<T>, count?: number, replacement?: boolean): Array<T>;
+    drawRandomFromList<T>(originalList: Array<T>, count?: number, replacement?: boolean): Array<T>;
     /**
      * Draw a random (top level) element of the provided dictionary N times to return an array of N random dictionary keys
      * Drawing can be with or without replacement
@@ -170,4 +171,12 @@ export declare class RandomUtil {
      * @returns Shuffled array
      */
     shuffle<T>(array: Array<T>): Array<T>;
+    /**
+     * Rolls for a probability based on chance
+     * @param number Probability Chance as float (0-1)
+     * @returns If roll succeed or not
+     * @example
+     * rollForChanceProbability(0.25); // returns true 25% probability
+     */
+    rollForChanceProbability(probabilityChance: number): boolean;
 }

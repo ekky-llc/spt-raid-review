@@ -1,11 +1,11 @@
-import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
-import { QuestHelper } from "@spt-aki/helpers/QuestHelper";
-import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
-import { ITraderAssort } from "@spt-aki/models/eft/common/tables/ITrader";
-import { QuestStatus } from "@spt-aki/models/enums/QuestStatus";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { ItemHelper } from "@spt/helpers/ItemHelper";
+import { QuestHelper } from "@spt/helpers/QuestHelper";
+import { IPmcData } from "@spt/models/eft/common/IPmcData";
+import { ITraderAssort } from "@spt/models/eft/common/tables/ITrader";
+import { QuestStatus } from "@spt/models/enums/QuestStatus";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { LocalisationService } from "@spt/services/LocalisationService";
 export declare class AssortHelper {
     protected logger: ILogger;
     protected itemHelper: ItemHelper;
@@ -14,7 +14,7 @@ export declare class AssortHelper {
     protected questHelper: QuestHelper;
     constructor(logger: ILogger, itemHelper: ItemHelper, databaseServer: DatabaseServer, localisationService: LocalisationService, questHelper: QuestHelper);
     /**
-     * Remove assorts from a trader that have not been unlocked yet (via player completing corrisponding quest)
+     * Remove assorts from a trader that have not been unlocked yet (via player completing corresponding quest)
      * @param pmcProfile Player profile
      * @param traderId Traders id the assort belongs to
      * @param traderAssorts All assort items from same trader

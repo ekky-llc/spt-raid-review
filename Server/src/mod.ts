@@ -6,12 +6,12 @@ import sqlite3 from 'sqlite3'
 import { Database } from 'sqlite'
 import _ from 'lodash'
 
-import type { IPreAkiLoadMod } from '@spt-aki/models/external/IPreAkiLoadMod'
-import type { IPostAkiLoadMod } from '@spt-aki/models/external/IPostAkiLoadMod'
-import { StaticRouterModService } from '@spt-aki/services/mod/StaticRouter/StaticRouterModService'
-import { SaveServer } from '@spt-aki/servers/SaveServer'
-import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
-import { LocaleService } from '@spt-aki/services/LocaleService'
+import type { IPreSptLoadMod } from '@spt/models/external/IPreSptLoadMod'
+import type { IPostSptLoadMod } from '@spt/models/external/IPostSptLoadMod'
+import { StaticRouterModService } from '@spt/services/mod/StaticRouter/StaticRouterModService'
+import { SaveServer } from '@spt/servers/SaveServer'
+import { ProfileHelper } from '@spt/helpers/ProfileHelper'
+import { LocaleService } from '@spt/services/LocaleService'
 
 import config from '../config.json'
 import WebServer from './Server/Express'
@@ -27,7 +27,7 @@ import { ModDetector } from './Controllers/Integrations/modDetection'
 import { WebSocketConfig } from './constant'
 import { Logger } from './Utils/logger'
 
-class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
+class Mod implements IPreSptLoadMod, IPostSptLoadMod {
     saveServer: SaveServer
     profileHelper: ProfileHelper
     intl: LocaleService
@@ -50,7 +50,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
         this.sessionManager = new SessionManager(this.logger)
     }
 
-    public preAkiLoad(container: DependencyContainer): void {
+    public preSptLoad(container: DependencyContainer): void {
         const staticRouterModService = container.resolve<StaticRouterModService>('StaticRouterModService')
 
         staticRouterModService.registerStaticRouter(
@@ -58,7 +58,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
             [
                 {
                     url: '/client/game/start',
-                    action: (_url: string, __info: any, sessionId: string, output: string) => {
+                    action: async (_url: string, __info: any, sessionId: string, output: string) => {
                         const profile = this.profileHelper.getFullProfile(sessionId)
                         this.sessionManager.addProfile(profile.info.id, {
                             profile,
@@ -75,7 +75,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
                 },
                 {
                     url: '/client/game/keepalive',
-                    action: (_url: string, __info: any, sessionId: string, output: string) => {
+                    action: async (_url: string, __info: any, sessionId: string, output: string) => {
                         this.sessionManager.pingProfile(sessionId);
                         return output
                     },
@@ -85,7 +85,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
         )
     }
 
-    public async postAkiLoad(container: DependencyContainer): Promise<void> {
+    public async postSptLoad(container: DependencyContainer): Promise<void> {
         this.profileHelper = container.resolve<ProfileHelper>('ProfileHelper');
         this.intl = container.resolve<LocaleService>('LocaleService');
 

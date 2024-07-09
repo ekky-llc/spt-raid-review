@@ -4,7 +4,7 @@ import moment from "moment";
 
 import api from "../api/api";
 import { getCookie } from "../modules/utils";
-import { IAkiProfile } from "../../../Server/types/models/eft/profile/IAkiProfile";
+import { ISptProfile } from "../../../Server/types/models/eft/profile/ISptProfile";
 
 import "./Profile.css";
 import GlobalSpinner from "../component/GlobalSpinner";
@@ -45,7 +45,7 @@ export function msToHMS( ms: number ) : string {
 }
 
 export default function Profile() {
-  const { profile, core } = useLoaderData() as { profile: IAkiProfile, core : any };
+  const { profile, core } = useLoaderData() as { profile: ISptProfile, core : any };
   const navigation = useNavigation();
   const [ isAdmin, setIsAdmin ] = useState(false);
 
@@ -124,7 +124,7 @@ export default function Profile() {
   );
 }
 
-function RaidSelector(profile: IAkiProfile, raid: any, locations: { [ key :string ] : string }, msToHMS: (ms: number) => string) {
+function RaidSelector(profile: ISptProfile, raid: any, locations: { [ key :string ] : string }, msToHMS: (ms: number) => string) {
   return <Link to={`/p/${profile.info.id}/raid/${raid.raidId}`} key={raid.raidId} className="raid__selector bg-eft w-full px-4 py-1 text-xl font-black flex flex-col hover:opacity-75 cursor-pointer">
       <div className="w-full flex items-center">
         <div className="w-full flex items-center">

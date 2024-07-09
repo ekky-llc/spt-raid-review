@@ -1,4 +1,4 @@
-import { IAkiProfile } from '../../../Server/types/models/eft/profile/IAkiProfile';
+import { ISptProfile } from '../../../Server/types/models/eft/profile/ISptProfile';
 import { TrackingRaidData, RaidReviewServerSettings, TrackingCoreDataRaids } from '../types/api_types';
 
 let isDev = window.location.host.includes("5173");
@@ -64,11 +64,11 @@ const api = {
     },
 
 
-    getProfiles: async function() : Promise<IAkiProfile[]> {
-        let profiles = [] as IAkiProfile[];
+    getProfiles: async function() : Promise<ISptProfile[]> {
+        let profiles = [] as ISptProfile[];
         try {
             const response = await fetch(hostname + '/api/profile/all');
-            const data = await response.json() as IAkiProfile[];
+            const data = await response.json() as ISptProfile[];
 
             Object.keys(data).forEach((profile : string) => {
                 // @ts-ignore
@@ -83,11 +83,11 @@ const api = {
         }
     },
 
-    getProfile : async function(profileId: string) : Promise<IAkiProfile> {
-        let profile = {} as IAkiProfile;
+    getProfile : async function(profileId: string) : Promise<ISptProfile> {
+        let profile = {} as ISptProfile;
         try {
             const response = await fetch(hostname + `/api/profile/${profileId}`);
-            const data = await response.json() as IAkiProfile;
+            const data = await response.json() as ISptProfile;
             profile = data;
             return profile
         } 

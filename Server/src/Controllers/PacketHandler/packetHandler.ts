@@ -9,10 +9,10 @@ import { SessionManager, SessionManagerPlayerMap } from "../StateManagers/sessio
 import { ModDetector } from "../Integrations/modDetection";
 import { CONSTANTS } from "../../constant";
 import { Logger } from '../../Utils/logger';
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile';
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile';
 import { CheckForMissingMainPlayer } from '../DataIntegrity/CheckForMissingMainPlayer';
 
-async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, profiles: Record<string, IAkiProfile>, post_raid_processing: cron.ScheduledTask) {
+async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, profiles: Record<string, ISptProfile>, post_raid_processing: cron.ScheduledTask) {
     try {
 
         // Convert RawData to string if it's a buffer

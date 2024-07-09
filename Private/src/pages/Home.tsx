@@ -1,6 +1,6 @@
 import { Link, useLoaderData, useNavigation, useSearchParams } from "react-router-dom";
 import api from "../api/api";
-import { IAkiProfile } from "../../../Server/types/models/eft/profile/IAkiProfile";
+import { ISptProfile } from "../../../Server/types/models/eft/profile/ISptProfile";
 
 import './Home.css'
 import GlobalSpinner from "../component/GlobalSpinner";
@@ -15,7 +15,7 @@ export async function loader() {
 export default function Home() {
     const [ searchParams ] = useSearchParams();
     const navigation = useNavigation();
-    const { profiles } = useLoaderData() as { profiles: IAkiProfile[], hideUpdateMessage: boolean };
+    const { profiles } = useLoaderData() as { profiles: ISptProfile[], hideUpdateMessage: boolean };
 
     function renderError(profileId: string) {
         const error = searchParams.get('error');

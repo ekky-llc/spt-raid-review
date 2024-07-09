@@ -1,6 +1,6 @@
 // import { Link, useLoaderData, useSearchParams } from "react-router-dom";
 // import api from "../api/api";
-// import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
+// import { ISptProfile } from "../../../../../types/models/eft/profile/ISptProfile";
 
 import './About.css'
 

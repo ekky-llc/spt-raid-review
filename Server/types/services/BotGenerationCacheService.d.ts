@@ -1,17 +1,16 @@
-import { BotHelper } from "@spt-aki/helpers/BotHelper";
-import { IBotBase } from "@spt-aki/models/eft/common/tables/IBotBase";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { LocalisationService } from "@spt-aki/services/LocalisationService";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { BotHelper } from "@spt/helpers/BotHelper";
+import { IBotBase } from "@spt/models/eft/common/tables/IBotBase";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { LocalisationService } from "@spt/services/LocalisationService";
+import { RandomUtil } from "@spt/utils/RandomUtil";
 export declare class BotGenerationCacheService {
     protected logger: ILogger;
     protected randomUtil: RandomUtil;
-    protected jsonUtil: JsonUtil;
     protected localisationService: LocalisationService;
     protected botHelper: BotHelper;
     protected storedBots: Map<string, IBotBase[]>;
-    constructor(logger: ILogger, randomUtil: RandomUtil, jsonUtil: JsonUtil, localisationService: LocalisationService, botHelper: BotHelper);
+    protected activeBotsInRaid: IBotBase[];
+    constructor(logger: ILogger, randomUtil: RandomUtil, localisationService: LocalisationService, botHelper: BotHelper);
     /**
      * Store array of bots in cache, shuffle results before storage
      * @param botsToStore Bots we want to store in the cache
@@ -24,6 +23,18 @@ export declare class BotGenerationCacheService {
      * @returns IBotBase object
      */
     getBot(key: string): IBotBase;
+    /**
+     * Cache a bot that has been sent to the client in memory for later use post-raid to determine if player killed a traitor scav
+     * @param botToStore Bot object to store
+     */
+    storeUsedBot(botToStore: IBotBase): void;
+    /**
+     * Get a bot by its profileId that has been generated and sent to client for current raid
+     * Cache is wiped post-raid in client/match/offline/end  endOfflineRaid()
+     * @param profileId Id of bot to get
+     * @returns IBotBase
+     */
+    getUsedBot(profileId: string): IBotBase;
     /**
      * Remove all cached bot profiles from memory
      */

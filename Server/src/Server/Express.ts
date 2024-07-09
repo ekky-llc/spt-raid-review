@@ -9,10 +9,10 @@ import cookieParser from 'cookie-parser'
 import basicAuth from 'express-basic-auth'
 import compression from 'compression' 
 
-import { SaveServer } from '@spt-aki/servers/SaveServer'
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
-import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
-import { LocaleService } from '@spt-aki/services/LocaleService'
+import { SaveServer } from '@spt/servers/SaveServer'
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile'
+import { ProfileHelper } from '@spt/helpers/ProfileHelper'
+import { LocaleService } from '@spt/services/LocaleService'
 
 import config from '../../config.json'
 import { DeleteFile, ReadFile } from '../Controllers/FileSystem/DataSaver'
@@ -52,7 +52,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     app.use(compression())
 
     const basicAuthUsers = {};
-    Object.values(profileServer.getProfiles()).map((p : IAkiProfile) => basicAuthUsers[p.info.username] = p.info.password);
+    Object.values(profileServer.getProfiles()).map((p : ISptProfile) => basicAuthUsers[p.info.username] = p.info.password);
 
     // Basic Auth has been implemented for people who host Fika remotely.
     // It's not the greatest level of protection, but I cannot be arsed to implement oAuth for sucha niche use case.
@@ -156,7 +156,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     })
 
     app.get('/api/profile/all', (req: Request, res: Response) => {
-        let profiles = saveServer.getProfiles() as Record<string, IAkiProfile>
+        let profiles = saveServer.getProfiles() as Record<string, ISptProfile>
 
         for (const profile_k in profiles) {
             let profile = profiles[profile_k]
@@ -170,7 +170,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     })
 
     app.get('/api/profile/:profileId', (req: Request, res: Response) => {
-        const profiles = saveServer.getProfiles() as Record<string, IAkiProfile>
+        const profiles = saveServer.getProfiles() as Record<string, ISptProfile>
 
         return res.json(profiles[req.params.profileId])
     })

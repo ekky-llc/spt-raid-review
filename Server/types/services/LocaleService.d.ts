@@ -1,7 +1,7 @@
-import { ILocaleConfig } from "@spt-aki/models/spt/config/ILocaleConfig";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { ILocaleConfig } from "@spt/models/spt/config/ILocaleConfig";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
 /**
  * Handles getting locales from config or users machine
  */
@@ -34,8 +34,25 @@ export declare class LocaleService {
      */
     getServerSupportedLocales(): string[];
     /**
+     * Get array of languages supported for localisation
+     * @returns array of locales e.g. en/fr/cn
+     */
+    getLocaleFallbacks(): {
+        [locale: string]: string;
+    };
+    /**
+     * Get the full locale of the computer running the server lowercased e.g. en-gb / pt-pt
+     * @returns string
+     */
+    protected getPlatformForServerLocale(): string;
+    /**
      * Get the locale of the computer running the server
      * @returns langage part of locale e.g. 'en' part of 'en-US'
      */
-    protected getPlatformLocale(): string;
+    protected getPlatformForClientLocale(): string;
+    /**
+     * This is in a function so we can overwrite it during testing
+     * @returns The current platform locale
+     */
+    protected getPlatformLocale(): Intl.Locale;
 }

@@ -10,7 +10,7 @@
 		<AssemblyVersion>0.1.1</AssemblyVersion>
 		<Copyright>2024 © Ekky</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<OutputPath>D:\Games\SPT_3.8.1_DEV\BepInEx\plugins\</OutputPath>
+		<OutputPath>D:\Games\SPT_3.9.0_DEV\BepInEx\plugins\</OutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -19,80 +19,80 @@
 
 	<ItemGroup>
 		<Reference Include="0Harmony">
-			<HintPath>dependencies\0Harmony.dll</HintPath>
+			<HintPath>dependencies\3.9.x\0Harmony.dll</HintPath>
 			<Private>false</Private>
 		  </Reference>
-		<Reference Include="Aki.Common">
-			<HintPath>dependencies\Aki.Common.dll</HintPath>
+		<Reference Include="spt-common">
+			<HintPath>dependencies\3.9.x\spt-common.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="Aki.Reflection">
-			<HintPath>dependencies\Aki.Reflection.dll</HintPath>
+		<Reference Include="spt-Reflection">
+			<HintPath>dependencies\3.9.x\spt-reflection.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>dependencies\Assembly-CSharp.dll</HintPath>
+			<HintPath>dependencies\3.9.x\Assembly-CSharp.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="BepInEx">
-			<HintPath>dependencies\BepInEx.dll</HintPath>
+			<HintPath>dependencies\3.9.x\BepInEx.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Comfort">
-			<HintPath>dependencies\Comfort.dll</HintPath>
+			<HintPath>dependencies\3.9.x\Comfort.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
-			<HintPath>dependencies\Newtonsoft.Json.dll</HintPath>
+			<HintPath>dependencies\3.9.x\Newtonsoft.Json.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="BepInEx.Harmony.dll">
-			<HintPath>dependencies\BepInEx.Harmony.dll</HintPath>
+			<HintPath>dependencies\3.9.x\BepInEx.Harmony.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="System.ComponentModel.DataAnnotations">
-		  <HintPath>dependencies\System.ComponentModel.DataAnnotations.dll</HintPath>
+		  <HintPath>dependencies\3.9.x\System.ComponentModel.DataAnnotations.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="System.Runtime" />
 		<Reference Include="UnityEngine">
-			<HintPath>dependencies\UnityEngine.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AssetBundleModule">
-			<HintPath>dependencies\UnityEngine.AssetBundleModule.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.AssetBundleModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>dependencies\UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.CoreModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AudioModule">
-			<HintPath>dependencies\UnityEngine.AudioModule.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.AudioModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.InputModule">
-			<HintPath>dependencies\UnityEngine.InputModule.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.InputModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>dependencies\UnityEngine.InputLegacyModule.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.InputLegacyModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.UI">
-			<HintPath>dependencies\UnityEngine.UI.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.UI.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.UIModule">
-			<HintPath>dependencies\UnityEngine.UIModule.dll</HintPath>
+			<HintPath>dependencies\3.9.x\UnityEngine.UIModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="websocket-sharp">
-			<HintPath>dependencies\websocket-sharp.dll</HintPath>
+			<HintPath>dependencies\3.9.x\websocket-sharp.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Sirenix.Serialization">
-			<HintPath>dependencies\Sirenix.Serialization.dll</HintPath>
+			<HintPath>dependencies\3.9.x\Sirenix.Serialization.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 	</ItemGroup>

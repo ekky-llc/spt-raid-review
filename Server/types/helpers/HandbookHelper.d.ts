@@ -1,6 +1,9 @@
-import { Category } from "@spt-aki/models/eft/common/tables/IHandbookBase";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { Category } from "@spt/models/eft/common/tables/IHandbookBase";
+import { Item } from "@spt/models/eft/common/tables/IItem";
+import { IItemConfig } from "@spt/models/spt/config/IItemConfig";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { ICloner } from "@spt/utils/cloners/ICloner";
 declare class LookupItem<T, I> {
     readonly byId: Map<string, T>;
     readonly byParent: Map<string, I[]>;
@@ -12,22 +15,25 @@ export declare class LookupCollection {
     constructor();
 }
 export declare class HandbookHelper {
-    protected databaseServer: DatabaseServer;
-    protected jsonUtil: JsonUtil;
+    protected databaseService: DatabaseService;
+    protected configServer: ConfigServer;
+    protected cloner: ICloner;
+    protected itemConfig: IItemConfig;
     protected lookupCacheGenerated: boolean;
     protected handbookPriceCache: LookupCollection;
-    constructor(databaseServer: DatabaseServer, jsonUtil: JsonUtil);
+    constructor(databaseService: DatabaseService, configServer: ConfigServer, cloner: ICloner);
     /**
      * Create an in-memory cache of all items with associated handbook price in handbookPriceCache class
      */
     hydrateLookup(): void;
     /**
      * Get price from internal cache, if cache empty look up price directly in handbook (expensive)
-     * If no values found, return 1
-     * @param tpl item tpl to look up price for
+     * If no values found, return 0
+     * @param tpl Item tpl to look up price for
      * @returns price in roubles
      */
     getTemplatePrice(tpl: string): number;
+    getTemplatePriceForItems(items: Item[]): number;
     /**
      * Get all items in template with the given parent category
      * @param parentId

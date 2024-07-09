@@ -1,6 +1,6 @@
 ﻿using EFT;
 using System.Reflection;
-using Aki.Reflection.Patching;
+using SPT.Reflection.Patching;
 using UnityEngine;
 using Newtonsoft.Json;
 using System;
@@ -11,7 +11,7 @@ namespace RAID_REVIEW
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(Player).GetMethod("OnBeenKilledByAggressor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            return typeof(Player).GetMethod("OnBeenKilledByAggressor", BindingFlags.Instance | BindingFlags.Public);
         }
 
         [PatchPostfix]
@@ -33,8 +33,8 @@ namespace RAID_REVIEW
                         weapon = damageInfo.Weapon == null ? "?" : damageInfo.Weapon.Name,
                         bodyPart = bodyPart.ToString(),
                         type = lethalDamageType.ToString(),
-                        positionKiller = aggressor.Position.ToJson(),
-                        positionKilled = __instance.Position.ToJson(),
+                        positionKiller = JsonConvert.SerializeObject(aggressor.Position),
+                        positionKilled = JsonConvert.SerializeObject(__instance.Position),
                     };
 
                     Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));

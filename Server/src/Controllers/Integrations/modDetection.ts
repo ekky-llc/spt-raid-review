@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { DependencyContainer } from "tsyringe"
-import { PreAkiModLoader } from "@spt-aki/loaders/PreAkiModLoader"
+import { PreSptModLoader } from "@spt/loaders/PreSptModLoader"
 import { MOD_SIGNATURES } from '../../constant';
 import { Logger } from '../../Utils/logger';
 
@@ -25,7 +25,7 @@ export class ModDetector {
     }
 
     getInstalledMods(container: DependencyContainer) : RaidReviewDetectedMods {
-        const ModLoader : PreAkiModLoader = container.resolve<PreAkiModLoader>("PreAkiModLoader");
+        const ModLoader : PreSptModLoader = container.resolve<PreSptModLoader>("PreSptModLoader");
     
         const clientPluginsPath = `${__dirname}/../../../../../../BepInEx/plugins/`;
         const isLocalInstall = fs.existsSync(clientPluginsPath)

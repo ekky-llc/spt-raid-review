@@ -1,29 +1,26 @@
-import { ContainerHelper } from "@spt-aki/helpers/ContainerHelper";
-import { InventoryHelper } from "@spt-aki/helpers/InventoryHelper";
-import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
-import { WeightedRandomHelper } from "@spt-aki/helpers/WeightedRandomHelper";
-import { Inventory } from "@spt-aki/models/eft/common/tables/IBotBase";
-import { GenerationData } from "@spt-aki/models/eft/common/tables/IBotType";
-import { Item } from "@spt-aki/models/eft/common/tables/IItem";
-import { Grid, ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
-import { EquipmentSlots } from "@spt-aki/models/enums/EquipmentSlots";
-import { ItemAddedResult } from "@spt-aki/models/enums/ItemAddedResult";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { LocalisationService } from "@spt-aki/services/LocalisationService";
-import { HashUtil } from "@spt-aki/utils/HashUtil";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { BotGeneratorHelper } from "@spt/helpers/BotGeneratorHelper";
+import { ItemHelper } from "@spt/helpers/ItemHelper";
+import { WeightedRandomHelper } from "@spt/helpers/WeightedRandomHelper";
+import { Inventory } from "@spt/models/eft/common/tables/IBotBase";
+import { GenerationData } from "@spt/models/eft/common/tables/IBotType";
+import { Item } from "@spt/models/eft/common/tables/IItem";
+import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
+import { EquipmentSlots } from "@spt/models/enums/EquipmentSlots";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { LocalisationService } from "@spt/services/LocalisationService";
+import { HashUtil } from "@spt/utils/HashUtil";
+import { RandomUtil } from "@spt/utils/RandomUtil";
 export declare class BotWeaponGeneratorHelper {
     protected logger: ILogger;
     protected databaseServer: DatabaseServer;
     protected itemHelper: ItemHelper;
     protected randomUtil: RandomUtil;
     protected hashUtil: HashUtil;
-    protected inventoryHelper: InventoryHelper;
     protected weightedRandomHelper: WeightedRandomHelper;
+    protected botGeneratorHelper: BotGeneratorHelper;
     protected localisationService: LocalisationService;
-    protected containerHelper: ContainerHelper;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, itemHelper: ItemHelper, randomUtil: RandomUtil, hashUtil: HashUtil, inventoryHelper: InventoryHelper, weightedRandomHelper: WeightedRandomHelper, localisationService: LocalisationService, containerHelper: ContainerHelper);
+    constructor(logger: ILogger, databaseServer: DatabaseServer, itemHelper: ItemHelper, randomUtil: RandomUtil, hashUtil: HashUtil, weightedRandomHelper: WeightedRandomHelper, botGeneratorHelper: BotGeneratorHelper, localisationService: LocalisationService);
     /**
      * Get a randomized number of bullets for a specific magazine
      * @param magCounts Weights of magazines
@@ -65,22 +62,4 @@ export declare class BotWeaponGeneratorHelper {
      * @returns tpl of magazine
      */
     getWeaponsDefaultMagazineTpl(weaponTemplate: ITemplateItem): string;
-    /**
-     * TODO - move into BotGeneratorHelper, this is not the class for it
-     * Adds an item with all its children into specified equipmentSlots, wherever it fits.
-     * @param equipmentSlots Slot to add item+children into
-     * @param parentId
-     * @param parentTpl
-     * @param itemWithChildren Item to add
-     * @param inventory Inventory to add item+children into
-     * @returns a `boolean` indicating item was added
-     */
-    addItemWithChildrenToEquipmentSlot(equipmentSlots: string[], parentId: string, parentTpl: string, itemWithChildren: Item[], inventory: Inventory): ItemAddedResult;
-    /**
-     * Is the provided item allowed inside a container
-     * @param slotGrid Items sub-grid we want to place item inside
-     * @param itemTpl Item tpl being placed
-     * @returns True if allowed
-     */
-    protected itemAllowedInContainer(slotGrid: Grid, itemTpl: string): boolean;
 }

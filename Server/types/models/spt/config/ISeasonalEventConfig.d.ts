@@ -1,11 +1,14 @@
-import { SeasonalEventType } from "@spt-aki/models/enums/SeasonalEventType";
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { BossLocationSpawn } from "@spt/models/eft/common/ILocationBase";
+import { SeasonalEventType } from "@spt/models/enums/SeasonalEventType";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface ISeasonalEventConfig extends IBaseConfig {
-    kind: "aki-seasonalevents";
+    kind: "spt-seasonalevents";
     enableSeasonalEventDetection: boolean;
     /** event / botType / equipSlot / itemid */
     eventGear: Record<string, Record<string, Record<string, Record<string, number>>>>;
     events: ISeasonalEvent[];
+    eventBotMapping: Record<string, string>;
+    eventBossSpawns: Record<string, Record<string, BossLocationSpawn[]>>;
     gifterSettings: GifterSetting[];
 }
 export interface ISeasonalEvent {

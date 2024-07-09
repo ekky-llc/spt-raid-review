@@ -1,4 +1,4 @@
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile'
 import { CONSTANTS } from '../../constant'
 import { Logger } from 'src/Utils/logger'
 
@@ -8,11 +8,11 @@ export interface SessionManagerRaid {
     timeout: number
 }
 
-export type SessionManagerPlayerMap = Map<string, IAkiProfile>
+export type SessionManagerPlayerMap = Map<string, ISptProfile>
 
 export interface SessionManagerPlayer {
     raidId: string
-    profile: IAkiProfile
+    profile: ISptProfile
     timeout: number
 }
 

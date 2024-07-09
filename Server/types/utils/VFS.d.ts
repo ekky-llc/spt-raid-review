@@ -1,17 +1,15 @@
 /// <reference types="node" />
 /// <reference types="node" />
-import fs from "node:fs";
 import "reflect-metadata";
-import { IAsyncQueue } from "@spt-aki/models/spt/utils/IAsyncQueue";
-import { IUUidGenerator } from "@spt-aki/models/spt/utils/IUuidGenerator";
+import fs from "node:fs";
+import { IAsyncQueue } from "@spt/models/spt/utils/IAsyncQueue";
 export declare class VFS {
     protected asyncQueue: IAsyncQueue;
-    protected uuidGenerator: IUUidGenerator;
     accessFilePromisify: (path: fs.PathLike, mode?: number) => Promise<void>;
     copyFilePromisify: (src: fs.PathLike, dst: fs.PathLike, flags?: number) => Promise<void>;
     mkdirPromisify: (path: fs.PathLike, options: fs.MakeDirectoryOptions & {
         recursive: true;
-    }) => Promise<string>;
+    }) => Promise<string | undefined>;
     readFilePromisify: (path: fs.PathLike) => Promise<Buffer>;
     writeFilePromisify: (path: fs.PathLike, data: string, options?: any) => Promise<void>;
     readdirPromisify: (path: fs.PathLike, options?: BufferEncoding | {
@@ -24,7 +22,7 @@ export declare class VFS {
     unlinkPromisify: (path: fs.PathLike) => Promise<void>;
     rmdirPromisify: (path: fs.PathLike) => Promise<void>;
     renamePromisify: (oldPath: fs.PathLike, newPath: fs.PathLike) => Promise<void>;
-    constructor(asyncQueue: IAsyncQueue, uuidGenerator: IUUidGenerator);
+    constructor(asyncQueue: IAsyncQueue);
     exists(filepath: fs.PathLike): boolean;
     existsAsync(filepath: fs.PathLike): Promise<boolean>;
     copyFile(filepath: fs.PathLike, target: fs.PathLike): void;
@@ -48,10 +46,10 @@ export declare class VFS {
     removeDirAsync(filepath: string): Promise<void>;
     rename(oldPath: string, newPath: string): void;
     renameAsync(oldPath: string, newPath: string): Promise<void>;
-    protected lockFileSync(filepath: any): void;
-    protected checkFileSync(filepath: any): any;
+    protected lockFileSync(filepath: any): () => void;
+    protected checkFileSync(filepath: any): boolean;
     protected unlockFileSync(filepath: any): void;
-    getFileExtension(filepath: string): string;
+    getFileExtension(filepath: string): string | undefined;
     stripExtension(filepath: string): string;
     minifyAllJsonInDirRecursive(filepath: string): Promise<void>;
     minifyAllJsonInDirRecursiveAsync(filepath: string): Promise<void>;

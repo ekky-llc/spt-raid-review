@@ -1,17 +1,18 @@
-import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
-import { Product } from "@spt-aki/models/eft/common/tables/IBotBase";
-import { Upd } from "@spt-aki/models/eft/common/tables/IItem";
-import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
-import { IHideoutScavCase } from "@spt-aki/models/eft/hideout/IHideoutScavCase";
-import { IScavCaseConfig } from "@spt-aki/models/spt/config/IScavCaseConfig";
-import { RewardCountAndPriceDetails, ScavCaseRewardCountsAndPrices } from "@spt-aki/models/spt/hideout/ScavCaseRewardCountsAndPrices";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { ItemFilterService } from "@spt-aki/services/ItemFilterService";
-import { RagfairPriceService } from "@spt-aki/services/RagfairPriceService";
-import { HashUtil } from "@spt-aki/utils/HashUtil";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { ItemHelper } from "@spt/helpers/ItemHelper";
+import { PresetHelper } from "@spt/helpers/PresetHelper";
+import { Item } from "@spt/models/eft/common/tables/IItem";
+import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
+import { IHideoutScavCase } from "@spt/models/eft/hideout/IHideoutScavCase";
+import { IScavCaseConfig } from "@spt/models/spt/config/IScavCaseConfig";
+import { RewardCountAndPriceDetails, ScavCaseRewardCountsAndPrices } from "@spt/models/spt/hideout/ScavCaseRewardCountsAndPrices";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { ItemFilterService } from "@spt/services/ItemFilterService";
+import { RagfairPriceService } from "@spt/services/RagfairPriceService";
+import { SeasonalEventService } from "@spt/services/SeasonalEventService";
+import { HashUtil } from "@spt/utils/HashUtil";
+import { RandomUtil } from "@spt/utils/RandomUtil";
 /**
  * Handle the creation of randomised scav case rewards
  */
@@ -20,20 +21,22 @@ export declare class ScavCaseRewardGenerator {
     protected randomUtil: RandomUtil;
     protected hashUtil: HashUtil;
     protected itemHelper: ItemHelper;
-    protected databaseServer: DatabaseServer;
+    protected presetHelper: PresetHelper;
+    protected databaseService: DatabaseService;
     protected ragfairPriceService: RagfairPriceService;
+    protected seasonalEventService: SeasonalEventService;
     protected itemFilterService: ItemFilterService;
     protected configServer: ConfigServer;
     protected scavCaseConfig: IScavCaseConfig;
     protected dbItemsCache: ITemplateItem[];
     protected dbAmmoItemsCache: ITemplateItem[];
-    constructor(logger: ILogger, randomUtil: RandomUtil, hashUtil: HashUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, ragfairPriceService: RagfairPriceService, itemFilterService: ItemFilterService, configServer: ConfigServer);
+    constructor(logger: ILogger, randomUtil: RandomUtil, hashUtil: HashUtil, itemHelper: ItemHelper, presetHelper: PresetHelper, databaseService: DatabaseService, ragfairPriceService: RagfairPriceService, seasonalEventService: SeasonalEventService, itemFilterService: ItemFilterService, configServer: ConfigServer);
     /**
      * Create an array of rewards that will be given to the player upon completing their scav case build
      * @param recipeId recipe of the scav case craft
      * @returns Product array
      */
-    generate(recipeId: string): Product[];
+    generate(recipeId: string): Item[][];
     /**
      * Get all db items that are not blacklisted in scavcase config or global blacklist
      * Store in class field
@@ -72,17 +75,7 @@ export declare class ScavCaseRewardGenerator {
      * @param rewardItems items to convert
      * @returns Product array
      */
-    protected randomiseContainerItemRewards(rewardItems: ITemplateItem[], rarity: string): Product[];
-    /**
-     * Add a randomised stack count to ammo or money items
-     * @param item money or ammo item
-     * @param resultItem money or ammo item with a randomise stack size
-     */
-    protected addStackCountToAmmoAndMoney(item: ITemplateItem, resultItem: {
-        _id: string;
-        _tpl: string;
-        upd: Upd;
-    }, rarity: string): void;
+    protected randomiseContainerItemRewards(rewardItems: ITemplateItem[], rarity: string): Item[][];
     /**
      * @param dbItems all items from the items.json
      * @param itemFilters controls how the dbItems will be filtered and returned (handbook price)

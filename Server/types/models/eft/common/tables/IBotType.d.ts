@@ -1,5 +1,5 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { Skills } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { MinMax } from "@spt/models/common/MinMax";
+import { Skills } from "@spt/models/eft/common/tables/IBotBase";
 export interface IBotType {
     appearance: Appearance;
     chances: Chances;
@@ -15,13 +15,14 @@ export interface IBotType {
 export interface Appearance {
     body: Record<string, number>;
     feet: Record<string, number>;
-    hands: string[];
-    head: string[];
-    voice: string[];
+    hands: Record<string, number>;
+    head: Record<string, number>;
+    voice: Record<string, number>;
 }
 export interface Chances {
     equipment: EquipmentChances;
-    mods: ModsChances;
+    weaponMods: ModsChances;
+    equipmentMods: ModsChances;
 }
 export interface EquipmentChances {
     ArmBand: number;
@@ -108,6 +109,9 @@ export interface GenerationWeightingItems {
     grenades: GenerationData;
     healing: GenerationData;
     drugs: GenerationData;
+    food: GenerationData;
+    drink: GenerationData;
+    currency: GenerationData;
     stims: GenerationData;
     backpackLoot: GenerationData;
     pocketLoot: GenerationData;
@@ -119,7 +123,7 @@ export interface GenerationData {
     /** key: number of items, value: weighting */
     weights: Record<string, number>;
     /** Array of item tpls */
-    whitelist: string[];
+    whitelist: Record<string, number>;
 }
 export interface Health {
     BodyParts: BodyPart[];
@@ -159,10 +163,10 @@ export interface Equipment {
     TacticalVest: Record<string, number>;
 }
 export interface Items {
-    Backpack: string[];
-    Pockets: string[];
-    SecuredContainer: string[];
-    SpecialLoot: string[];
-    TacticalVest: string[];
+    Backpack: Record<string, number>;
+    Pockets: Record<string, number>;
+    SecuredContainer: Record<string, number>;
+    SpecialLoot: Record<string, number>;
+    TacticalVest: Record<string, number>;
 }
 export type Mods = Record<string, Record<string, string[]>>;

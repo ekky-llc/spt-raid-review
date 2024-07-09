@@ -1,13 +1,15 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { MinMax } from "@spt/models/common/MinMax";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface IInventoryConfig extends IBaseConfig {
-    kind: "aki-inventory";
+    kind: "spt-inventory";
     /** Should new items purchased by flagged as found in raid */
     newItemsMarkedFound: boolean;
     randomLootContainers: Record<string, RewardDetails>;
     sealedAirdropContainer: ISealedAirdropContainerSettings;
     /** Contains item tpls that the server should consider money and treat the same as roubles/euros/dollars */
     customMoneyTpls: string[];
+    /** Multipliers for skill gain when inside menus, NOT in-game */
+    skillGainMultiplers: Record<string, number>;
 }
 export interface RewardDetails {
     rewardCount: number;

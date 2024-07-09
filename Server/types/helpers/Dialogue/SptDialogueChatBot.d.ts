@@ -1,12 +1,13 @@
-import { IDialogueChatBot } from "@spt-aki/helpers/Dialogue/IDialogueChatBot";
-import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
-import { ISendMessageRequest } from "@spt-aki/models/eft/dialog/ISendMessageRequest";
-import { IUserDialogInfo } from "@spt-aki/models/eft/profile/IAkiProfile";
-import { ICoreConfig } from "@spt-aki/models/spt/config/ICoreConfig";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { GiftService } from "@spt-aki/services/GiftService";
-import { MailSendService } from "@spt-aki/services/MailSendService";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { IDialogueChatBot } from "@spt/helpers/Dialogue/IDialogueChatBot";
+import { ProfileHelper } from "@spt/helpers/ProfileHelper";
+import { ISendMessageRequest } from "@spt/models/eft/dialog/ISendMessageRequest";
+import { IUserDialogInfo } from "@spt/models/eft/profile/ISptProfile";
+import { ICoreConfig } from "@spt/models/spt/config/ICoreConfig";
+import { IWeatherConfig } from "@spt/models/spt/config/IWeatherConfig";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { GiftService } from "@spt/services/GiftService";
+import { MailSendService } from "@spt/services/MailSendService";
+import { RandomUtil } from "@spt/utils/RandomUtil";
 export declare class SptDialogueChatBot implements IDialogueChatBot {
     protected profileHelper: ProfileHelper;
     protected randomUtil: RandomUtil;
@@ -14,6 +15,7 @@ export declare class SptDialogueChatBot implements IDialogueChatBot {
     protected giftService: GiftService;
     protected configServer: ConfigServer;
     protected coreConfig: ICoreConfig;
+    protected weatherConfig: IWeatherConfig;
     constructor(profileHelper: ProfileHelper, randomUtil: RandomUtil, mailSendService: MailSendService, giftService: GiftService, configServer: ConfigServer);
     getChatBot(): IUserDialogInfo;
     /**

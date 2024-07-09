@@ -1,5 +1,5 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { Ixyz } from "@spt-aki/models/eft/common/Ixyz";
+import { MinMax } from "@spt/models/common/MinMax";
+import { Ixyz } from "@spt/models/eft/common/Ixyz";
 export interface ILocationBase {
     AccessKeys: string[];
     AirdropParameters: AirdropParameter[];
@@ -17,6 +17,7 @@ export interface ILocationBase {
     BotMax: number;
     BotMaxPlayer: number;
     BotMaxTimePlayer: number;
+    BotMaxPvE: number;
     BotNormal: number;
     BotSpawnCountStep: number;
     BotSpawnPeriodCheck: number;
@@ -32,6 +33,7 @@ export interface ILocationBase {
     Enabled: boolean;
     EnableCoop: boolean;
     GlobalLootChanceModifier: number;
+    GlobalLootChanceModifierPvE: number;
     GlobalContainerChanceModifier: number;
     IconX: number;
     IconY: number;
@@ -72,6 +74,7 @@ export interface ILocationBase {
     doors: any[];
     EscapeTimeLimit: number;
     EscapeTimeLimitCoop: number;
+    EscapeTimeLimitPVE: number;
     exit_access_time: number;
     exit_count: number;
     exit_time: number;
@@ -132,8 +135,11 @@ export interface BossLocationSpawn {
     TriggerId: string;
     TriggerName: string;
     Delay?: number;
+    ForceSpawn?: boolean;
+    IgnoreMaxBots?: boolean;
     Supports?: BossSupport[];
     sptId?: string;
+    spawnMode: string[];
 }
 export interface BossSupport {
     BossEscortAmount: string;
@@ -171,6 +177,7 @@ export interface SpawnPointParam {
     BotZoneName: string;
     Categories: string[];
     ColliderParams: ColliderParams;
+    CorePointId: number;
     DelayToCanSpawnSec: number;
     Id: string;
     Infiltration: string;
@@ -187,19 +194,28 @@ export interface Props {
     Radius: number;
 }
 export interface Exit {
+    /** % Chance out of 100 exit will appear in raid */
     Chance: number;
+    ChancePVE: number;
     Count: number;
+    CountPVE: number;
     EntryPoints: string;
+    EventAvailable: boolean;
     ExfiltrationTime: number;
+    ExfiltrationTimePVE: number;
     ExfiltrationType: string;
     RequiredSlot?: string;
     Id: string;
     MaxTime: number;
+    MaxTimePVE: number;
     MinTime: number;
+    MinTimePVE: number;
     Name: string;
     PassageRequirement: string;
     PlayersCount: number;
+    PlayersCountPVE: number;
     RequirementTip: string;
+    Side?: string;
 }
 export interface MaxItemCountInLocation {
     TemplateId: string;
