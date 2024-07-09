@@ -1,23 +1,24 @@
-import { Link, useLoaderData, useSearchParams } from "react-router-dom";
+import { Link, useLoaderData, useNavigation, useSearchParams } from "react-router-dom";
 import api from "../api/api";
 import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
 
 import './Home.css'
+import GlobalSpinner from "../component/GlobalSpinner";
 // import { useState } from "react";
 
 export async function loader() {
     let profiles = await api.getProfiles();
 
-    // const hideUpdateMessage = !window.localStorage.getItem('hide_message__v0.0.4');
+    profiles = [...profiles, ...profiles, ...profiles, ...profiles, ...profiles, ...profiles]
 
     return { profiles }
 }
 
 export default function Home() {
     const [ searchParams ] = useSearchParams();
+    const navigation = useNavigation();
     const { profiles } = useLoaderData() as { profiles: IAkiProfile[], hideUpdateMessage: boolean };
-    // const [ showMessage, setShowMessage ] = useState(hideUpdateMessage);
-    
+
     function renderError(profileId: string) {
         const error = searchParams.get('error');
         const affected_profile = searchParams.get('profileId');
@@ -35,13 +36,11 @@ export default function Home() {
         }
     }
 
-    // function updateHideMessage() {
-    //     setShowMessage(false);
-    //     window.localStorage.setItem('hide_message__v0.0.4', 'true');
-    // }
-
     return (
         <main className="h-screen w-screen text-eft grid place-content-center font-mono relative">
+
+            { navigation.state === "loading" && <GlobalSpinner /> }
+
             <h1 className="text-center text-2xl mb-2 font-bold">{profiles.length > 6 ? (`SELECT YOUR Prof.. woah... why so many?${profiles.length >= 12 ? '... seriously?' : ''}`) : 'SELECT YOUR PROFILE'}</h1>
             <div className={`grid gap-4 bg-black/75 p-6 ${profiles.length >= 6 ? `profile-collector ${profiles.length >= 12 ? 'even-more' : ''}` : ''}`}>
                 {profiles.length > 0 ? profiles.map((profile) => (
@@ -62,25 +61,6 @@ export default function Home() {
                 </Link>
                 )) : 'No Profiles Found...'}
             </div>
-
-            {/* { showMessage ? 
-                <div id="notification">
-                        <div className="home-message">
-                            <div className="text-right mx-auto mb-2"> 
-                                <a className="text-sm p-2 py-1 hover:bg-neutral-500/25 text-sm cursor-pointer border border-eft text-eft" onClick={updateHideMessage}>Hide Message</a>
-                            </div>
-                            <div className="border border-eft text-sm text-center p-2 mb-2 mx-auto bg-black p-2">
-                                <strong>👋🏾 Hello There 👋🏾</strong>
-                                <p className="mt-2">As part of this v0.0.4 update, I've implemented a statistics service that sends post-raid data back to a public web server for some dashboard fun.</p>
-                                <p className="mt-2">All data is completely <strong className="underline">anonymous</strong> and is <strong className="underline">disabled</strong> by default.</p>
-                                <p className="mt-2">If you'd like to participate you can do so from the new settings page which you'll find in the top-right corner when you select a profile.</p>
-                                <p className="mt-2">If you'd like to know more about this <a target='_blank' className="underline" href="https://github.com/ekky-llc/spt-raid-review/blob/main/TELEMETRY.md">read here</a>.</p>
-                                <p className="mt-2">You can check out the overall statistics here<br/> <a className="underline" target="_blank" href="https://raid-review.online">https://raid-review.online</a></p>
-                                <p className="mt-4">Have fun! - Ekky</p>
-                            </div>
-                        </div>
-                </div>    
-            : ''} */}
 
             <div className="text-xs text-center mt-4">
                 Need help? Found a bug?<br />Join the <a target="_blank" className="underline" href="https://discord.gg/5AyDs66h8S">Discord</a>.

@@ -17,6 +17,8 @@ namespace RAID_REVIEW
         [PatchPostfix]
         private static void PatchPostFix(ref Player __instance, IPlayer aggressor, DamageInfo damageInfo, EBodyPart bodyPart, EDamageType lethalDamageType)
         {
+            if (__instance.Location == "hideout") return;
+
             try
             {
                 if (RAID_REVIEW.KillTracking.Value)

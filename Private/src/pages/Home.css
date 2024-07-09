@@ -23,8 +23,6 @@
 
 .profile-collector {
     grid-template-columns: repeat(2, 1fr);
-}
-
-.even-more {
-    grid-template-columns: repeat(3, 1fr);
+    overflow-x: auto;
+    max-height: 800px;
 }

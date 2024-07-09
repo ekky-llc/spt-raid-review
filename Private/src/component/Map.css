@@ -265,9 +265,17 @@
     background-color: rgba(0, 0, 0, 0.75);
   }
 
-  .leaflet-overlay-pane.heatmap-active svg {
+  .leaflet-overlay-pane.heatmap-active canvas.leaflet-heatmap-layer {
+    display: block!important;
+  }
+
+  .leaflet-overlay-pane.heatmap-active .leaflet-marker-pane
+  .leaflet-overlay-pane.heatmap-active svg,
+  .leaflet-overlay-pane.heatmap-active canvas 
+  {
     display: none!important;
   }
+
 
   .leaflet-heatmap-layer {
     z-index: 9999;

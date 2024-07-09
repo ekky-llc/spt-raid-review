@@ -13,13 +13,13 @@ import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
 import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
 import { LocaleService } from '@spt-aki/services/LocaleService'
 
-import config from '../../../config.json'
-import { DeleteFile, ReadFile } from '../../Controllers/FileSystem/DataSaver'
-import CompileRaidPositionalData from '../../Controllers/PositionalData/CompileRaidPositionalData'
-import { generateInterpolatedFramesBezier } from '../../Utils/utils'
-import { getRaidData } from '../../Controllers/Collection/GetRaidData'
-import { sendStatistics } from '../../Controllers/Telemetry/RaidStatistics'
-import { Logger } from '../../Utils/logger'
+import config from '../../config.json'
+import { DeleteFile, ReadFile } from '../Controllers/FileSystem/DataSaver'
+import CompileRaidPositionalData from '../Controllers/PositionalData/CompileRaidPositionalData'
+import { generateInterpolatedFramesBezier } from '../Utils/utils'
+import { getRaidData } from '../Controllers/Collection/GetRaidData'
+import { sendStatistics } from '../Controllers/Telemetry/RaidStatistics'
+import { Logger } from '../Utils/logger'
 
 const app: Express = express()
 const port = config.web_client_port || 7829

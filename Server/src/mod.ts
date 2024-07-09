@@ -14,7 +14,7 @@ import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
 import { LocaleService } from '@spt-aki/services/LocaleService'
 
 import config from '../config.json'
-import WebServer from './Web/Server/Express'
+import WebServer from './Server/Express'
 import { database } from './Database/sqlite'
 import { MigratePositionsStructure } from './Controllers/PositionalData/PositionsMigration'
 import { CheckForMissingMainPlayer } from './Controllers/DataIntegrity/CheckForMissingMainPlayer'
@@ -152,7 +152,7 @@ class Mod implements IPreAkiLoadMod, IPostAkiLoadMod {
             ws.on('message', (data: RawData) => messagePacketHandler(data, this.database, this.sessionManager, this.modDetector, this.logger, post_raid_processing))
         })
 
-        this.logger.log(`Websocket Server Listening on 'ws://127.0.0.1:7828'.`)
+        this.logger.log(`Websocket Server Listening on 'ws://127.0.0.1:${config.web_socket_port}'.`)
 
         WebServer(this.saveServer, this.profileHelper, this.database, this.intl, this.logger)
     }

@@ -8,7 +8,7 @@
     "scripts": {
         "setup": "npm i",
         "build": "node ./build.mjs",
-        "build-all": "cd ./src/Web/Client && npm run build && cd ../../../ && node ./build.mjs",
+        "build-all": "cd ../Private && npm run build && cd ../../../ && node ./build.mjs",
         "buildinfo": "node ./build.mjs --verbose"
     },
     "dependencies": {

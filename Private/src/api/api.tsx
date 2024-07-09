@@ -2,7 +2,7 @@ import { IAkiProfile } from '../../../../../types/models/eft/profile/IAkiProfile
 import { TrackingRaidData, RaidReviewServerSettings, TrackingCoreDataRaids } from '../types/api_types';
 
 let isDev = window.location.host.includes("5173");
-let hostname = isDev ? 'http://127.0.0.1:7829' : '';
+let hostname = isDev ? 'https://raid-review.talke.dev' : '';
 
 const api = {
     getIntl: async function() : Promise<{ [key: string] : string }> {

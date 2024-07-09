@@ -57,6 +57,12 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                 sessionManager.pingRaid(raidId);
                 sessionManager.pingProfile(payload_object.sessionId);
             }
+            
+            else {
+                // Throw away statements without a RAID Id, should catch random errors too.
+                logger.debug(`[MISSING_VALUE:'raidId'] ${data.Action}|${JSON.stringify(payload_object)}`)
+                return;
+            }
 
             // Fika Check
             const isFikaInstalled = modDetector.isModInstalled(CONSTANTS.MOD_SIGNATURES.FIKA);
