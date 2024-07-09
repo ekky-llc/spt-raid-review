@@ -659,7 +659,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                     [e.source.z, e.source.x],
                     [e.target.z, e.target.x],
                 ],
-                { color: 'red', weight: 2, dashArray: [10], dashOffset: 3, opacity: 0.75 }
+                { color: 'red', weight: 2, dashArray: [10], dashOffset: 3, opacity: 1 }
             );
             polyline.eventTime = e.time;
             polyline.eventType = 'killerLine';
@@ -696,24 +696,26 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     }, [MAP, events, mapIsReady]);
     
     useEffect(() => {
-        const timeRange = { start: sliderTimes[timeCurrentIndex - dropOffIndex], end: sliderTimes[timeCurrentIndex] };
+        const timeRange = { start: preserveHistory ? 0 : sliderTimes[timeCurrentIndex - dropOffIndex] || 0, end: sliderTimes[timeCurrentIndex] };
     
         addedLayers.current.forEach((layer, key) => {
             if (layer instanceof L.Marker) {
                 const layerElement = layer.getElement();
                 if (layerElement) {
                     // if (layer.eventTime > timeRange.start && layer.eventTime < timeRange.end) {
-                    if (layer.eventTime < timeRange.start && layer.eventTime < timeRange.end) {
+                    if (layer.eventTime > timeRange.start && layer.eventTime < timeRange.end) {
                         layerElement.classList.remove('invisible');
                     } else {
                         layerElement.classList.add('invisible');
                     }
                 }
-            } else if (layer instanceof L.Polyline) {
+            } 
+            
+            else if (layer instanceof L.Polyline) {
                 if (layer.eventTime > timeRange.start && layer.eventTime < timeRange.end) {
-                    layer.setStyle({ opacity: 0.75 });
+                    layer.setStyle({ opacity: 1 });
                 } else {
-                    layer.setStyle({ opacity: 0.25 });
+                    layer.setStyle({ opacity: 0 });
                 }
             }
         });
@@ -760,7 +762,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         for (const key in m._layers) {
             const layer = m._layers[key]
 
-            if (layer instanceof L.Polyline || layer instanceof L.Circle) {
+            if ((layer instanceof L.Polyline && layer.eventType === undefined)|| layer instanceof L.Circle) {
                 m.removeLayer(layer)
             }
 

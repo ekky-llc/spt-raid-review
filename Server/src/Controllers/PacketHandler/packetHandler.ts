@@ -59,7 +59,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                 sessionManager.pingProfile(payload_object.sessionId);
             }
             
-            else {
+            else if (!raidId && data.Action !== "START") {
                 // Throw away statements without a RAID Id, should catch random errors too.
                 logger.debug(`[MISSING_VALUE:'raidId'] ${data.Action}|${JSON.stringify(payload_object)}`)
                 return;
