@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
 
-import { TrackingRaidData, TrackingRaidDataPlayers } from "../../Web/Client/src/types/api_types";
+import { TrackingRaidData, TrackingRaidDataPlayers } from "../../Server/Client/src/types/api_types";
 import { positional_data__grouped } from "../PositionalData/CompileRaidPositionalData";
 import { calculateTotalDistance } from "../PositionalData/CalculateDistancesTravelled";
 import { getRaidData } from '../Collection/GetRaidData';
