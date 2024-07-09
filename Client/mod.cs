@@ -20,7 +20,7 @@ using System.Collections;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.1.0")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.1.1")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
