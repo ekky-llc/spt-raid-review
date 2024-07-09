@@ -170,6 +170,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     const [currentMap, setCurrentMap] = useState('')
 
     // Map
+    const [mapIsReady, setMapIsReady] = useState(false);
     const [heatmapEnabled, setHeatmapEnabled] = useState(false)
     const [heatmapData, setHeatmapData] = useState([])
     const [availableLayers, setAvailableLayers] = useState([])
@@ -233,6 +234,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         return map
     }, [allMaps, currentMap])
 
+    /**
+     * Removes the scroll bar when in the map view mode
+     */
     useEffect(() => {
         if (window.location.pathname.includes('map')) {
             document.querySelector('body').style = 'overflow: hidden;'
@@ -243,6 +247,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         }
     }, [])
 
+    /**
+     * Sets the location for the map based on the raidData location value
+     */
     useEffect(() => {
         const locations = {
             bigmap: 'customs',
@@ -267,7 +274,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         }
 
         setCurrentMap(locations[raidData.location])
-        // setCurrentMap("reserve");
 
         const newEvents = []
         if (raidData && raidData.players) {
@@ -294,11 +300,16 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         setEvents(newEvents)
     }, [raidData])
 
+    /**
+     * Resets the leaflet transform using the values of the current map data
+     */
     useEffect(() => {
         ref?.current?.resetTransform()
     }, [currentMap])
 
-    // Map Renderer
+    /**
+     * Renders all the related data for the map
+     */
     useEffect(() => {
         if (!mapData || mapData.projection !== 'interactive') {
             return
@@ -344,7 +355,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
 
         const zoomLevel = map.getZoom()
         setProportionalScale(calculateProportionalRadius(mapData.bounds, zoomLevel))
-        SET_MAP(map)
 
         const updateProportionalScale = () => {
             const zoomLevel = map.getZoom()
@@ -460,15 +470,22 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         }
 
         mapRef.current = map
+        SET_MAP(map);
+        setTimeout(() => {
+            setMapIsReady(true)
+        }, 250)
 
         if (heatmapEnabled) {
-            L.heatLayer(heatmapData, { radius: 7.5, max: 1, blur: 5 }).addTo(map)
+            L.heatLayer(heatmapData, { radius: 10, max: 1, blur: 10 }).addTo(map)
         }
+        
     }, [mapData, mapRef, mapViewRef, selectedLayer, selectedStyle, heatmapEnabled, heatmapData])
 
     // Heatmap Fetcher
     useEffect(() => {
-        ;(async () => {
+        if (!mapIsReady) return;
+
+        (async () => {
             if (heatmapData.length === 0) {
                 const data = await api.getRaidHeatmapData(profileId, raidId)
                 if (data) {
@@ -477,18 +494,18 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
             }
         })()
 
-        var overlayParent = document.querySelector('.leaflet-overlay-pane')
+        var overlayParent = document.querySelector('.map-container')
         if (overlayParent === undefined) return
         if (heatmapEnabled) {
             overlayParent?.classList.add('heatmap-active')
         } else {
             overlayParent?.classList.remove('heatmap-active')
         }
-    }, [heatmapEnabled])
+    }, [mapIsReady, heatmapEnabled])
 
     // Positon Renderer
     useEffect(() => {
-        if (!MAP) return;
+        if (!mapIsReady) return;
 
         let times = []
 
@@ -533,11 +550,13 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
             }
 
             // Hide player movement if enabled
-            if (!hidePlayers && MAP && cleanPositions.length > 0) {
+            if (MAP && !hidePlayers && cleanPositions.length > 0) {
                 let endOfLine = cleanPositions[cleanPositions.length - 1]
 
                 // Focused Player
                 if (playerFocus !== null && playerFocus === i) {
+
+                    if (!MAP) return
                     L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: 1 })
                         .addTo(MAP)
                         .on('click', () => {
@@ -553,6 +572,8 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                 } else {
                     let focusedOpacityPolyLine = preserveHistory ? 0.1 : isPlayerDead ? 0 : 0.1
                     let focusedOpacityCircle = isPlayerDead ? 0 : 0.1
+
+                    if (!MAP) return
                     L.polyline(cleanPositions, { color: pickedColor, weight: 4, opacity: focusedOpacityPolyLine })
                         .addTo(MAP)
                         .on('click', () => {
@@ -601,7 +622,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
             setTimeEndLimit(times[times.length - 1])
             setTimeCurrentIndex(times.length - 1)
         }
-    }, [mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus])
+    }, [mapIsReady, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus])
 
     // Slider Time Update
     useEffect(() => {
@@ -615,7 +636,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     // Event Update
     const addedLayers = useRef(new Map());
     useEffect(() => {
-        if (!MAP) return;
+        if (!mapIsReady) return;
 
         const createdLayers = new Map();
     
@@ -672,7 +693,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                 MAP.removeLayer(layer);
             });
         };
-    }, [MAP, events]);
+    }, [MAP, events, mapIsReady]);
     
     useEffect(() => {
         const timeRange = { start: sliderTimes[timeCurrentIndex - dropOffIndex], end: sliderTimes[timeCurrentIndex] };
@@ -692,7 +713,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                 if (layer.eventTime > timeRange.start && layer.eventTime < timeRange.end) {
                     layer.setStyle({ opacity: 0.75 });
                 } else {
-                    layer.setStyle({ opacity: 0 });
+                    layer.setStyle({ opacity: 0.25 });
                 }
             }
         });
@@ -734,6 +755,8 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory])
 
     function clearMap(m, timeRange) {
+        if (!m && !mapIsReady) return;
+
         for (const key in m._layers) {
             const layer = m._layers[key]
 
@@ -979,6 +1002,14 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                                 </div>
                             ))}
                     </div>
+                    <div id="view-switcher" className='border border-eft bg-black'>
+                        <button className={`positional border border-eft ${heatmapEnabled ? 'opacity-50' : ''}`} onClick={() => setHeatmapEnabled(false)}>
+                            
+                        </button>
+                        <button className={`heatmap border border-eft ${heatmapEnabled ? '' : 'opacity-50'}`} onClick={() => setHeatmapEnabled(true)}>
+                            
+                        </button>
+                    </div>
                     <div id="leaflet-map" ref={onMapContainerRefChange} className={'leaflet-map-container'} />
                 </div>
                 <div className="dev__time_sliders p-3 border border-eft mt-4 timeline">
@@ -1034,9 +1065,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                             <button className={`text-xs p-1 text-sm cursor-pointer ${preserveHistory ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft tooltip info`} onClick={() => setPreserveHistory(!preserveHistory)}>
                                 Preserve
                                 <span className="tooltiptext info">If enabled, keeps all activity visible throughout playback, otherwise, only recent activity is kept visible.</span>
-                            </button>
-                            <button className={`text-xs p-1 text-sm cursor-pointer ${heatmapEnabled ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHeatmapEnabled(!heatmapEnabled)}>
-                                Toggle Heatmap
                             </button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${!hideNerdStats ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideNerdStats(!hideNerdStats)}>
                                 Debug

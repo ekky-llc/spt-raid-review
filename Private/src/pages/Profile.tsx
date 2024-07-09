@@ -4,7 +4,7 @@ import moment from "moment";
 
 import api from "../api/api";
 import { getCookie } from "../modules/utils";
-import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
+import { IAkiProfile } from "../../../Server/types/models/eft/profile/IAkiProfile";
 
 import "./Profile.css";
 import GlobalSpinner from "../component/GlobalSpinner";

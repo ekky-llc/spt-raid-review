@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
+
     public class RAID_REVIEW_Player_OnGameStartedPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -31,7 +32,6 @@ namespace RAID_REVIEW
                 // Check for installed mods
                 Integrations.ModCheck();
 
-                RAID_REVIEW.inRaid = true;
                 RAID_REVIEW.stopwatch.Reset();
                 RAID_REVIEW.stopwatch.Start();
 
@@ -45,8 +45,8 @@ namespace RAID_REVIEW
                     type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC",
                     timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
                 };
-
                 Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
+
                 var newTrackingPlayer = new TrackingPlayer
                 {
                     sessionId = RAID_REVIEW.sessionId,
@@ -60,7 +60,6 @@ namespace RAID_REVIEW
                     mod_SAIN_brain = "PLAYER",
                     mod_SAIN_difficulty = ""
                 };
-
                 RAID_REVIEW.trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
                 Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));
 

@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from 'express'
-import { mkdirSync, rmSync } from 'fs'
+import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import cors from 'cors'
 import _ from 'lodash'
@@ -7,6 +7,7 @@ import { Database } from 'sqlite'
 import sqlite3 from 'sqlite3'
 import cookieParser from 'cookie-parser'
 import basicAuth from 'express-basic-auth'
+import compression from 'compression' 
 
 import { SaveServer } from '@spt-aki/servers/SaveServer'
 import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
@@ -48,7 +49,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     app.use(cors())
     app.use(express.json())
     app.use(cookieParser())
-
+    app.use(compression())
 
     const basicAuthUsers = {};
     Object.values(profileServer.getProfiles()).map((p : IAkiProfile) => basicAuthUsers[p.info.username] = p.info.password);
@@ -284,36 +285,38 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     })
 
     app.get('/api/profile/:profileId/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
-        let { raidId } = req.params
-
-        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
-        let positionalData = JSON.parse(positionalDataRaw)
-        positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
-
-        const flattenedData = _.chain(positionalData).valuesIn().flatMapDeep().value();
-
-        const points = flattenedData.map(entry => [entry.z, entry.x, 1]);
-        const pointMap = new Map();
-
-        points.forEach(([z, x, intensity]) => {
-            const key = `${z},${x}`;
-            if (pointMap.has(key)) {
-                if (pointMap.get(key)[2] < 100) {
-                    pointMap.get(key)[2] += intensity;
+        let { raidId } = req.params;
+    
+        try {
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
+            let positionalData = JSON.parse(positionalDataRaw)
+            positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
+    
+            const flattenedData = _.chain(positionalData).valuesIn().flatMapDeep().value();
+    
+            const points = flattenedData.map(entry => [entry.z, entry.x, 1]);
+            const pointMap = new Map();
+    
+            points.forEach(([z, x, intensity]) => {
+                const key = `${z},${x}`;
+                if (pointMap.has(key)) {
+                    if (pointMap.get(key)[2] < 1) {
+                        pointMap.get(key)[2] += 1;
+                    }
+                } else {
+                    pointMap.set(key, [z, x, 1]);
                 }
-            } else {
-                pointMap.set(key, [z, x, intensity]);
-            }
-        });
+            });
+    
+            const aggregatedPoints = Array.from(pointMap.values());
 
-        const aggregatedPoints = Array.from(pointMap.values());
-
-        if (aggregatedPoints.length > 0) {
             return res.json(aggregatedPoints);
+        } catch (error) {
+            console.error('Error processing heatmap data:', error);
+            return res.status(500).json({ error: 'Internal server error' });
         }
-
-        return res.json([]);
-    })
+    });
+     
 
     app.get('/api/profile/:profileId/raids/:raidId/positions/compile', async (req: Request, res: Response) => {
         let { raidId } = req.params

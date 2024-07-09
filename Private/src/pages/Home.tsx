@@ -1,6 +1,6 @@
 import { Link, useLoaderData, useNavigation, useSearchParams } from "react-router-dom";
 import api from "../api/api";
-import { IAkiProfile } from "../../../../../types/models/eft/profile/IAkiProfile";
+import { IAkiProfile } from "../../../Server/types/models/eft/profile/IAkiProfile";
 
 import './Home.css'
 import GlobalSpinner from "../component/GlobalSpinner";
@@ -8,8 +8,6 @@ import GlobalSpinner from "../component/GlobalSpinner";
 
 export async function loader() {
     let profiles = await api.getProfiles();
-
-    profiles = [...profiles, ...profiles, ...profiles, ...profiles, ...profiles, ...profiles]
 
     return { profiles }
 }

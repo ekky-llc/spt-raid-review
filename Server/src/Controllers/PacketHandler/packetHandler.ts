@@ -10,8 +10,9 @@ import { ModDetector } from "../Integrations/modDetection";
 import { CONSTANTS } from "../../constant";
 import { Logger } from '../../Utils/logger';
 import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile';
+import { CheckForMissingMainPlayer } from '../DataIntegrity/CheckForMissingMainPlayer';
 
-async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, post_raid_processing: cron.ScheduledTask) {
+async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, profiles: Record<string, IAkiProfile>, post_raid_processing: cron.ScheduledTask) {
     try {
 
         // Convert RawData to string if it's a buffer
@@ -154,6 +155,8 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     if (raidId) {
                         sessionManager.removeRaid(raidId, CONSTANTS.REASON_RAID_REMOVAL__CLIENT_PACKET);
                     }
+
+                    CheckForMissingMainPlayer(db, logger, profiles);
 
                     post_raid_processing.start();
                     logger.log(`Enabled Post Processing: Raid Finished`);

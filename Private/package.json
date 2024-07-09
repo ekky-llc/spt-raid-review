@@ -14,6 +14,8 @@
     "leaflet-fullscreen": "^1.0.2",
     "leaflet-rotatedmarker": "^0.2.0",
     "leaflet.awesome-markers": "^2.0.5",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",

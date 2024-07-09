@@ -1,8 +1,9 @@
-import { IAkiProfile } from '../../../../../types/models/eft/profile/IAkiProfile';
+import { IAkiProfile } from '../../../Server/types/models/eft/profile/IAkiProfile';
 import { TrackingRaidData, RaidReviewServerSettings, TrackingCoreDataRaids } from '../types/api_types';
 
 let isDev = window.location.host.includes("5173");
-let hostname = isDev ? 'https://raid-review.talke.dev' : '';
+let hostname = isDev ? 'http://127.0.0.1:7829' : '';
+// let hostname = isDev ? 'https://raid-review.talke.dev' : '';
 
 const api = {
     getIntl: async function() : Promise<{ [key: string] : string }> {
@@ -185,8 +186,20 @@ const api = {
     getRaidPositionalData : async function(profileId: string, raidId: string, groupByPlayer : boolean = false) : Promise<any> {
         let positions = [] as any;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
-            positions = await response.json() as any;
+            const cached = window.sessionStorage.getItem(`${raidId}_positions`);
+            if (cached) {
+                positions = JSON.parse(cached);
+            } 
+            
+            else {
+                const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
+                positions = await response.json() as any;
+            }
+
+            if (positions) {
+                window.sessionStorage.setItem(`${raidId}_positions`, JSON.stringify(positions));
+            }
+
             return positions;
         } catch (error) {
             return positions;
