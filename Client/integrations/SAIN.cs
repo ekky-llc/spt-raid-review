@@ -14,8 +14,9 @@ namespace RAID_REVIEW
 {
     class SAIN_Integration
     {
-        public static async Task CheckForSainComponents(bool delay = true)
+        public static async Task CheckForSainComponents(bool endCheck = false)
         {
+            if(!RAID_REVIEW.SOLARINT_SAIN__DETECTED) return;
             try
             {
 
@@ -37,10 +38,8 @@ namespace RAID_REVIEW
 
                 while (RAID_REVIEW.searchingForSainComponents)
                 {
-                    if (delay)
-                    {
-                        await Task.Delay(5000);
-                    }
+                    if (!endCheck) await Task.Delay(5000); 
+                    else RAID_REVIEW.searchingForSainComponents = false;
 
                     if (RAID_REVIEW.sainBotController == null)
                     {
@@ -96,7 +95,7 @@ namespace RAID_REVIEW
                                 }
 
                                 var botDifficulty = info?.GetType().GetProperty("BotDifficulty")?.GetValue(info);
-                                if(botDifficulty == null)
+                                if (botDifficulty == null)
                                 {
                                     botDifficulty = profile?.GetType().GetField("BotDifficulty")?.GetValue(profile);
                                 }
@@ -121,8 +120,11 @@ namespace RAID_REVIEW
                             }
                         }
                     }
-
                 }
+
+                RAID_REVIEW.searchingForSainComponents = false;
+                RAID_REVIEW.updatedBots.Clear();
+                RAID_REVIEW.sainBotController = null;
                 return;
 
             }
