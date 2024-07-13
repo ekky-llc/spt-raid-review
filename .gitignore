@@ -11,4 +11,4 @@ Server/src/Web/Server/public/assets/index-0c1a950b.css
 Server/tmp
 Tools/**/config.js
 Tools/**/cloudflareDump/data/**
-publish.sh
+.vite

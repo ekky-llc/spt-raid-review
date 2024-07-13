@@ -209,6 +209,21 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
 
                     break;
 
+                case "TRACKING_BALLISTIC":
+
+                    const ballistic_sql = `INSERT INTO tracking_ballistic (raidId, time, profileId, weaponId, ammoId, source, target) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                    db.run(ballistic_sql, [
+                        raidId,
+                        payload_object.time,
+                        payload_object.profileId,
+                        payload_object.weaponId,
+                        payload_object.ammoId,
+                        payload_object.source,
+                        payload_object.target
+                    ]).catch((e: Error) => logger.error(`[SQL_ERR:ADD_TRACKING_BALLISTIC]`, e));
+
+                    break;
+
                 case "KILL":
                     const kill_sql = `INSERT INTO kills (raidId, time, profileId, killedId, weapon, distance, bodyPart, positionKiller, positionKilled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                     db

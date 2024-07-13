@@ -101,6 +101,7 @@ namespace RAID_REVIEW
             new RAID_REVIEW_menuTaskBar_setButtonsAvailablePatch().Enable();
             new RAID_REVIEW_Player_OnBeenKilledByAggressorPatch().Enable();
             new RAID_REVIEW_Player_OnItemAddedOrRemovedPatch().Enable();
+            new RAID_REVIEW_GameWorld_ShotDelegatePatch().Enable();
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Patches Loaded");
 
             Telemetry.Connect(RAID_REVIEW_WS_Server);
@@ -191,7 +192,6 @@ namespace RAID_REVIEW
                             _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
 
                         }
-
 
                         // Checks if a player / bot has died since the last check...
                         if (player.HealthController.IsAlive)

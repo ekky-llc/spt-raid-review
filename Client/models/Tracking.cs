@@ -89,4 +89,14 @@ namespace RAID_REVIEW
             this.dir = dir;
         }
     }
+
+    public class TrackingBallistic {
+        public string sessionId { get; set; }
+        public string profileId { get; set; }
+        public long time { get; set; }
+        public string weaponId { get; set; }
+        public string ammoId { get; set; }
+        public Vector3 source { get; set; }
+        public Vector3 target { get; set; }
+    }
 }
