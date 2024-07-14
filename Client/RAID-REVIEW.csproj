@@ -19,80 +19,80 @@
 
 	<ItemGroup>
 		<Reference Include="0Harmony">
-			<HintPath>dependencies\0Harmony.dll</HintPath>
+			<HintPath>dependencies\3.8.X\0Harmony.dll</HintPath>
 			<Private>false</Private>
 		  </Reference>
 		<Reference Include="Aki.Common">
-			<HintPath>dependencies\Aki.Common.dll</HintPath>
+			<HintPath>dependencies\3.8.X\Aki.Common.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Aki.Reflection">
-			<HintPath>dependencies\Aki.Reflection.dll</HintPath>
+			<HintPath>dependencies\3.8.X\Aki.Reflection.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>dependencies\Assembly-CSharp.dll</HintPath>
+			<HintPath>dependencies\3.8.X\Assembly-CSharp.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="BepInEx">
-			<HintPath>dependencies\BepInEx.dll</HintPath>
+			<HintPath>dependencies\3.8.X\BepInEx.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Comfort">
-			<HintPath>dependencies\Comfort.dll</HintPath>
+			<HintPath>dependencies\3.8.X\Comfort.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
-			<HintPath>dependencies\Newtonsoft.Json.dll</HintPath>
+			<HintPath>dependencies\3.8.X\Newtonsoft.Json.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="BepInEx.Harmony.dll">
-			<HintPath>dependencies\BepInEx.Harmony.dll</HintPath>
+			<HintPath>dependencies\3.8.X\BepInEx.Harmony.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="System.ComponentModel.DataAnnotations">
-		  <HintPath>dependencies\System.ComponentModel.DataAnnotations.dll</HintPath>
+		  <HintPath>dependencies\3.8.X\System.ComponentModel.DataAnnotations.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="System.Runtime" />
 		<Reference Include="UnityEngine">
-			<HintPath>dependencies\UnityEngine.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AssetBundleModule">
-			<HintPath>dependencies\UnityEngine.AssetBundleModule.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.AssetBundleModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>dependencies\UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.CoreModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AudioModule">
-			<HintPath>dependencies\UnityEngine.AudioModule.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.AudioModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.InputModule">
-			<HintPath>dependencies\UnityEngine.InputModule.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.InputModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>dependencies\UnityEngine.InputLegacyModule.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.InputLegacyModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.UI">
-			<HintPath>dependencies\UnityEngine.UI.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.UI.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="UnityEngine.UIModule">
-			<HintPath>dependencies\UnityEngine.UIModule.dll</HintPath>
+			<HintPath>dependencies\3.8.X\UnityEngine.UIModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="websocket-sharp">
-			<HintPath>dependencies\websocket-sharp.dll</HintPath>
+			<HintPath>dependencies\3.8.X\websocket-sharp.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Sirenix.Serialization">
-			<HintPath>dependencies\Sirenix.Serialization.dll</HintPath>
+			<HintPath>dependencies\3.8.X\Sirenix.Serialization.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 	</ItemGroup>

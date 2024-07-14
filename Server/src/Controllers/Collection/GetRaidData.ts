@@ -12,7 +12,7 @@ export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Stateme
       .get(sqlRaidQuery, sqlRaidValues)
       .catch((e: Error) => logger.error(`[ERR:GET_RAID_DATA_CORE] `, e));
 
-    const keys = ["kills", "looting", "player"];
+    const keys = ["kills", "looting", "player", 'ballistic'];
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       

@@ -101,7 +101,7 @@ namespace RAID_REVIEW
             new RAID_REVIEW_menuTaskBar_setButtonsAvailablePatch().Enable();
             new RAID_REVIEW_Player_OnBeenKilledByAggressorPatch().Enable();
             new RAID_REVIEW_Player_OnItemAddedOrRemovedPatch().Enable();
-            new RAID_REVIEW_GameWorld_ShotDelegatePatch().Enable();
+            new RAID_REVIEW_ClientGameWorld_ShotDelegatePatch().Enable();
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Patches Loaded");
 
             Telemetry.Connect(RAID_REVIEW_WS_Server);

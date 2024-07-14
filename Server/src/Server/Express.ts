@@ -139,7 +139,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     app.get('/api/server/deleteAllData', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
         try {
             // Burn it all
-            const keys = ['raid', 'kills', 'looting', 'player']
+            const keys = ['raid', 'kills', 'looting', 'player', 'ballistic']
             for (let i = 0; i < keys.length; i++) {
                 const key = keys[i]
                 const sqlKeyQuery = `DELETE FROM ${key}`
@@ -192,7 +192,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
 
             for (let i = 0; i < raidIds.length; i++) {
                 const raidId = raidIds[i]
-                const keys = ['raid', 'kills', 'looting', 'player']
+                const keys = ['raid', 'kills', 'looting', 'player', 'ballistic']
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i]
                     const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`

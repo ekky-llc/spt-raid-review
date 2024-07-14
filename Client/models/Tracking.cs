@@ -96,7 +96,8 @@ namespace RAID_REVIEW
         public long time { get; set; }
         public string weaponId { get; set; }
         public string ammoId { get; set; }
-        public Vector3 source { get; set; }
-        public Vector3 target { get; set; }
+        public string hitPlayerId { get; set; }
+        public string source { get; set; }
+        public string target { get; set; }
     }
 }

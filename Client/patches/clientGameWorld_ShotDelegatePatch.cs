@@ -16,32 +16,34 @@ using UnityEngine;
 
 namespace RAID_REVIEW
 {
-    public class RAID_REVIEW_GameWorld_ShotDelegatePatch : ModulePatch
+    public class RAID_REVIEW_ClientGameWorld_ShotDelegatePatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(GameWorld).GetMethod("ShotDelegate", BindingFlags.Instance | BindingFlags.Public);
+            return typeof(ClientGameWorld).GetMethod("ShotDelegate", BindingFlags.Instance | BindingFlags.Public);
         }
 
         [PatchPostfix]
-        private static void PatchPostFix(ref GameWorld __instance, EftBulletClass shot)
+        private static void PatchPostFix(ref ClientGameWorld __instance, EftBulletClass shotResult)
         {
             try
             {
                 if (__instance.LocationId == "hideout") return;
 
+                var hitPlayerId = shotResult?.HittedBallisticCollider?.gameObject?.GetComponentInParent<Player>()?.ProfileId;
                 var newTackingBallistic = new TrackingBallistic
                 {
                     sessionId = RAID_REVIEW.sessionId,
-                    profileId = shot.PlayerProfileID,
-                    weaponId = shot.Weapon.Id,
-                    ammoId = shot.Ammo.Id,
+                    profileId = shotResult.PlayerProfileID,
+                    weaponId = shotResult.Weapon.Id,
+                    ammoId = shotResult.Ammo.Id,
                     time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
-                    source = shot.MasterOrigin,
-                    target = shot.HitPoint
+                    hitPlayerId = hitPlayerId ?? null,
+                    source = shotResult.MasterOrigin.ToJson(),
+                    target = shotResult.HitPoint.ToJson()
                 };
 
-                Telemetry.Send("Ballistic", JsonConvert.SerializeObject(newTackingBallistic));
+                Telemetry.Send("BALLISTIC", JsonConvert.SerializeObject(newTackingBallistic));
 
                 return;
             }
