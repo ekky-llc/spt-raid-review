@@ -11,7 +11,7 @@ namespace RAID_REVIEW
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(Player).GetMethod("OnItemAddedOrRemoved", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            return typeof(Player).GetMethod("OnItemAddedOrRemoved", BindingFlags.Instance | BindingFlags.Public);
         }
 
         [PatchPostfix]
@@ -35,12 +35,6 @@ namespace RAID_REVIEW
                         type = item.QuestItem ? "QUEST_ITEM" : "LOOT",
                         added = added
                     };
-
-                    if (!added)
-                    {
-                        // bool isMagazine = location.Item.Name.ToLower().Contains("mag");
-                        Console.WriteLine(location.Item.ToJson());
-                    }
 
                     Telemetry.Send("LOOT", JsonConvert.SerializeObject(newLootItem));
                 }

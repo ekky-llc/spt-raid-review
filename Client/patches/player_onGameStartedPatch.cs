@@ -77,6 +77,8 @@ namespace RAID_REVIEW
                     _ = SAIN_Integration.CheckForSainComponents(false);
                 }
 
+                BotChecker.BotCheckLoop(false);
+
                 return;
             }
 
