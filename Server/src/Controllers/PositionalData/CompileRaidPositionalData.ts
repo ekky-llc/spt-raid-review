@@ -56,9 +56,22 @@ function CompileRaidPositionalData(raid_guid: string, logger: Logger) : position
         const file = files[i];
         const [ keys_str, ...data_str ] = file.data.split('\n');
         const keys = keys_str.replace('\n', '').split(',');
-        const rows = data_str.filter((row) => row !== '').map(row => row.split(','));
+        const rows = data_str.filter((row) => row !== '').map(row => {
+            const values = row.split(',');
 
-        logger.log(`    Found a total of '${rows.length}' recorded positions, processing into data structure '${ACTIVE_POSITIONAL_DATA_STRUCTURE}'.`)
+            // If we process 'V2' positional data, add the missing health information.
+            if (values.length === 7) {
+                values.push(null);
+                values.push(null);
+            }
+
+            return values;
+        });
+
+        keys.push('health');
+        keys.push('maxHealth');
+
+        logger.log(`Found a total of '${rows.length}' recorded positions, processing into data structure '${ACTIVE_POSITIONAL_DATA_STRUCTURE}'.`)
         if (file.datapoint === 'positions') {
 
             let allPositions = [];
@@ -70,7 +83,7 @@ function CompileRaidPositionalData(raid_guid: string, logger: Logger) : position
                     const key = keys[k];
                     position[key] = row[k];
 
-                    if (['time', 'x', 'y', 'z', 'dir'].includes(key)) {
+                    if (['time', 'x', 'y', 'z', 'dir', 'health', 'maxHealth'].includes(key)) {
                         position[key] = Number(row[k])
                     }
                 }

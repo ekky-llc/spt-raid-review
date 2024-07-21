@@ -26,7 +26,7 @@ async function GarbageCollectOldRaids(db: Database<sqlite3.Database, sqlite3.Sta
             for (let i = 0; i < oldRaids.length; i++) {
                 const oldRaid = oldRaids[i]
 
-                const keys = ['raid', 'kills', 'looting', 'player', 'ballistic']
+                const keys = ['raid', 'kills', 'looting', 'player', 'player_status', 'ballistic']
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i]
                     const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`
@@ -72,7 +72,7 @@ async function GarbageCollectUnfinishedRaids(db: Database<sqlite3.Database, sqli
             for (let i = 0; i < raidsWithMissingEndMarker.length; i++) {
                 const raid = raidsWithMissingEndMarker[i]
 
-                const keys = ['raid', 'kills', 'looting', 'player', 'ballistic']
+                const keys = ['raid', 'kills', 'looting', 'player', 'player_status', 'ballistic']
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i]
                     const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`

@@ -17,6 +17,7 @@ using EFT.Communications;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections;
+using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
@@ -55,7 +56,7 @@ namespace RAID_REVIEW
         public static ConfigEntry<bool> RecordingNotification;
         public static ConfigEntry<bool> KillTracking;
         public static ConfigEntry<bool> LootTracking;
-        public static ConfigEntry<bool> ExtractTracking;
+        public static ConfigEntry<bool> BallisticsTracking;
         public static ConfigEntry<string> ServerAddress;
         public static ConfigEntry<string> ServerWsPort;
         public static ConfigEntry<string> ServerHttpPort;
@@ -88,6 +89,7 @@ namespace RAID_REVIEW
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
+            BallisticsTracking = Config.Bind<bool>("Tracking Settings", "Ballistics Tracking", true, "Enables location tracking of ballistics.");
 
             // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
@@ -235,7 +237,12 @@ namespace RAID_REVIEW
                                 float angle = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
                                 float dir = angle;
 
-                                var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
+                                // Health Data
+                                ValueStruct commonHealth = player.HealthController.GetBodyPartHealth(EBodyPart.Common, true);
+                                float currentHealth = commonHealth.Current;
+                                float currentHealthMaximum = commonHealth.Current;
+
+                                var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir, currentHealth, currentHealthMaximum);
                                 _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                             }
 

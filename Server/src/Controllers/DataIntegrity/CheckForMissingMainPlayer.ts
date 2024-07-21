@@ -9,7 +9,7 @@ async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.
     logger.log(`Starting 'Missing main player' check.`);
 
     // Get All The Raids
-    const raids_sql = `SELECT * FROM raid WHERE timeInRaid > 0;`;
+    const raids_sql = `SELECT * FROM raid WHERE timeInRaid > 0 AND type = 'PMC';`;
     const raids = await db.all(raids_sql).catch((e: Error) => logger.error(`[ERR:MISSING_PLAYER_ALL_RAIDS] `, e)) as any[];
     const raidsByPlayer = _.groupBy(raids, 'profileId');
     

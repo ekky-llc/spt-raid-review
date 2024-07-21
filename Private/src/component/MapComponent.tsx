@@ -197,8 +197,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     const [hideSettings, setHideSettings] = useState(true)
     const [hidePlayers, setHidePlayers] = useState(false)
     const [hideEvents, setHideEvents] = useState(false)
-    const [preserveHistory, setPreserveHistory] = useState(false)
+    const [hideBallistics, setHideBallistics] = useState(false)
     const [hideNerdStats, setHideNerdStats] = useState(true)
+    const [preserveHistory, setPreserveHistory] = useState(false)
 
     // Events
     const [events, setEvents] = useState([])
@@ -473,7 +474,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         SET_MAP(map);
         setTimeout(() => {
             setMapIsReady(true)
-        }, 250)
+        }, 500)
 
         if (heatmapEnabled) {
             L.heatLayer(heatmapData, { radius: 10, max: 1, blur: 10 }).addTo(map)
@@ -639,7 +640,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         if (!mapIsReady) return;
 
         const createdLayers = new Map();
-    
         for (let i = 0; i < events.length; i++) {
             const e = events[i];
     
@@ -721,6 +721,55 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         });
     }, [sliderTimes, timeCurrentIndex]);    
 
+    // Ballistics Update
+    let ballisticsLayers = new Map();
+    useEffect(() => {
+        if (hideBallistics) return;
+        if (!mapIsReady || !MAP) return;
+
+        const createdLayers = new Map();
+        for (let i = 0; i < raidData.ballistic.length; i++) {
+            const ballistic = raidData.ballistic[i];
+            const toBeIndex = findInsertIndex(ballistic.time, sliderTimes);
+
+            let passedTime = toBeIndex < timeCurrentIndex;
+            let expiredTime = toBeIndex + 40 > timeCurrentIndex;
+            if (passedTime && expiredTime) {
+                let source = JSON.parse(ballistic.source);
+                let target = JSON.parse(ballistic.target);
+
+                let ballisticsId = `${i}-${ballistic.time}-${source.z}-${source.x}-${target.z}-${target.x}`;
+                let exists = ballisticsLayers.get(ballisticsId);
+
+                let hit = !!ballistic.hitPlayerId;
+                if (!exists && (target && source)) {
+                    const pickedColor = calculatedPlayerInfo[ballistic.profileId]?.pickedColor;
+                    const position = [[source.z, source.x], [target.z, target.x]];
+
+                    const polyline = L.polyline(position, { 
+                        color: pickedColor ? pickedColor : 'red', 
+                        weight: 1, 
+                        opacity: 0.5, 
+                        fillOpacity: 0.5, 
+                        dashOffset: 2, 
+                        dashArray: [2, 6, 2]
+                    });
+                    polyline.eventTime = ballistic.time;
+                    polyline.eventCollision = ballistic.hitPlayerId;
+                    polyline.eventType = 'ballisticsLine';
+                    polyline.eventId = ballisticsId;
+
+                    if (MAP) {
+                        polyline.addTo(MAP);
+                    }
+
+                    ballisticsLayers.set(ballisticsId, true);
+                }
+            }
+        }
+
+    }, [timeCurrentIndex, hideBallistics]);
+
     // Slider Updater
     useEffect(() => {
         if (!playing || sliderTimes.length === 0) {
@@ -757,20 +806,31 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory])
 
     function clearMap(m, timeRange) {
-        if (!m && !mapIsReady) return;
-
+        if (!m || !mapIsReady) return;
+    
         for (const key in m._layers) {
-            const layer = m._layers[key]
-
-            if ((layer instanceof L.Polyline && layer.eventType === undefined)|| layer instanceof L.Circle) {
-                m.removeLayer(layer)
+            const layer = m._layers[key];
+        
+            // Remove polylines without eventType or not being ballisticsLine, and circles
+            if ((layer instanceof L.Polyline && (!layer.eventType || layer.eventType !== 'ballisticsLine')) || layer instanceof L.Circle) {
+                m.removeLayer(layer);
+                continue;
             }
-
-            // if (layer._path !== undefined || layer._icon !== undefined) {
-            //     m.removeLayer(layer);
-            // }
+    
+            // Handle ballistics lines
+            if (layer.eventTime) {
+                const toBeIndex = findInsertIndex(layer.eventTime, sliderTimes);
+    
+                let passedTime = toBeIndex > timeCurrentIndex;
+                let expiredTime = toBeIndex + 40 < timeCurrentIndex ;
+    
+                if (layer.eventType === 'ballisticsLine' && (expiredTime || passedTime)) {
+                    m.removeLayer(layer);
+                    ballisticsLayers.delete(layer.eventId);
+                }
+            }
         }
-    }
+    } 
 
     function playPositions() {
         if (timeCurrentIndex === sliderTimes.length - 1) {
@@ -1058,11 +1118,14 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                             ⚙️
                         </button>
                         <div className={`border border-eft p-1 flex gap-1 ${hideSettings ? 'invisible' : ''}`}>
+                            <button className={`text-xs p-1 text-sm cursor-pointer ${hidePlayers ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHidePlayers(!hidePlayers)}>
+                                Hide Players
+                            </button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${hideEvents ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideEvents(!hideEvents)}>
                                 Hide Events
                             </button>
-                            <button className={`text-xs p-1 text-sm cursor-pointer ${hidePlayers ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHidePlayers(!hidePlayers)}>
-                                Hide Players
+                            <button className={`text-xs p-1 text-sm cursor-pointer ${hideBallistics ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideBallistics(!hideBallistics)}>
+                                Hide Ballistics
                             </button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${preserveHistory ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft tooltip info`} onClick={() => setPreserveHistory(!preserveHistory)}>
                                 Preserve

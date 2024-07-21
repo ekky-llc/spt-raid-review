@@ -28,7 +28,8 @@ namespace RAID_REVIEW
         {
             try
             {
-                if (__instance.LocationId == "hideout") return;
+                // If in the 'hideout', or 'ballistics tacki
+                if (__instance.LocationId == "hideout" || !RAID_REVIEW.BallisticsTracking.Value) return;
 
                 var hitPlayerId = shotResult?.HittedBallisticCollider?.gameObject?.GetComponentInParent<Player>()?.ProfileId;
                 var newTackingBallistic = new TrackingBallistic
@@ -44,7 +45,6 @@ namespace RAID_REVIEW
                 };
 
                 Telemetry.Send("BALLISTIC", JsonConvert.SerializeObject(newTackingBallistic));
-
                 return;
             }
 
