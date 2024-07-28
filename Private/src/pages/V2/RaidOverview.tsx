@@ -208,7 +208,7 @@ export default function RaidOverview() {
     return (
       <>
         <section>
-          <div className="w-full text-lg font-bold">Raid Overview</div>
+          <div className="w-full text-lg font-bold">Overview</div>
           <table id="raid-overview" className="mb-2 w-full border border-eft">
                   <tbody>
                       {raidSummary && raidSummary.length ? raidSummary.map(rs => 
@@ -222,7 +222,7 @@ export default function RaidOverview() {
         </section>
 
         <section className="mt-4">
-            <div className="w-full text-lg font-bold">Raid Leaderboard</div>
+            <div className="w-full text-lg font-bold">Leaderboard</div>
             <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
                 <thead>
                     <tr className="bg-eft text-black">
