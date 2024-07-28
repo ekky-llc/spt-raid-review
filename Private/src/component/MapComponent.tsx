@@ -9,12 +9,12 @@ import { start } from 'repl';
 import L from 'leaflet';
 
 import api from '../api/api.js';
-import { msToHMS } from '../pages/Profile.js'
+import { msToHMS } from '../pages/V1/Profile'
 import { calculateNewPosition, findInsertIndex } from '../modules/utils.js'
 import { useMapImages } from '../modules/maps-index.js';
 import { TrackingPositionalData } from '../types/api_types.js';
 import { PlayerSlider } from './MapPlayerSlider.js';
-import { intl } from '../pages/Raid.js';
+import { intl } from '../pages/V1/Raid';
 
 import BotMapping from '../assets/botMapping.json'
 
@@ -164,7 +164,7 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export default function MapComponent({ raidData, profileId, raidId, positions, intl_dir }) {
+export default function MapComponent({ raidData, raidId, positions, intl_dir }) {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const [currentMap, setCurrentMap] = useState('')
@@ -851,9 +851,11 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         return
     }
 
-    function playerWasKilled(playerId: string, time: number): boolean {
+    function playerIsDead(playerId: string, time: number): boolean {
         if (raidData && raidData.kills) {
-            return !!raidData.kills.find((kill) => kill.killedId === playerId && kill.time < time)
+            let playerWasKilled = !!raidData.kills.find((kill) => kill.killedId === playerId && kill.time < time);
+            
+            return playerWasKilled
         } else {
             return false
         }
@@ -989,7 +991,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                             )
                         )}
                     </div>
-                    <Link to={`/p/${profileId}/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto">
+                    <Link to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto">
                         Close
                     </Link>
                 </nav>
@@ -1010,7 +1012,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                                             setFollowPlayerZoomed(false)
                                         }}
                                     >
-                                        <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit) ? 'line-through opacity-25' : ''}`}>
+                                        <div className={`flex flex-row items-center ${playerIsDead(player.profileId, timeEndLimit) ? 'line-through opacity-25' : ''}`}>
                                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background: getPlayerColor(player, index) }}></span>
                                             <div>
                                                 <span className="capitalize">

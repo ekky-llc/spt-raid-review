@@ -5,6 +5,7 @@ import { Database } from 'sqlite'
 import config from '../../../config.json'
 import { DeleteFile } from '../FileSystem/DataSaver'
 import { Logger } from '../../Utils/logger'
+import { ACTIVE_POSITIONAL_DATA_STRUCTURE } from '../PositionalData/CompileRaidPositionalData'
 
 /**
  * If enabled in config, auto deletes any raids are older than the set 'autoDeleteLimit'.
@@ -35,7 +36,7 @@ async function GarbageCollectOldRaids(db: Database<sqlite3.Database, sqlite3.Sta
                 }
 
                 DeleteFile('positions', '', '', `${oldRaid.raidId}_positions`)
-                DeleteFile('positions', '', '', `${oldRaid.raidId}_V2_positions.json`)
+                DeleteFile('positions', '', '', `${oldRaid.raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             }
             logger.log(`Garbage collector is done deleting old raids.`)
         } else {
@@ -81,7 +82,7 @@ async function GarbageCollectUnfinishedRaids(db: Database<sqlite3.Database, sqli
                 }
 
                 DeleteFile('positions', '', '', `${raid.raidId}_positions`)
-                DeleteFile('positions', '', '', `${raid.raidId}_V2_positions.json`)
+                DeleteFile('positions', '', '', `${raid.raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             }
             logger.log(`Garbage collector is done deleting unfinished raids.`)
         } else {

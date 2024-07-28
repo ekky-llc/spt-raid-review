@@ -2,6 +2,7 @@ import { Database } from "sqlite";
 import sqlite3 from 'sqlite3'
 import { FileExists } from "../FileSystem/DataSaver";
 import { Logger } from "../../Utils/logger";
+import { ACTIVE_POSITIONAL_DATA_STRUCTURE } from "../PositionalData/CompileRaidPositionalData";
 
 export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger, raidId: string) {
 
@@ -12,7 +13,7 @@ export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Stateme
       .get(sqlRaidQuery, sqlRaidValues)
       .catch((e: Error) => logger.error(`[ERR:GET_RAID_DATA_CORE] `, e));
 
-    const keys = ["kills", "looting", "player", 'ballistic'];
+    const keys = ["kills", "looting", "player", "player_status", "ballistic"];
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       
@@ -28,7 +29,7 @@ export async function getRaidData(db: Database<sqlite3.Database, sqlite3.Stateme
 
     // Positions check
     const rawPositionData = FileExists(logger, "positions","","",`${raidId}_positions`);
-    const compiledPositionData = FileExists(logger, "positions","","",`${raidId}_V2_positions.json`);
+    const compiledPositionData = FileExists(logger, "positions","","",`${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`);
     raid.positionsTracked = compiledPositionData ? 'COMPILED' : rawPositionData ? 'RAW' : 'NOT_AVAILABLE';
 
     // Quick Fix

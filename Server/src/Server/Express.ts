@@ -16,7 +16,7 @@ import { LocaleService } from '@spt-aki/services/LocaleService'
 
 import config from '../../config.json'
 import { DeleteFile, ReadFile } from '../Controllers/FileSystem/DataSaver'
-import CompileRaidPositionalData from '../Controllers/PositionalData/CompileRaidPositionalData'
+import CompileRaidPositionalData, { ACTIVE_POSITIONAL_DATA_STRUCTURE } from '../Controllers/PositionalData/CompileRaidPositionalData'
 import { generateInterpolatedFramesBezier } from '../Utils/utils'
 import { getRaidData } from '../Controllers/Collection/GetRaidData'
 import { sendStatistics } from '../Controllers/Telemetry/RaidStatistics'
@@ -175,6 +175,59 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         return res.json(profiles[req.params.profileId])
     })
 
+    app.get('/api/raids', async (req: Request, res: Response) => {
+        let { profiles } = req.query as { profiles?: string };
+
+        let profileFilter = null;
+        if (profiles) {
+            let profileIdsEnc = JSON.parse(profiles);
+            profileFilter = profileIdsEnc.length > 0 ? profileIdsEnc.map(pid => `profileId == '${pid}'`).join(' AND ') : null;
+        }
+            
+        const sqlRaidQuery = `SELECT * FROM raid WHERE ${ profileFilter ? `${profileFilter} AND` : '' } timeInRaid > 10 ORDER BY id DESC`
+        const data = await db.all(sqlRaidQuery).catch((e: Error) => logger.error(`[API:RAIDS-ALL] `, e))
+
+        res.json(data)
+    })
+
+    app.get('/api/raids/:raidId', async (req: Request, res: Response) => {
+        try {
+            let { raidId } = req.params
+
+            const raid = await getRaidData(db, logger, raidId)
+
+            if (raid.positionsTracked === 'RAW') {
+                let positional_data = CompileRaidPositionalData(raidId, logger)
+                let telemetryEnabled = config.telemetry
+                if (telemetryEnabled) {
+                    logger.log(`Telemetry is enabled.`)
+                    await sendStatistics(db, logger, raidId, positional_data)
+                } else {
+                    logger.log(`Telemetry is disabled.`)
+                }
+                raid.positionsTracked = 'COMPILED'
+            }
+
+            return res.json(raid)
+        } catch (error) {
+            logger.log(error)
+            return res.json(null)
+        }
+    })
+
+    app.get('/api/raids/:raidId/positions', async (req: Request, res: Response) => {
+        let { raidId } = req.params
+
+        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
+        if (positionalDataRaw) {
+            let positionalData = JSON.parse(positionalDataRaw)
+            positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
+            return res.json(positionalData)
+        }
+
+        return []
+    })
+
     app.get('/api/profile/:profileId/raids/all', async (req: Request, res: Response) => {
         let { profileId } = req.params
 
@@ -201,7 +254,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
                 }
 
                 DeleteFile('positions', '', '', `${raidId}_positions`)
-                DeleteFile('positions', '', '', `${raidId}_V2_positions.json`)
+                DeleteFile('positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
 
                 deletedRaids.push(raidId)
             }
@@ -271,7 +324,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     app.get('/api/profile/:profileId/raids/:raidId/positions', async (req: Request, res: Response) => {
         let { raidId } = req.params
 
-        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
+        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
 
         if (positionalDataRaw) {
             let positionalData = JSON.parse(positionalDataRaw)
@@ -288,7 +341,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         let { raidId } = req.params;
     
         try {
-            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             let positionalData = JSON.parse(positionalDataRaw)
             positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
     
@@ -315,8 +368,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             console.error('Error processing heatmap data:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
-    });
-     
+    }); 
 
     app.get('/api/profile/:profileId/raids/:raidId/positions/compile', async (req: Request, res: Response) => {
         let { raidId } = req.params

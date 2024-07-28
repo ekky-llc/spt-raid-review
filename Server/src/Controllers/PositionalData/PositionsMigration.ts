@@ -15,6 +15,12 @@ import { Logger } from '../../Utils/logger';
  */
 async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) : Promise<void> {
 
+    await v1_to_v2_migration(db, logger);
+    await v2_to_v3_migration(db, logger);
+
+}
+
+async function v1_to_v2_migration(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) : Promise<void> {
     const sqlSettingsQuery = `SELECT * FROM setting WHERE key = 'v1_to_v2_migration__completed'`;
     const data = await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V2_CHECK] `, e)) as any[];
     if (data === null && data.length === 0) {
@@ -56,7 +62,51 @@ async function MigratePositionsStructure(db: Database<sqlite3.Database, sqlite3.
         const sqlSettingsValues = ['1', 'v1_to_v2_migration__completed']
         await db.all(sqlSettingsQuery, sqlSettingsValues).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V2_COMP] `,e));
     }
+}
 
+async function v2_to_v3_migration(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger) : Promise<void> {
+    const sqlSettingsQuery = `SELECT * FROM setting WHERE key = 'v2_to_v3_migration__completed'`;
+    const data = await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V3_CHECK] `, e)) as any[];
+    if (data === null && data.length === 0) {
+        logger.log(`Migration failed: v2 to v3 positional data structure, missing settings entry.`)
+        return;
+    }
+
+    const [ v2_to_v3_migration__completed ] = data as RaidReviewSettings[];
+    if (v2_to_v3_migration__completed.key === 'v2_to_v3_migration__completed' && v2_to_v3_migration__completed.value === '0') {
+        logger.log(`Starting positional data structure migration from 'V2' to 'V3'.`)
+
+        /** Directory: /user/mods/<mod>/positions */
+        const files = ReadFolderContents('positions', '', '', true);
+        
+        logger.log(`    Found a total of '${files.length}' to process.`)
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            // v2 files are structured: <raid-id>_V2_positions.json
+            // v3 files are structured: <raid-id>_V3_positions.json
+            const isV1 = file.match(/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}_V2_positions.json)/gi);
+            if (isV1) {
+                fs.rmSync(file);
+                continue;
+            }
+
+            // '<raid-id>_positions.json' to '<raid-id>'
+            let splitPath = file.split('/');
+            const raidId = splitPath[splitPath.length - 1].split('_')[0] // system filepath -> filename -> raid_id
+            const isGuid = raidId.match(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/gi);
+            if (isGuid) {
+                CompileRaidPositionalData(raidId, logger);
+                continue;
+            }
+
+        }
+
+        // Update the database to mark the migration as having been completed
+        const sqlSettingsQuery = `UPDATE setting SET value = ? WHERE key = ?`;
+        const sqlSettingsValues = ['1', 'v2_to_v3_migration__completed']
+        await db.all(sqlSettingsQuery, sqlSettingsValues).catch((e: Error) => logger.error(`[ERR:POS-MIGRATION-V3_COMP] `,e));
+    }
 }
 
 export {

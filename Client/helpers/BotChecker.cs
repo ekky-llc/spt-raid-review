@@ -49,21 +49,17 @@ namespace RAID_REVIEW
 
             if (player != null) 
             {
-
-                /*
-                * Checks the player to see if they are 'Dead' without a 'KillerId', meaning they were 'Unspawned' we presume...
-                * - SWAG+DONUTS: During the despawn process the Bot is marked as 'Died', so naturally we can check this to confirm a despawn.
-                * - Client Mod References: https://github.com/dvize/Donuts/blob/044e117e306ddf30ce91bd0aa8d0ab98dbc182ab/DonutComponent.cs#L485
-                */
+                
+                // Checks the player to see if they are 'Dead' without a 'KillerId', meaning they were 'Unspawned' we presume...
+                // - SWAG+DONUTS: During the despawn process the Bot is marked as 'Died', so naturally we can check this to confirm a despawn.
+                // - Client Mod References: https://github.com/dvize/Donuts/blob/044e117e306ddf30ce91bd0aa8d0ab98dbc182ab/DonutComponent.cs#L485
                 if (!player.HealthController.IsAlive && player.KillerId == null) {
                     newDeadOrUnspawn.status = PlayerStatus.Unspawned;
                     Telemetry.Send("PLAYER_STATUS", JsonConvert.SerializeObject(newDeadOrUnspawn));
                     return;
                 }
             
-                /*
-                * Checks if the player is 'Dead', and sends that to the database.
-                */
+                // Checks if the player is 'Dead', and sends that to the database.
                 if (!player.HealthController.IsAlive)
                 {
                     newDeadOrUnspawn.status = PlayerStatus.Dead;
@@ -71,9 +67,7 @@ namespace RAID_REVIEW
                     return;
                 }
 
-                /*
-                * Checks if the player is 'Alive', and sends that to the database.
-                */
+                // Checks if the player is 'Alive', and sends that to the database.
                 if (player.HealthController.IsAlive)
                 {
                     newDeadOrUnspawn.status = PlayerStatus.Alive;

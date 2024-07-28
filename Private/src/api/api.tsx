@@ -18,6 +18,21 @@ const api = {
         }
     },
 
+    getRaids: async function(profileIds: string[] = []) : Promise<TrackingCoreDataRaids[]> {
+        let raids = [] as TrackingCoreDataRaids[];
+        try {
+            const query = profileIds.length > 0 ? `?profiles=${encodeURIComponent(JSON.stringify(profileIds))}` : '';
+            const response = await fetch(hostname + `/api/raids` + query);
+            const data = await response.json() as TrackingCoreDataRaids[];
+            raids = data;
+            return data
+        } 
+        
+        catch (error) {
+            return raids;
+        }
+    },
+
     getSettings: async function() : Promise<RaidReviewServerSettings> {
         let settings = {} as RaidReviewServerSettings;
         try {
@@ -70,12 +85,7 @@ const api = {
             const response = await fetch(hostname + '/api/profile/all');
             const data = await response.json() as IAkiProfile[];
 
-            Object.keys(data).forEach((profile : string) => {
-                // @ts-ignore
-                profiles.push(data[profile]);
-            });
-
-            return profiles;
+            return data;
         } 
         
         catch (error) {
@@ -111,10 +121,10 @@ const api = {
         }
     },
 
-    getRaid : async function(profileId: string, raidId: string) : Promise<TrackingRaidData> {
+    getRaid : async function(raidId: string) : Promise<TrackingRaidData> {
         let raid = {} as TrackingRaidData;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}`);
+            const response = await fetch(hostname + `/api/raids/${raidId}`);
             const data = await response.json() as TrackingRaidData;
             raid = data;
             return raid
@@ -182,16 +192,18 @@ const api = {
         }
     },
 
-    getRaidPositionalData : async function(profileId: string, raidId: string, groupByPlayer : boolean = false) : Promise<any> {
+    getRaidPositionalData : async function(raidId: string) : Promise<any> {
         let positions = [] as any;
         try {
+            console.log(positions)
+
             const cached = window.sessionStorage.getItem(`${raidId}_positions`);
             if (cached) {
                 positions = JSON.parse(cached);
             } 
             
             else {
-                const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
+                const response = await fetch(hostname + `/api/raids/${raidId}/positions`);
                 positions = await response.json() as any;
             }
 
