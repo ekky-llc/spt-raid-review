@@ -1,5 +1,5 @@
-import { ISptProfile } from '../../../Server/types/models/eft/profile/ISptProfile';
-import { TrackingRaidData, RaidReviewServerSettings, TrackingCoreDataRaids } from '../types/api_types';
+import { IAkiProfile } from '../../../Server/types/models/eft/profile/IAkiProfile';
+import { TrackingRaidData, TrackingCoreDataRaids } from '../types/api_types';
 
 let isDev = window.location.host.includes("5173");
 let hostname = isDev ? 'http://127.0.0.1:7829' : '';
@@ -18,64 +18,29 @@ const api = {
         }
     },
 
-    getSettings: async function() : Promise<RaidReviewServerSettings> {
-        let settings = {} as RaidReviewServerSettings;
+    getRaids: async function(profileIds: string[] = []) : Promise<TrackingCoreDataRaids[]> {
+        let raids = [] as TrackingCoreDataRaids[];
         try {
-            const response = await fetch(hostname + '/api/server/settings');
-            const data = await response.json() as RaidReviewServerSettings;
-            return data;
+            const query = profileIds.length > 0 ? `?profiles=${encodeURIComponent(JSON.stringify(profileIds))}` : '';
+            const response = await fetch(hostname + `/api/raids` + query);
+            const data = await response.json() as TrackingCoreDataRaids[];
+            raids = data;
+            return data
         } 
         
         catch (error) {
-            return settings;
-        }
-    },
-
-    updateSettings: async function(payload: { key: string, value: string }[]) : Promise<RaidReviewServerSettings | null> {
-        try {
-            const response = await fetch(hostname + `/api/server/settings`, {
-                method: 'PUT',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-            const update_result = await response.json() as RaidReviewServerSettings;
-
-            return update_result;
-        } 
-        
-        catch (error) {
-            return null;
-        }
-    },
-
-    deleteAllData: async function() : Promise<boolean> {
-        try {
-            const response = await fetch(hostname + '/api/server/deleteAllData');
-            const data = await response.json() as boolean;
-            return data;
-        } 
-        
-        catch (error) {
-            return false;
+            return raids;
         }
     },
 
 
-    getProfiles: async function() : Promise<ISptProfile[]> {
-        let profiles = [] as ISptProfile[];
+    getProfiles: async function() : Promise<IAkiProfile[]> {
+        let profiles = [] as IAkiProfile[];
         try {
             const response = await fetch(hostname + '/api/profile/all');
-            const data = await response.json() as ISptProfile[];
+            const data = await response.json() as IAkiProfile[];
 
-            Object.keys(data).forEach((profile : string) => {
-                // @ts-ignore
-                profiles.push(data[profile]);
-            });
-
-            return profiles;
+            return data;
         } 
         
         catch (error) {
@@ -83,38 +48,11 @@ const api = {
         }
     },
 
-    getProfile : async function(profileId: string) : Promise<ISptProfile> {
-        let profile = {} as ISptProfile;
-        try {
-            const response = await fetch(hostname + `/api/profile/${profileId}`);
-            const data = await response.json() as ISptProfile;
-            profile = data;
-            return profile
-        } 
-        
-        catch (error) {
-            return profile;
-        }
-    },
 
-    getCore : async function(profileId: string) : Promise<TrackingCoreDataRaids[]> {
-        let core = [] as TrackingCoreDataRaids[];
-        try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/all`);
-            const data = await response.json() as TrackingCoreDataRaids[];
-            core = data;
-            return core
-        } 
-        
-        catch (error) {
-            return core;
-        }
-    },
-
-    getRaid : async function(profileId: string, raidId: string) : Promise<TrackingRaidData> {
+    getRaid : async function(raidId: string) : Promise<TrackingRaidData> {
         let raid = {} as TrackingRaidData;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}`);
+            const response = await fetch(hostname + `/api/raids/${raidId}`);
             const data = await response.json() as TrackingRaidData;
             raid = data;
             return raid
@@ -125,9 +63,9 @@ const api = {
         }
     },
 
-    getRaidTempFiles : async function(profileId: string, raidId: string) : Promise<boolean> {
+    getRaidTempFiles : async function(raidId: string) : Promise<boolean> {
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/tempFiles`);
+            const response = await fetch(hostname + `/api/raids/${raidId}/tempFiles`);
             const data = await response.json() as boolean;
             return data;
         } 
@@ -137,9 +75,9 @@ const api = {
         }
     },
 
-    deleteRaidsTempFiles : async function(profileId: string, payload : string[]) : Promise<string[]> {
+    deleteRaidsTempFiles : async function(payload : string[]) : Promise<string[]> {
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/deleteTempFiles`, {
+            const response = await fetch(hostname + `/api/raids/deleteTempFiles`, {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
@@ -159,10 +97,10 @@ const api = {
         }
     },
 
-    deleteRaids : async function(profileId: string, payload : string[]) : Promise<string[]> {
+    deleteRaids : async function(payload : string[]) : Promise<string[]> {
         try {
 
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/deleteAllData`, {
+            const response = await fetch(hostname + `/api/raids/deleteAllData`, {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
@@ -182,7 +120,7 @@ const api = {
         }
     },
 
-    getRaidPositionalData : async function(profileId: string, raidId: string, groupByPlayer : boolean = false) : Promise<any> {
+    getRaidPositionalData : async function(raidId: string) : Promise<any> {
         let positions = [] as any;
         try {
             const cached = window.sessionStorage.getItem(`${raidId}_positions`);
@@ -191,7 +129,7 @@ const api = {
             } 
             
             else {
-                const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions${groupByPlayer ? `?groupByPlayer=true` : ``}`);
+                const response = await fetch(hostname + `/api/raids/${raidId}/positions`);
                 positions = await response.json() as any;
             }
 
@@ -205,10 +143,10 @@ const api = {
         }
     },
 
-    getRaidHeatmapData : async function(profileId: string, raidId: string) : Promise<any> {
+    getRaidHeatmapData : async function(raidId: string) : Promise<any> {
         let heatmapData = [] as any;
         try {
-            const response = await fetch(hostname + `/api/profile/${profileId}/raids/${raidId}/positions/heatmap`);
+            const response = await fetch(hostname + `/api/raids/${raidId}/positions/heatmap`);
             heatmapData = await response.json() as any;
             return heatmapData;
         } catch (error) {

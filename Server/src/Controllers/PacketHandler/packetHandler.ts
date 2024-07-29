@@ -178,7 +178,18 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     .catch((e: Error) => logger.error(`[SQL_ERR:UPDATE_PLAYER]`, e));
 
                     break;
-
+                
+                case "PLAYER_STATUS":
+                    const player_status_sql = `INSERT INTO player_status (raidId, profileId, time, status) VALUES (?, ?, ?, ?)`;
+                    db.run(player_status_sql, [
+                        raidId,
+                        payload_object.profileId,
+                        payload_object.time,
+                        payload_object.status,
+                    ])
+                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_STATUS_INSERT]`, e));
+                    break;
+                    
                 case "PLAYER":
                     const playerExists_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ?`;
                     const playerExists = await db.all(playerExists_sql, [
@@ -205,7 +216,23 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         payload_object.mod_SAIN_brain,
                         payload_object.mod_SAIN_difficulty
                     ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_INSERT]`, e));;
+                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_INSERT]`, e));
+
+                    break;
+
+                case "BALLISTIC":
+
+                    const ballistic_sql = `INSERT INTO ballistic (raidId, time, profileId, weaponId, ammoId, hitPlayerId, source, target) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    db.run(ballistic_sql, [
+                        raidId,
+                        payload_object.time,
+                        payload_object.profileId,
+                        payload_object.weaponId,
+                        payload_object.ammoId,
+                        payload_object.hitPlayerId,
+                        payload_object.source,
+                        payload_object.target
+                    ]).catch((e: Error) => logger.error(`[SQL_ERR:ADD_TRACKING_BALLISTIC]`, e));
 
                     break;
 

@@ -27,9 +27,6 @@ namespace RAID_REVIEW
 
                 RAID_REVIEW.tracking = false;
                 RAID_REVIEW.inRaid = false;
-                RAID_REVIEW.searchingForSainComponents = false;
-                RAID_REVIEW.updatedBots.Clear();
-                RAID_REVIEW.sainBotController = null;
 
                 RAID_REVIEW.stopwatch.Stop();
                 RAID_REVIEW.trackingRaid.exitStatus = exitStatus;
@@ -39,8 +36,8 @@ namespace RAID_REVIEW
                 RAID_REVIEW.trackingRaid.type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC";
                 RAID_REVIEW.stopwatch.Reset();
 
-                // Run SAIN Reflection Integration
-                if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) _ = SAIN_Integration.CheckForSainComponents(false);
+                BotChecker.BotCheckLoop(true);
+                if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) _ = SAIN_Integration.CheckForSainComponents(true);
                 Telemetry.Send("PLAYER_CHECK", JsonConvert.SerializeObject(RAID_REVIEW.trackingPlayers.Values));
                 Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
 

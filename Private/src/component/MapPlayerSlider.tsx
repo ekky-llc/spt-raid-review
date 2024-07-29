@@ -83,6 +83,11 @@ export function PlayerSlider({ sliderTimes, events, timeCurrentIndex, setTimeCur
         setTimeEndLimit(sliderTimes[newIndex]);
     };
 
+    // Fixes rendering in Firefox
+    useEffect(() => {
+        sliderTimes.sort((a, b) => a - b);
+    }, [sliderTimes]);
+    
     useEffect(() => {
         if (isDragging) {
             document.addEventListener('mousemove', handleMouseMove);

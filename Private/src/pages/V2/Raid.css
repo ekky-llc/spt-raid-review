@@ -1,0 +1,15 @@
+section.chart-container {
+    min-height: 350px;
+}
+
+.chart, .recharts-responsive-container {
+    min-height: 350px;
+}
+
+.chart svg {
+    overflow: visible;
+}
+
+svg text {
+    fill: #9a8866;
+}

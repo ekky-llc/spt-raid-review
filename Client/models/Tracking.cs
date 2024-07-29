@@ -4,6 +4,7 @@ using UnityEngine;
 using Comfort.Common;
 using System.Collections.Generic;
 using System;
+using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
@@ -70,6 +71,8 @@ namespace RAID_REVIEW
         public float y { get; set; }
         public float z { get; set; }
         public float dir { get; set; }
+        public float health { get; set; }
+        public float maxHealth { get; set; }
 
         public TrackingPlayerData(
             string sessionId, 
@@ -78,7 +81,10 @@ namespace RAID_REVIEW
             float x, 
             float y, 
             float z, 
-            float dir)
+            float dir,
+            float health,
+            float maxHealth
+        )
         {
             this.sessionId = sessionId;
             this.profileId = profileId;
@@ -87,6 +93,34 @@ namespace RAID_REVIEW
             this.y = y;
             this.z = z;
             this.dir = dir;
+            this.health = health;
+            this.maxHealth = maxHealth;
         }
+    }
+
+    public class TrackingPlayerDeadOrUnspawned 
+    {
+        public string sessionId { get; set; }
+        public string profileId { get; set; }
+        public long time { get; set; }
+        public PlayerStatus status { get; set; }
+    }
+
+    public enum PlayerStatus {
+        Alive,
+        Dead,
+        Unspawned,
+        Unknown
+    }
+
+    public class TrackingBallistic {
+        public string sessionId { get; set; }
+        public string profileId { get; set; }
+        public long time { get; set; }
+        public string weaponId { get; set; }
+        public string ammoId { get; set; }
+        public string hitPlayerId { get; set; }
+        public string source { get; set; }
+        public string target { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 
 # Default
 default_name="raid_review"
-default_version="0.1.1"
+default_version="0.2.0"
 current_dir=$(pwd)
 linux_server_user=blackdog
 linux_server_host=192.168.40.254
@@ -107,7 +107,7 @@ ssh -q $linux_server_user@$linux_server_host 2> /dev/null << EOF
 
   echo ">>>> Installing linux 'node_module' dependencies"
   cd /home/blackdog/auto-deploy/user/mods/${name}__${version}
-  npm install > /dev/null
+  # npm install > /dev/null
   cd /home/blackdog/auto-deploy
 
   echo ">>>> Packaging linux distribution"

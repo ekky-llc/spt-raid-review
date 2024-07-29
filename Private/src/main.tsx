@@ -3,58 +3,71 @@ import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
-import Home, { loader as profilesLoader } from './pages/Home';
-import Profile, { loader as coreLoader } from './pages/Profile'
-import Raid, { loader as raidLoader } from './pages/Raid';
-import MapView, { loader as mapLoader } from './pages/MapView';
-import RaidSettings, { loader as raidSettingsLoader } from './pages/RaidSettings';
-import About from "./pages/About";
+import Layout from './pages/V2/Layout';
+import Raids, { loader as RaidsLoader } from './pages/V2/Raids';
+import Raid, { loader as RaidLoader } from "./pages/V2/Raid";
+import RaidOverview from "./pages/V2/RaidOverview";
+import RaidMap, { loader as RaidMapLoader } from "./pages/V2/RaidMap";
+import RaidCharts from "./pages/V2/RaidCharts";
+import RaidTimeline from "./pages/V2/RaidTimeline";
+import RaidSettings, { loader as RaidSettingsLoader } from "./pages/V2/RaidSettings";
 
-const router = createBrowserRouter([
+const v2_routes = [
   {
-    path: "/",
-    element: <Home />,
-    loader: profilesLoader,
-  },
-  {
-    path: "/p/:profileId",
-    element: <Profile />,
-    shouldRevalidate : () => true, 
-    loader: coreLoader,
+    path : "/",
+    element: <Layout />,
     children: [
       {
-        path: "/p/:profileId/raid/:raidId/",
-        loader: raidLoader,
-        element: <Raid />,
-        children: [
-          {
-            path: "/p/:profileId/raid/:raidId/map",
-            loader: mapLoader,
-            element: <MapView />,
-          },
-          {
-            path: "/p/:profileId/raid/:raidId/settings",
-            loader: raidSettingsLoader,
-            element: <RaidSettings />,
-          },
-        ],
+        path: "/",
+        element: <Raids />,
+        loader: RaidsLoader
       },
       {
-        path: "/p/:profileId/about",
-        // loader: raidLoader,
-        element: <About />,
-      },
-      // {
-      //   path: "/p/:profileId/settings",
-      //   loader: serverSettingsLoader,
-      //   element: <ServerSettings />,
-      // }
-    ],
+        path: "/raid/:raidId",
+        element: <Raid />,
+        loader: RaidLoader,
+        children : [
+          { 
+            path: "/raid/:raidId",
+            element: <RaidOverview />
+          },
+          { 
+            path: "/raid/:raidId/charts",
+            element: <RaidCharts />
+          },
+          { 
+            path: "/raid/:raidId/timeline",
+            element: <RaidTimeline />
+          },
+          { 
+            path: "/raid/:raidId/map",
+            element: <RaidMap />,
+            loader: RaidMapLoader
+          },
+          { 
+            path: "/raid/:raidId/settings",
+            element: <RaidSettings />,
+            loader: RaidSettingsLoader
+          }
+        ]
+      }
+    ]
   },
-]);
+  
+]
+
+const router = createBrowserRouter(v2_routes);
 
 ReactDOM.createRoot(document.getElementById("root") as Element).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
 );
+
+// Temporary Fix for Recharts: 
+// - https://github.com/recharts/recharts/issues/3615
+const error = console.error;
+console.error = (...args: any) => {
+if (/defaultProps/.test(args[0])) return;
+    error(...args);
+};

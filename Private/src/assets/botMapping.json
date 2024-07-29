@@ -1,5 +1,5 @@
 {
-    "PLAYER_SCAV": {
+    "PLAYER_SCAV|SCAV": {
         "name": "Player Scav",
         "type": "PLAYER_SCAV"
     },

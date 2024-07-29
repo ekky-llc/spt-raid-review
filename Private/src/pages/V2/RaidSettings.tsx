@@ -1,21 +1,18 @@
-import { Link, LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
-import api from "../api/api";
+import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
+import api from "../../api/api";
 
-import './RaidSettings.css'
 import { useState } from "react";
 
 export async function loader(loaderData: LoaderFunctionArgs ) {
-    const profileId = loaderData.params.profileId as string;
     const raidId = loaderData.params.raidId as string;
 
-    const result = await api.getRaidTempFiles(profileId, raidId);
+    const result = await api.getRaidTempFiles(raidId);
 
-    return { profileId : profileId, raidId : raidId, raidTempFiles: result};
+    return { raidId : raidId, raidTempFiles: result};
 }
 
 export default function RaidSettings() {
-    const {  profileId, raidId, raidTempFiles } = useLoaderData() as {
-        profileId: string,
+    const {  raidId, raidTempFiles } = useLoaderData() as {
         raidId: string,
         raidTempFiles: boolean,
     };
@@ -25,7 +22,7 @@ export default function RaidSettings() {
 
     async function deleteTempRaidData(raidId: string) {
         try {
-            const result = await api.deleteRaidsTempFiles(profileId, [raidId]);
+            const result = await api.deleteRaidsTempFiles([raidId]);
             if (result) {
                 setTempDataAvail(false);
             }
@@ -36,9 +33,9 @@ export default function RaidSettings() {
 
     async function deleteAllRaidData(raidId: string) {
         try {
-            const result = await api.deleteRaids(profileId, [raidId]);
+            const result = await api.deleteRaids([raidId]);
             if (result) {
-                navigate(`/p/${profileId}`, { replace: true })
+                navigate(`/`, { replace: true })
             }
         } catch (error) {
             console.log(error)
@@ -46,17 +43,14 @@ export default function RaidSettings() {
     }
 
     return (
-        <div className="settings-container grid place-items-center">
+        <div className="settings-container">
             <>
                 <div>
-                    <nav className="flex justify-end">
-                        <Link to={`/p/${profileId}/raid/${raidId}?return=1`} className='text-sm p-2 py-1 hover:bg-neutral-500/25 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto'>Close</Link>
-                    </nav>
-                    <div className="text-eft border border-eft bg-black font-mono overflow-x-auto w-96 p-4">
+                    <div className="text-eft font-mono overflow-x-auto">
                         <strong>Settings</strong>
 
                         { tempDataAvail ? 
-                        <div className="mt-4 flex flex-col justify-start border border-eft p-2">
+                        <div className="flex flex-col justify-start border border-eft p-2">
                             <span className="text-center mb-1">Delete Temporary Files</span>
                             <button 
                                 className={`w-100 text-sm p-2 py-1 hover:bg-neutral-500/25 text-sm cursor-pointer border border-eft text-eft mb-2`}

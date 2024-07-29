@@ -9,12 +9,11 @@ import { start } from 'repl';
 import L from 'leaflet';
 
 import api from '../api/api.js';
-import { msToHMS } from '../pages/Profile.js'
+import { msToHMS, intl } from '../helpers/index.js';
 import { calculateNewPosition, findInsertIndex } from '../modules/utils.js'
 import { useMapImages } from '../modules/maps-index.js';
 import { TrackingPositionalData } from '../types/api_types.js';
 import { PlayerSlider } from './MapPlayerSlider.js';
-import { intl } from '../pages/Raid.js';
 
 import BotMapping from '../assets/botMapping.json'
 
@@ -164,7 +163,7 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export default function MapComponent({ raidData, profileId, raidId, positions, intl_dir }) {
+export default function MapComponent({ raidData, raidId, positions, intl_dir }) {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const [currentMap, setCurrentMap] = useState('')
@@ -197,8 +196,9 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     const [hideSettings, setHideSettings] = useState(true)
     const [hidePlayers, setHidePlayers] = useState(false)
     const [hideEvents, setHideEvents] = useState(false)
-    const [preserveHistory, setPreserveHistory] = useState(false)
+    const [hideBallistics, setHideBallistics] = useState(false)
     const [hideNerdStats, setHideNerdStats] = useState(true)
+    const [preserveHistory, setPreserveHistory] = useState(false)
 
     // Events
     const [events, setEvents] = useState([])
@@ -473,7 +473,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         SET_MAP(map);
         setTimeout(() => {
             setMapIsReady(true)
-        }, 250)
+        }, 500)
 
         if (heatmapEnabled) {
             L.heatLayer(heatmapData, { radius: 10, max: 1, blur: 10 }).addTo(map)
@@ -487,7 +487,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
 
         (async () => {
             if (heatmapData.length === 0) {
-                const data = await api.getRaidHeatmapData(profileId, raidId)
+                const data = await api.getRaidHeatmapData(raidId)
                 if (data) {
                     setHeatmapData(data)
                 }
@@ -639,7 +639,6 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         if (!mapIsReady) return;
 
         const createdLayers = new Map();
-    
         for (let i = 0; i < events.length; i++) {
             const e = events[i];
     
@@ -721,6 +720,55 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         });
     }, [sliderTimes, timeCurrentIndex]);    
 
+    // Ballistics Update
+    let ballisticsLayers = new Map();
+    useEffect(() => {
+        if (hideBallistics) return;
+        if (!mapIsReady || !MAP) return;
+
+        const createdLayers = new Map();
+        for (let i = 0; i < raidData.ballistic.length; i++) {
+            const ballistic = raidData.ballistic[i];
+            const toBeIndex = findInsertIndex(ballistic.time, sliderTimes);
+
+            let passedTime = toBeIndex < timeCurrentIndex;
+            let expiredTime = toBeIndex + 40 > timeCurrentIndex;
+            if (passedTime && expiredTime) {
+                let source = JSON.parse(ballistic.source);
+                let target = JSON.parse(ballistic.target);
+
+                let ballisticsId = `${i}-${ballistic.time}-${source.z}-${source.x}-${target.z}-${target.x}`;
+                let exists = ballisticsLayers.get(ballisticsId);
+
+                let hit = !!ballistic.hitPlayerId;
+                if (!exists && (target && source)) {
+                    const pickedColor = calculatedPlayerInfo[ballistic.profileId]?.pickedColor;
+                    const position = [[source.z, source.x], [target.z, target.x]];
+
+                    const polyline = L.polyline(position, { 
+                        color: pickedColor ? pickedColor : 'red', 
+                        weight: 1, 
+                        opacity: 0.5, 
+                        fillOpacity: 0.5, 
+                        dashOffset: 2, 
+                        dashArray: [2, 6, 2]
+                    });
+                    polyline.eventTime = ballistic.time;
+                    polyline.eventCollision = ballistic.hitPlayerId;
+                    polyline.eventType = 'ballisticsLine';
+                    polyline.eventId = ballisticsId;
+
+                    if (MAP) {
+                        polyline.addTo(MAP);
+                    }
+
+                    ballisticsLayers.set(ballisticsId, true);
+                }
+            }
+        }
+
+    }, [timeCurrentIndex, hideBallistics]);
+
     // Slider Updater
     useEffect(() => {
         if (!playing || sliderTimes.length === 0) {
@@ -757,20 +805,31 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory])
 
     function clearMap(m, timeRange) {
-        if (!m && !mapIsReady) return;
-
+        if (!m || !mapIsReady) return;
+    
         for (const key in m._layers) {
-            const layer = m._layers[key]
-
-            if ((layer instanceof L.Polyline && layer.eventType === undefined)|| layer instanceof L.Circle) {
-                m.removeLayer(layer)
+            const layer = m._layers[key];
+        
+            // Remove polylines without eventType or not being ballisticsLine, and circles
+            if ((layer instanceof L.Polyline && (!layer.eventType || layer.eventType !== 'ballisticsLine')) || layer instanceof L.Circle) {
+                m.removeLayer(layer);
+                continue;
             }
-
-            // if (layer._path !== undefined || layer._icon !== undefined) {
-            //     m.removeLayer(layer);
-            // }
+    
+            // Handle ballistics lines
+            if (layer.eventTime) {
+                const toBeIndex = findInsertIndex(layer.eventTime, sliderTimes);
+    
+                let passedTime = toBeIndex > timeCurrentIndex;
+                let expiredTime = toBeIndex + 40 < timeCurrentIndex ;
+    
+                if (layer.eventType === 'ballisticsLine' && (expiredTime || passedTime)) {
+                    m.removeLayer(layer);
+                    ballisticsLayers.delete(layer.eventId);
+                }
+            }
         }
-    }
+    } 
 
     function playPositions() {
         if (timeCurrentIndex === sliderTimes.length - 1) {
@@ -791,9 +850,11 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
         return
     }
 
-    function playerWasKilled(playerId: string, time: number): boolean {
+    function playerIsDead(playerId: string, time: number): boolean {
         if (raidData && raidData.kills) {
-            return !!raidData.kills.find((kill) => kill.killedId === playerId && kill.time < time)
+            let playerWasKilled = !!raidData.kills.find((kill) => kill.killedId === playerId && kill.time < time);
+            
+            return playerWasKilled
         } else {
             return false
         }
@@ -929,7 +990,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                             )
                         )}
                     </div>
-                    <Link to={`/p/${profileId}/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto">
+                    <Link to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto">
                         Close
                     </Link>
                 </nav>
@@ -950,7 +1011,7 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                                             setFollowPlayerZoomed(false)
                                         }}
                                     >
-                                        <div className={`flex flex-row items-center ${playerWasKilled(player.profileId, timeEndLimit) ? 'line-through opacity-25' : ''}`}>
+                                        <div className={`flex flex-row items-center ${playerIsDead(player.profileId, timeEndLimit) ? 'line-through opacity-25' : ''}`}>
                                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background: getPlayerColor(player, index) }}></span>
                                             <div>
                                                 <span className="capitalize">
@@ -1058,11 +1119,14 @@ export default function MapComponent({ raidData, profileId, raidId, positions, i
                             ⚙️
                         </button>
                         <div className={`border border-eft p-1 flex gap-1 ${hideSettings ? 'invisible' : ''}`}>
+                            <button className={`text-xs p-1 text-sm cursor-pointer ${hidePlayers ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHidePlayers(!hidePlayers)}>
+                                Hide Players
+                            </button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${hideEvents ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideEvents(!hideEvents)}>
                                 Hide Events
                             </button>
-                            <button className={`text-xs p-1 text-sm cursor-pointer ${hidePlayers ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHidePlayers(!hidePlayers)}>
-                                Hide Players
+                            <button className={`text-xs p-1 text-sm cursor-pointer ${hideBallistics ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideBallistics(!hideBallistics)}>
+                                Hide Ballistics
                             </button>
                             <button className={`text-xs p-1 text-sm cursor-pointer ${preserveHistory ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft tooltip info`} onClick={() => setPreserveHistory(!preserveHistory)}>
                                 Preserve
