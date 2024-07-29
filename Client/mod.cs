@@ -21,7 +21,7 @@ using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.1.1")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.2.0")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
