@@ -9,12 +9,11 @@ import { start } from 'repl';
 import L from 'leaflet';
 
 import api from '../api/api.js';
-import { msToHMS } from '../pages/V1/Profile'
+import { msToHMS, intl } from '../helpers/index.js';
 import { calculateNewPosition, findInsertIndex } from '../modules/utils.js'
 import { useMapImages } from '../modules/maps-index.js';
 import { TrackingPositionalData } from '../types/api_types.js';
 import { PlayerSlider } from './MapPlayerSlider.js';
-import { intl } from '../pages/V1/Raid';
 
 import BotMapping from '../assets/botMapping.json'
 

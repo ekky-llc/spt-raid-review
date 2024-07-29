@@ -17,10 +17,14 @@ export default function Home() {
                 </div>
                 <ul className="text-black ml-4">
                     <li className="text-base h-full hover:bg-black/20">
-                        <Link className="h-full w-full grid place-items-center px-4" to="/">Recent Raids</Link>
+                        <Link className="h-full w-full grid place-items-center px-4 underline" to="/">Recent Raids</Link>
                     </li>
                 </ul>
             </nav>
+
+            <div>
+                
+            </div>
 
             <Outlet />
 

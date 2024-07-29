@@ -187,12 +187,16 @@ export default function RaidOverview() {
       }
 
       function generatePlayerTable(raid: TrackingRaidData ) {
-        return (raid && groupedBy && groupedBy.length > 0 ? groupedBy.map( (gp) => gp.map( (p, index) => 
-          <tr className={`${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' }`}>
+        
+        return (raid && groupedBy && groupedBy.length > 0 ? groupedBy.map( (gp) => gp.map( (p, index) => {
+          const SAIN = getPlayerDifficultyAndBrain(p).toLowerCase();
+
+          return (<tr className={`${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
               <td className="text-right p-2 uppercase">{ p.team === 'Savage' ? 'Scav' : p.team }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.group }</td>
+              <td className="text-center p-2 uppercase border-x border-eft">{ p.level }</td>
               <td className="text-left p-2">{ p.name }</td>
-              <td className="text-right p-2 capitalize">{ getPlayerDifficultyAndBrain(p).toLowerCase() }</td>
+              <td className="text-right p-2 capitalize">{ SAIN }</td>
               <td className="text-center p-2 w-12 border-l border-eft">{ calcStats ? calcStats.get(p.profileId)?.kills || '-' : null  }</td>
               <td className={`text-center p-2 w-12 ${(calcStats && (calcStats.get(p.profileId)?.lootings || 0) < 0) ? 'text-red-400' : 'text-green-400'}`}>{ calcStats ? calcStats.get(p.profileId)?.lootings || '-'  : null }</td>
               <td className="text-center p-2 w-12">
@@ -200,7 +204,7 @@ export default function RaidOverview() {
                 {calcStats && calcStats.get(p.profileId)?.accuracy ? '%' : ''}
               </td>
               <td className="text-right p-2 border-l border-eft">{ msToHMS(Number(p.spawnTime)) }</td>
-          </tr>)
+          </tr>)})
       )
       : '')
       }
@@ -222,13 +226,17 @@ export default function RaidOverview() {
         </section>
 
         <section className="mt-4">
-            <div className="w-full text-lg font-bold">Leaderboard</div>
+            <div className="w-full flex flex-row justify-between">
+              <span className="text-lg font-bold">Leaderboard</span>
+              <span>Sort by Side, Team or Spawned</span>
+            </div>
             <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
                 <thead>
                     <tr className="bg-eft text-black">
                         {/* <th className="text-left px-2"></th> */}
                         <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'TEAM' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('TEAM')}>Side</th>
                         <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'GROUP' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('GROUP')}>Team</th>
+                        <th className="text-right px-2">Lvl</th>
                         <th className="text-left px-2">Username</th>
                         <th className="text-right px-2">SAIN</th>
                         <th className="text-center px-2">K</th>
