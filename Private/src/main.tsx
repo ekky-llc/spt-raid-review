@@ -63,3 +63,11 @@ ReactDOM.createRoot(document.getElementById("root") as Element).render(
     <RouterProvider router={router} />
   </React.StrictMode>
 );
+
+// Temporary Fix for Recharts: 
+// - https://github.com/recharts/recharts/issues/3615
+const error = console.error;
+console.error = (...args: any) => {
+if (/defaultProps/.test(args[0])) return;
+    error(...args);
+};

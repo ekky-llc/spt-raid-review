@@ -487,7 +487,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         (async () => {
             if (heatmapData.length === 0) {
-                const data = await api.getRaidHeatmapData(profileId, raidId)
+                const data = await api.getRaidHeatmapData(raidId)
                 if (data) {
                     setHeatmapData(data)
                 }

@@ -2,6 +2,8 @@ import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
 import { CONSTANTS } from '../../constant'
 import { Logger } from 'src/Utils/logger'
 
+import config from '../../../config.json'
+
 export interface SessionManagerRaid {
     raidId: string
     players: Map<string, string>
@@ -49,8 +51,8 @@ export class SessionManager {
                     const raid = this.getRaid(timeoutId)
                     raid.timeout++
 
-                    // If raid times out after 2 minutes, remove the raid.
-                    if (raid.timeout >= 2) {
+                    // DEFAULT: If raid times out after 2 minutes, remove the raid.
+                    if (raid.timeout >= config.session_manager__raid_timeout || 2) {
                         this.removeRaid(
                             timeoutId,
                             CONSTANTS.REASON_RAID_REMOVAL__TIMEOUT
@@ -65,7 +67,7 @@ export class SessionManager {
                     player.timeout++
 
                     // If player times out after 240 minutes, remove the profile.
-                    if (player.timeout >= 240) {
+                    if (player.timeout >= config.session_manager__player_timeout || 240) {
                         if (player.raidId) {
                             this.removePlayerFromRaid(player.raidId, timeoutId)
                         }

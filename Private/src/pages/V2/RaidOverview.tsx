@@ -89,12 +89,17 @@ export default function RaidOverview() {
       });
       
       newRaidSummary.push({
-        title: 'Players (Total)',
+        title: 'Total Players/Bots',
         value: raid.players ? raid.players.length : 0
       });
       
       newRaidSummary.push({
-        title: 'Kills (Total)',
+        title: 'Peak Active Bots',
+        value: raid.player_status ? _.maxBy(_.chain(raid.player_status).filter(p => p.status === 'Alive').groupBy('time').values().value(), 'length')?.length : '?'
+      });
+      
+      newRaidSummary.push({
+        title: 'Total Kills',
         value: raid.kills ? raid.kills.length : 0
       });
       
@@ -191,12 +196,12 @@ export default function RaidOverview() {
         return (raid && groupedBy && groupedBy.length > 0 ? groupedBy.map( (gp) => gp.map( (p, index) => {
           const SAIN = getPlayerDifficultyAndBrain(p).toLowerCase();
 
-          return (<tr className={`${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
+          return (<tr key={`group-${index}`} className={`${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
               <td className="text-right p-2 uppercase">{ p.team === 'Savage' ? 'Scav' : p.team }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.group }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.level }</td>
               <td className="text-left p-2">{ p.name }</td>
-              <td className="text-right p-2 capitalize">{ SAIN }</td>
+              <td className="text-right p-2 capitalize">{ raid.detectedMods.match(/SAIN/gi) ? SAIN : '' }</td>
               <td className="text-center p-2 w-12 border-l border-eft">{ calcStats ? calcStats.get(p.profileId)?.kills || '-' : null  }</td>
               <td className={`text-center p-2 w-12 ${(calcStats && (calcStats.get(p.profileId)?.lootings || 0) < 0) ? 'text-red-400' : 'text-green-400'}`}>{ calcStats ? calcStats.get(p.profileId)?.lootings || '-'  : null }</td>
               <td className="text-center p-2 w-12">
@@ -216,11 +221,13 @@ export default function RaidOverview() {
           <table id="raid-overview" className="mb-2 w-full border border-eft">
                   <tbody>
                       {raidSummary && raidSummary.length ? raidSummary.map(rs => 
-                        <tr>
-                        <td className="text-right bg-eft text-black font-bold px-2">{ rs.title }</td>
-                        <td className="px-2">{ rs.value }</td>
-                      </tr>
-                      ) : ''}
+                        <tr key={rs.value}>
+                          <td className="text-right bg-eft text-black font-bold px-2">{ rs.title }</td>
+                          <td className="px-2">{ rs.value }</td>
+                        </tr>
+                      ) : <tr>
+                        <td colSpan={2}>No Data...</td>
+                      </tr>}
                   </tbody>
             </table>
         </section>
@@ -233,12 +240,11 @@ export default function RaidOverview() {
             <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
                 <thead>
                     <tr className="bg-eft text-black">
-                        {/* <th className="text-left px-2"></th> */}
                         <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'TEAM' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('TEAM')}>Side</th>
                         <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'GROUP' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('GROUP')}>Team</th>
                         <th className="text-right px-2">Lvl</th>
                         <th className="text-left px-2">Username</th>
-                        <th className="text-right px-2">SAIN</th>
+                        <th className="text-right px-2"> { raid.detectedMods.match(/SAIN/gi) ? 'SAIN' : '' }</th>
                         <th className="text-center px-2">K</th>
                         <th className="text-center px-2">L</th>
                         <th className="text-center px-2">A%</th>
@@ -246,7 +252,7 @@ export default function RaidOverview() {
                     </tr>
                 </thead>
                 <tbody>
-                    { generatePlayerTable(raid) }
+                    { generatePlayerTable(raid) || <tr><td colSpan={9}>No Data.</td></tr>}
                 </tbody>
             </table>
         </section>

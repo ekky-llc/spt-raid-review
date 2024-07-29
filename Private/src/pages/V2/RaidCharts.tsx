@@ -8,7 +8,7 @@ import { TrackingPlayerStatus, TrackingRaidData } from '../../types/api_types';
 import _ from 'lodash';
 import { msToHMS } from '../../helpers';
 
-export default function RaidCharts() {
+export default function RaidCharts() {        
     const [ activeBots, setActiveBots ] = useState([] as any[]);
     const [ kills, setKills ] = useState([] as any[]);
     const [ lootings, setLootings ] = useState([] as any[]);
@@ -185,7 +185,6 @@ export default function RaidCharts() {
                         }}
                     >
                     <Tooltip content={<CustomTooltip />} />
-                    {/* <XAxis dataKey="name" angle={-90} dy={40} dx={-6} /> */}
                     <YAxis tickCount={5}  />
                     <CartesianGrid strokeDasharray="1 1" stroke='#9a8866' />
                     <Area type="monotone" dataKey="uv" stroke="#9a8866" fill="#9a8866" />
@@ -223,7 +222,6 @@ export default function RaidCharts() {
                         }}
                     >
                     <Tooltip content={<CustomTooltip />} />
-                    {/* <XAxis dataKey="name" angle={-90} dy={40} dx={-6} /> */}
                     <YAxis tickCount={10}  />
                     <CartesianGrid strokeDasharray="1 1" stroke='#9a8866' />
                     <Area type="monotone" dataKey="uv" stroke="#9a8866" fill="#9a8866" />

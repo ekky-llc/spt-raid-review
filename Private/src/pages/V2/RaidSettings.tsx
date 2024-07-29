@@ -4,17 +4,15 @@ import api from "../../api/api";
 import { useState } from "react";
 
 export async function loader(loaderData: LoaderFunctionArgs ) {
-    const profileId = loaderData.params.profileId as string;
     const raidId = loaderData.params.raidId as string;
 
-    const result = await api.getRaidTempFiles(profileId, raidId);
+    const result = await api.getRaidTempFiles(raidId);
 
-    return { profileId : profileId, raidId : raidId, raidTempFiles: result};
+    return { raidId : raidId, raidTempFiles: result};
 }
 
 export default function RaidSettings() {
-    const {  profileId, raidId, raidTempFiles } = useLoaderData() as {
-        profileId: string,
+    const {  raidId, raidTempFiles } = useLoaderData() as {
         raidId: string,
         raidTempFiles: boolean,
     };
@@ -24,7 +22,7 @@ export default function RaidSettings() {
 
     async function deleteTempRaidData(raidId: string) {
         try {
-            const result = await api.deleteRaidsTempFiles(profileId, [raidId]);
+            const result = await api.deleteRaidsTempFiles([raidId]);
             if (result) {
                 setTempDataAvail(false);
             }
@@ -35,9 +33,9 @@ export default function RaidSettings() {
 
     async function deleteAllRaidData(raidId: string) {
         try {
-            const result = await api.deleteRaids(profileId, [raidId]);
+            const result = await api.deleteRaids([raidId]);
             if (result) {
-                navigate(`/p/${profileId}`, { replace: true })
+                navigate(`/`, { replace: true })
             }
         } catch (error) {
             console.log(error)
