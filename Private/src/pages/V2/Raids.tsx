@@ -2,7 +2,7 @@
 import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 
 import { TrackingRaidData } from '../../types/api_types';
-import { IAkiProfile } from '../../../../Server/types/models/eft/profile/IAkiProfile';
+import { ISptProfile } from '../../../../Server/types/models/eft/profile/ISptProfile';
 import api from '../../api/api';
 import { LOCATIONS } from '../../helpers/locations';
 
@@ -17,7 +17,7 @@ export async function loader() {
 }
 
 export default function Raids() {
-    const { raids, profiles } = useLoaderData() as { raids: TrackingRaidData[], profiles: { [key: string] : IAkiProfile } };
+    const { raids, profiles } = useLoaderData() as { raids: TrackingRaidData[], profiles: { [key: string] : ISptProfile } };
     const navigate = useNavigate()
 
     function getLocation(locationString: string) {

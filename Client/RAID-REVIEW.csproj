@@ -22,12 +22,12 @@
 			<HintPath>dependencies\3.9.X\0Harmony.dll</HintPath>
 			<Private>false</Private>
 		  </Reference>
-		<Reference Include="Aki.Common">
-			<HintPath>dependencies\3.9.X\Aki.Common.dll</HintPath>
+		<Reference Include="spt-common">
+			<HintPath>dependencies\3.9.X\spt-common.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="Aki.Reflection">
-			<HintPath>dependencies\3.9.X\Aki.Reflection.dll</HintPath>
+		<Reference Include="spt-reflection">
+			<HintPath>dependencies\3.9.X\spt-reflection.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="Assembly-CSharp">

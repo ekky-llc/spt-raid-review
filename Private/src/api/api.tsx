@@ -1,4 +1,4 @@
-import { IAkiProfile } from '../../../Server/types/models/eft/profile/IAkiProfile';
+import { ISptProfile } from '../../../Server/types/models/eft/profile/ISptProfile';
 import { TrackingRaidData, TrackingCoreDataRaids } from '../types/api_types';
 
 let isDev = window.location.host.includes("5173");
@@ -34,11 +34,11 @@ const api = {
     },
 
 
-    getProfiles: async function() : Promise<IAkiProfile[]> {
-        let profiles = [] as IAkiProfile[];
+    getProfiles: async function() : Promise<ISptProfile[]> {
+        let profiles = [] as ISptProfile[];
         try {
             const response = await fetch(hostname + '/api/profile/all');
-            const data = await response.json() as IAkiProfile[];
+            const data = await response.json() as ISptProfile[];
 
             return data;
         } 
