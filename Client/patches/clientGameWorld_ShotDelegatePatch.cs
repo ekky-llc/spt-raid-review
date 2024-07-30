@@ -40,8 +40,8 @@ namespace RAID_REVIEW
                     ammoId = shotResult.Ammo.Id,
                     time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
                     hitPlayerId = hitPlayerId ?? null,
-                    source = shotResult.MasterOrigin.ToJson(),
-                    target = shotResult.HitPoint.ToJson()
+                    source = JsonConvert.SerializeObject(shotResult.MasterOrigin),
+                    target = JsonConvert.SerializeObject(shotResult.HitPoint)
                 };
 
                 Telemetry.Send("BALLISTIC", JsonConvert.SerializeObject(newTackingBallistic));

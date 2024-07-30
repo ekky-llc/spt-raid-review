@@ -26,7 +26,7 @@ export default function RaidOverview() {
         for (let i = 0; i < raid.players.length; i++) {
           const player = raid.players[i];
           
-          let kills = _.filter(raid.kills, (killer) => killer.killerId === player.profileId).length;
+          let kills = _.filter(raid.kills, (killer) => killer.profileId === player.profileId).length;
           let lootingsAdded = _.filter(raid.looting, (looter) => looter.profileId === player.profileId && looter.added === '1').length;
           let lootingsRemoved = _.filter(raid.looting, (looter) => looter.profileId === player.profileId && looter.added === '0').length;
           let lootings = lootingsAdded - lootingsRemoved;
