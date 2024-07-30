@@ -77,7 +77,7 @@ export interface TrackingRaidDataLoot {
 
 export interface TrackingPlayerStatus {
   raidId: string
-  playerId: string
+  profileId: string
   time: number
   status: string
 }

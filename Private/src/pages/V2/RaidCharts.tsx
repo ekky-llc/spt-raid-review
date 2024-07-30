@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie } from 'recharts';
 
 import './Raids.css'
 import './RaidCharts.css'
 import { useOutletContext } from 'react-router-dom';
 import { TrackingPlayerStatus, TrackingRaidData } from '../../types/api_types';
-import _ from 'lodash';
+import _, { tail } from 'lodash';
 import { msToHMS } from '../../helpers';
 
 export default function RaidCharts() {        
+    const [ botsByTeam, setBotsByTeam ] = useState([] as any[]);
+    const [ botsByPersonality, setBotsByPersonality ] = useState([] as any[]);
+    const [ botsByDifficulty, setBotsByDifficulty ] = useState([] as any[]);
+
     const [ activeBots, setActiveBots ] = useState([] as any[]);
     const [ kills, setKills ] = useState([] as any[]);
     const [ lootings, setLootings ] = useState([] as any[]);
@@ -19,7 +23,28 @@ export default function RaidCharts() {
     };
 
     useEffect(() => {
-        if (raid) {
+        if (raid && raid.players) {
+
+            // Calculate Difficulty
+            const teams = {} as { [key:string] : number };
+            const difficulties = {} as { [key:string] : number };
+            const personalities = {} as { [key:string] : number };
+            for (let i = 0; i < raid.players.length; i++) {
+                const player = raid.players[i];
+
+                let brainKey = player.mod_SAIN_brain.toLowerCase();
+                personalities[brainKey] ? personalities[brainKey] = personalities[brainKey] + 1 : personalities[brainKey] = 1;
+
+                let difficultyKey = player.mod_SAIN_difficulty.toLowerCase();
+                difficulties[difficultyKey] ? difficulties[difficultyKey || 'default'] = difficulties[difficultyKey || 'default'] + 1 : difficulties[difficultyKey || 'default'] = 1;
+
+                let teamKey = player.team.toLowerCase();
+                teams[teamKey] ? teams[teamKey] = teams[teamKey] + 1 : teams[teamKey] = 1;
+            }
+            
+            setBotsByTeam(_.map(teams, (team, key) => ({ name: key, value: team })))
+            setBotsByPersonality(_.map(personalities, (personality, key) => ({ name: key, value: personality })))
+            setBotsByDifficulty(_.map(difficulties, (difficulty, key) => ({ name: key, value: difficulty })))
 
             // Calculate Active Bots
             let playersByTime = _.chain(raid.player_status).filter((ps: TrackingPlayerStatus) => ps.status === 'Alive').groupBy('time').valuesIn().value();
@@ -155,8 +180,73 @@ export default function RaidCharts() {
     
     return (
         <section className="chart-container">
-            <div className="chart my-4 mb-12 px-4">
-                <div className='text-center w-full text-lg font-bold'>Active Bots By Time</div>
+
+            { raid.detectedMods.match(/SAIN/gi) ? 
+            <div className="gauges my-4">
+                <div>
+                    <div className='text-center w-full text-lg font-bold bg-eft text-black'>Bots By Team</div>
+                    <div className="border border-eft">
+                        <PieChart width={290} height={200}>
+                            <Pie
+                                dataKey="value"
+                                isAnimationActive={false}
+                                data={botsByTeam}
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={80}
+                                fill="#9a8866"
+                                stroke='black'
+                                strokeWidth={2}
+                                />
+                            <Tooltip />
+                        </PieChart>
+                    </div>
+                </div>
+                <div>
+                    <div className='text-center w-full text-lg font-bold bg-eft text-black'>Bots By Personalities</div>
+                    <div className="border border-eft">
+                        <PieChart width={290} height={200}>
+                            <Pie
+                                dataKey="value"
+                                isAnimationActive={false}
+                                data={botsByPersonality}
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={80}
+                                fill="#9a8866"
+                                stroke='black'
+                                strokeWidth={2}
+                                />
+                            <Tooltip />
+                        </PieChart>
+                    </div>
+                </div>
+                <div>
+                    <div className='text-center w-full text-lg font-bold bg-eft text-black'>Bots By Difficulty</div>
+                    <div className="border border-eft">
+                        <PieChart width={290} height={200}>
+                            <Pie
+                                dataKey="value"
+                                isAnimationActive={false}
+                                data={botsByDifficulty}
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={80}
+                                fill="#9a8866"
+                                stroke='black'
+                                strokeWidth={2}
+                                />
+                            <Tooltip />
+                        </PieChart>
+                    </div>
+                </div>
+
+
+            </div>
+            : null }
+
+            <div className='text-center w-full text-lg font-bold bg-eft text-black'>Active Bots By Time</div>
+            <div className="chart mb-4 border border-eft">
                 <ResponsiveContainer>
                     <AreaChart
                         data={activeBots}
@@ -166,7 +256,7 @@ export default function RaidCharts() {
                         }}
                     >
                     <Tooltip content={<CustomTooltip />} />
-                    <XAxis dataKey="name" angle={-90} dy={40} dx={-6} />
+                    <XAxis dataKey="name" angle={-30} dy={20} dx={-30} />
                     <YAxis tickCount={5}  />
                     <CartesianGrid strokeDasharray="1 1" stroke='#9a8866' />
                     <Area type="monotone" dataKey="uv" stroke="#9a8866" fill="#9a8866" />
@@ -174,8 +264,8 @@ export default function RaidCharts() {
                 </ResponsiveContainer>
             </div>
 
-            <div className="chart my-4 mb-12 px-4">
-                <div className='text-center w-full text-lg font-bold'>Kill Activity By Time</div>
+            <div className='text-center w-full text-lg font-bold bg-eft text-black'>Kill Activity By Time</div>
+            <div className="chart mb-4 px-4 border border-eft">
                 <ResponsiveContainer>
                     <AreaChart
                         data={kills}
@@ -192,8 +282,8 @@ export default function RaidCharts() {
                 </ResponsiveContainer>
             </div>
 
-            <div className="chart my-4 mb-12 px-4">
-                <div className='text-center w-full text-lg font-bold'>Looting Activity By Time</div>
+            <div className='text-center w-full text-lg font-bold bg-eft text-black'>Looting Activity By Time</div>
+            <div className="chart mb-4 px-4 border border-eft">
                 <ResponsiveContainer>
                     <AreaChart
                         data={lootings}
@@ -211,8 +301,8 @@ export default function RaidCharts() {
                 </ResponsiveContainer>
             </div>
 
-            <div className="chart my-4 mb-12 px-4">
-                <div className='text-center w-full text-lg font-bold'>Projectile Activity By Time</div>
+            <div className='text-center w-full text-lg font-bold bg-eft text-black'>Projectile Activity By Time</div>
+            <div className="chart mb-4 px-4 border border-eft">
                 <ResponsiveContainer>
                     <AreaChart
                         data={shots}

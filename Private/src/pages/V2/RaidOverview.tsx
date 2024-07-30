@@ -4,21 +4,24 @@
 import { useOutletContext } from "react-router-dom";
 import { TrackingRaidData, TrackingRaidDataPlayers } from '../../types/api_types'
 import './Raids.css'
-import { msToHMS } from "../../helpers";
+import { intl, msToHMS } from "../../helpers";
 
 import BotMapping from '../../assets/botMapping.json'
 import { useEffect, useState } from "react";
 import _ from "lodash";
 import { LOCATIONS } from "../../helpers/locations";
-
+import cyr_to_en from '../../assets/cyr_to_en.json';
 
 export default function RaidOverview() {
-    const { raid } = useOutletContext() as { raid: TrackingRaidData };
+    const { raid, intl: intl_dir_ot } = useOutletContext() as { raid: TrackingRaidData, intl: { [key:string] : string } };
 
+    
     const [ calcStats, setCalcStats ] = useState(null as null | Map<string, { kills: number, lootings: number, accuracy: number }>);
     const [ raidSummary, setRaidSummary ] = useState([] as { title: string; value: any;}[]);
     const [ groupedByType, setGroupedByType ] = useState('' as string);
     const [ groupedBy, setGroupedBy ] = useState([] as TrackingRaidDataPlayers[][]);
+    
+    const intl_dir : Record<string, string> = {...intl_dir_ot, ...cyr_to_en};
 
     useEffect(() => {
       if (raid && raid.players) {
@@ -195,12 +198,18 @@ export default function RaidOverview() {
         
         return (raid && groupedBy && groupedBy.length > 0 ? groupedBy.map( (gp) => gp.map( (p, index) => {
           const SAIN = getPlayerDifficultyAndBrain(p).toLowerCase();
+          const LAST_STATUS = _.chain(raid.player_status).filter((ps) => ps.profileId === p.profileId && ps.status === 'Dead').sortBy('time', 'desc').first().value();
+          
+          let KIA = true;
+          if (LAST_STATUS) {
+            KIA = false;
+          }
 
-          return (<tr key={`group-${index}`} className={`${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
+          return (<tr key={`group-${index}`} className={`${KIA ? '' : ' text-red-700 opacity-85'} ${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
               <td className="text-right p-2 uppercase">{ p.team === 'Savage' ? 'Scav' : p.team }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.group }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.level }</td>
-              <td className="text-left p-2">{ p.name }</td>
+              <td className="text-left p-2">{KIA ? '' : ' 💀 '}{ intl(p.name, intl_dir) }</td>
               <td className="text-right p-2 capitalize">{ raid.detectedMods.match(/SAIN/gi) ? SAIN : '' }</td>
               <td className="text-center p-2 w-12 border-l border-eft">{ calcStats ? calcStats.get(p.profileId)?.kills || '-' : null  }</td>
               <td className={`text-center p-2 w-12 ${(calcStats && (calcStats.get(p.profileId)?.lootings || 0) < 0) ? 'text-red-400' : 'text-green-400'}`}>{ calcStats ? calcStats.get(p.profileId)?.lootings || '-'  : null }</td>

@@ -4,16 +4,21 @@ import { bodypart, intl, msToHMS } from "../../helpers";
 import { useEffect, useState } from "react";
 import _ from "lodash";
 
+import cyr_to_en from '../../assets/cyr_to_en.json';
+
 export default function RaidTimeline() {
+
   const [ actionFilterModal, setActionFilterModal ] = useState(false);
   const [ usernameFilterModal, setUsernameFilterModal ] = useState(false);
   const [ usernamesWithActivity, setUsernamesWithActivity ] = useState({} as { profileId: string, name: string | undefined }[]);
   const [ usernameFilter, setUsernameFilter ] = useState({} as { [key:string] : boolean });
   const [ actionFilter, setActionFilter ] = useState({} as { [key:string] : boolean });
-  const { raid, intl : intl_dir } = useOutletContext() as {
+  const { raid, intl : intl_dir_ot } = useOutletContext() as {
       raid: TrackingRaidData,
       intl: { [key: string]: string }
   };
+
+  const intl_dir : Record<string, string> = {...intl_dir_ot, ...cyr_to_en};
 
   useEffect(() => {
 

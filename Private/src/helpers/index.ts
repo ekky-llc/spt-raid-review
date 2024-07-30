@@ -19,3 +19,11 @@ export const bodypart = {
   RightLeg: "Right Leg",
   Chest: "Thorax",
 };
+
+export const existStatuses = {
+  Survived: "Survived",
+  Killed: "Killed",
+  Left: "Left",
+  Runner: "Run Through",
+  MissingInAction: "Missing In Action"
+}
