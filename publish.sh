@@ -107,11 +107,11 @@ ssh -q $linux_server_user@$linux_server_host 2> /dev/null << EOF
 
   echo ">>>> Installing linux 'node_module' dependencies"
   cd /home/blackdog/auto-deploy/user/mods/${name}__${version}
-  # npm install > /dev/null
+  npm install > /dev/null
   cd /home/blackdog/auto-deploy
 
   echo ">>>> Packaging linux distribution"
-  tar -cvf ${name}__${version}_linux.tar * > /dev/null
+  tar -czvhf ${name}__${version}_linux.tar.gz * > /dev/null
 
   exit
 EOF
