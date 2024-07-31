@@ -254,9 +254,9 @@ export default function RaidOverview() {
                         <th className="text-right px-2">Lvl</th>
                         <th className="text-left px-2">Username</th>
                         <th className="text-right px-2"> { raid.detectedMods.match(/SAIN/gi) ? 'SAIN' : '' }</th>
-                        <th className="text-center px-2">K</th>
-                        <th className="text-center px-2">L</th>
-                        <th className="text-center px-2">A%</th>
+                        <th className="text-center px-2" title="Kills">K</th>
+                        <th className="text-center px-2" title="Looted items">L</th>
+                        <th className="text-center px-2" title="Accuracy">A%</th>
                         <th className={`text-right px-2 underline cursor-pointer ${groupedByType === '' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('')}>Spawned</th>
                     </tr>
                 </thead>
