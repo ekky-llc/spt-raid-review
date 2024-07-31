@@ -1,10 +1,10 @@
 {
     "name": "raid-review",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "main": "src/mod.js",
     "license": "MIT",
     "author": "ekky",
-    "sptVersion": "~3.9.X",
+    "sptVersion": "~3.10.X",
     "scripts": {
         "setup": "npm i",
         "build": "node ./build.mjs",

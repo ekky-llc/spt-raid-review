@@ -5,7 +5,7 @@ import './Raids.css'
 import './RaidCharts.css'
 import { useOutletContext } from 'react-router-dom';
 import { TrackingPlayerStatus, TrackingRaidData } from '../../types/api_types';
-import _, { tail } from 'lodash';
+import _ from 'lodash';
 import { msToHMS } from '../../helpers';
 
 export default function RaidCharts() {        

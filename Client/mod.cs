@@ -21,13 +21,11 @@ using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.2.0")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.3.0")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
-        public static float updateInterval = 0.0f;
-        public static float lastUpdateTime = 0.0f;
         public static float PlayerTrackingInterval = 5f;
 
         // RAID_REVIEW
@@ -46,10 +44,8 @@ namespace RAID_REVIEW
         public static GameWorld gameWorld;
         public static RaidSettings raid;
         public static Player myPlayer;
-        public static IEnumerable<Player> allPlayers;
 
         // BepInEx
-        public static string PluginFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static ConfigEntry<KeyboardShortcut> LaunchWebpageKey;
         public static ConfigEntry<bool> PlayerTracking;
         public static ConfigEntry<bool> InsertMenuItem;

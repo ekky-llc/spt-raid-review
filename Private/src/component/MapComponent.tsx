@@ -254,6 +254,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
         const locations = {
             bigmap: 'customs',
             Sandbox: 'ground-zero',
+            Sandbox_high: 'ground-zero',
             develop: 'ground-zero',
             factory4_day: 'factory',
             factory4_night: 'factory',

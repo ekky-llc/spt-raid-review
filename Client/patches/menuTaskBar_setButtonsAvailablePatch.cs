@@ -16,17 +16,17 @@ namespace RAID_REVIEW
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(MenuTaskBar).GetMethod("SetButtonsAvailable", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            return typeof(MenuTaskBar).GetMethod("Awake", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         }
 
         [PatchPostfix]
-        private static void PatchPostFix(ref MenuTaskBar __instance, bool available)
+        private static void PatchPostFix(ref MenuTaskBar __instance)
         {
             try
             {
                 if (RAID_REVIEW.InsertMenuItem.Value)
                 {
-                    Boolean result = MenuTaskbarMod.Insert();
+                    Boolean result = MenuTaskbarMod.Insert(__instance);
                     if (result)
                     {
                         Logger.LogInfo("RAID_REVIEW :::: Inserted Menu Item");
