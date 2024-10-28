@@ -14,7 +14,7 @@ namespace RAID_REVIEW
         public static Boolean Insert()
         {
             List<ToggleGroup> toggleGroups = new List<ToggleGroup>(UnityEngine.Object.FindObjectsOfType<ToggleGroup>());
-            ToggleGroup toggleGroupExists = toggleGroups.Find((toggleGroupItem) => toggleGroupItem.name == "StatMod");
+            ToggleGroup toggleGroupExists = toggleGroups.Find((toggleGroupItem) => toggleGroupItem.name == "RaidReview");
 
             if (toggleGroupExists != null)
             {
@@ -27,7 +27,7 @@ namespace RAID_REVIEW
                 {
                     ToggleGroup duplicatedToggleGroup = Instantiate(toggleGroup, toggleGroup.transform.parent);
 
-                    duplicatedToggleGroup.name = "StatMod";
+                    duplicatedToggleGroup.name = "RaidReview";
 
                     foreach (Transform child in duplicatedToggleGroup.transform)
                     {
@@ -37,7 +37,7 @@ namespace RAID_REVIEW
                         }
                         else
                         {
-                            child.name = "StatMod_Child";
+                            child.name = "RaidReviewButton";
 
                             AnimatedToggle childAnimatedToggle = child.GetComponent<AnimatedToggle>();
                             if (childAnimatedToggle != null)
