@@ -31,59 +31,66 @@ namespace RAID_REVIEW
 
                     foreach (Transform child in duplicatedToggleGroup.transform)
                     {
-                        child.name = "StatMod_Child";
-
-                        AnimatedToggle childAnimatedToggle = child.GetComponent<AnimatedToggle>();
-                        if (childAnimatedToggle != null)
+                        if (child.name == "NewInformation")
                         {
-                            childAnimatedToggle.onValueChanged.AddListener((value) =>
-                            {
-                                if (value)
-                                {
-                                    Application.OpenURL(RAID_REVIEW.RAID_REVIEW_HTTP_Server);
-                                    childAnimatedToggle.isOn = false;
-                                }
-                            });
+                            Destroy(child.gameObject);
                         }
-
-                        foreach (Transform subChild in child.transform)
+                        else
                         {
-                            if (subChild.name == "Text")
+                            child.name = "StatMod_Child";
+
+                            AnimatedToggle childAnimatedToggle = child.GetComponent<AnimatedToggle>();
+                            if (childAnimatedToggle != null)
                             {
-                                LocalizedText subChildEftText = subChild.GetComponent<LocalizedText>();
-                                if (subChildEftText != null)
+                                childAnimatedToggle.onValueChanged.AddListener((value) =>
                                 {
-
-                                    if (subChildEftText.LocalizationKey == "HANDBOOK")
+                                    if (value)
                                     {
-                                        subChildEftText.LocalizationKey = "RAID REVIEW";
+                                        Application.OpenURL(RAID_REVIEW.RAID_REVIEW_HTTP_Server);
+                                        childAnimatedToggle.isOn = false;
                                     }
+                                });
+                            }
 
-                                    // Use reflection to update all public string fields and properties
-                                    Type type = subChildEftText.GetType();
-                                    PropertyInfo[] properties = type.GetProperties();
-                                    FieldInfo[] fields = type.GetFields();
-
-                                    foreach (var property in properties)
+                            foreach (Transform subChild in child.transform)
+                            {
+                                if (subChild.name == "Text")
+                                {
+                                    LocalizedText subChildEftText = subChild.GetComponent<LocalizedText>();
+                                    if (subChildEftText != null)
                                     {
-                                        if (property.PropertyType == typeof(string) && property.CanWrite)
+
+                                        if (subChildEftText.LocalizationKey == "HANDBOOK")
                                         {
-                                            string value = (string)property.GetValue(subChildEftText);
-                                            if (value == "HANDBOOK")
+                                            subChildEftText.LocalizationKey = "RAID REVIEW";
+                                        }
+
+                                        // Use reflection to update all public string fields and properties
+                                        Type type = subChildEftText.GetType();
+                                        PropertyInfo[] properties = type.GetProperties();
+                                        FieldInfo[] fields = type.GetFields();
+
+                                        foreach (var property in properties)
+                                        {
+                                            if (property.PropertyType == typeof(string) && property.CanWrite)
                                             {
-                                                property.SetValue(subChildEftText, "RAID REVIEW");
+                                                string value = (string)property.GetValue(subChildEftText);
+                                                if (value == "HANDBOOK")
+                                                {
+                                                    property.SetValue(subChildEftText, "RAID REVIEW");
+                                                }
                                             }
                                         }
-                                    }
 
-                                    foreach (var field in fields)
-                                    {
-                                        if (field.FieldType == typeof(string))
+                                        foreach (var field in fields)
                                         {
-                                            string value = (string)field.GetValue(subChildEftText);
-                                            if (value == "HANDBOOK")
+                                            if (field.FieldType == typeof(string))
                                             {
-                                                field.SetValue(subChildEftText, "RAID REVIEW");
+                                                string value = (string)field.GetValue(subChildEftText);
+                                                if (value == "HANDBOOK")
+                                                {
+                                                    field.SetValue(subChildEftText, "RAID REVIEW");
+                                                }
                                             }
                                         }
                                     }
