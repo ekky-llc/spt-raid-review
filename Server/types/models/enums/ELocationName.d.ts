@@ -5,6 +5,7 @@ export declare enum ELocationName {
     WOODS = "Woods",
     SHORELINE = "Shoreline",
     SANDBOX = "Sandbox",
+    SANDBOX_HIGH = "Sandbox_high",
     INTERCHANGE = "Interchange",
     LIGHTHOUSE = "Lighthouse",
     LABORATORY = "laboratory",
