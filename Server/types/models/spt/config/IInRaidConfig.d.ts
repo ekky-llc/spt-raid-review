@@ -1,11 +1,10 @@
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface IInRaidConfig extends IBaseConfig {
-    kind: "aki-inraid";
-    MIAOnRaidEnd: boolean;
+    kind: "spt-inraid";
     /** Overrides to apply to the pre-raid settings screen */
-    raidMenuSettings: RaidMenuSettings;
+    raidMenuSettings: IRaidMenuSettings;
     /** What effects should be saved post-raid */
-    save: Save;
+    save: ISave;
     /** Names of car extracts */
     carExtracts: string[];
     /** Names of coop extracts */
@@ -15,20 +14,27 @@ export interface IInRaidConfig extends IBaseConfig {
     /** Fence rep gain from a single coop extract */
     coopExtractBaseStandingGain: number;
     /** Fence rep gain when successfully extracting as pscav */
-    scavExtractGain: number;
+    scavExtractStandingGain: number;
+    /** The likelihood of PMC eliminating a minimum of 2 scavs while you engage them as a pscav. */
+    pmcKillProbabilityForScavGain: number;
     /** On death should items in your secure keep their Find in raid status regardless of how you finished the raid */
     keepFiRSecureContainerOnDeath: boolean;
+    /** If enabled always keep found in raid status on items */
+    alwaysKeepFoundInRaidonRaidEnd: boolean;
+    /** Percentage chance a player scav hot is hostile to the player when scavving */
+    playerScavHostileChancePercent: number;
 }
-export interface RaidMenuSettings {
+export interface IRaidMenuSettings {
     aiAmount: string;
     aiDifficulty: string;
     bossEnabled: boolean;
     scavWars: boolean;
     taggedAndCursed: boolean;
     enablePve: boolean;
+    randomWeather: boolean;
+    randomTime: boolean;
 }
-export interface Save {
+export interface ISave {
     /** Should loot gained from raid be saved */
     loot: boolean;
-    durability: boolean;
 }

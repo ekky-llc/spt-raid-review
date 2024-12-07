@@ -1,7 +1,7 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { MinMax } from "@spt/models/common/MinMax";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface IRepairConfig extends IBaseConfig {
-    kind: "aki-repair";
+    kind: "spt-repair";
     priceMultiplier: number;
     applyRandomizeDurabilityLoss: boolean;
     weaponSkillRepairGain: number;
@@ -10,7 +10,7 @@ export interface IRepairConfig extends IBaseConfig {
     repairKitIntellectGainMultiplier: IIntellectGainValues;
     maxIntellectGainPerRepair: IMaxIntellectGainValues;
     weaponTreatment: IWeaponTreatmentRepairValues;
-    repairKit: RepairKit;
+    repairKit: IRepairKit;
 }
 export interface IIntellectGainValues {
     weapon: number;
@@ -30,17 +30,17 @@ export interface IWeaponTreatmentRepairValues {
     /** The multiplier used for calculating weapon maintenance XP */
     pointGainMultiplier: number;
 }
-export interface RepairKit {
-    armor: BonusSettings;
-    weapon: BonusSettings;
+export interface IRepairKit {
+    armor: IBonusSettings;
+    weapon: IBonusSettings;
 }
-export interface BonusSettings {
+export interface IBonusSettings {
     rarityWeight: Record<string, number>;
     bonusTypeWeight: Record<string, number>;
-    common: Record<string, BonusValues>;
-    rare: Record<string, BonusValues>;
+    common: Record<string, IBonusValues>;
+    rare: Record<string, IBonusValues>;
 }
-export interface BonusValues {
+export interface IBonusValues {
     valuesMinMax: MinMax;
     /** What dura is buff active between (min max of current max) */
     activeDurabilityPercentMinMax: MinMax;

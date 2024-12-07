@@ -1,8 +1,10 @@
-import { PresetHelper } from "@spt-aki/helpers/PresetHelper";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { PresetHelper } from "@spt/helpers/PresetHelper";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { DatabaseService } from "@spt/services/DatabaseService";
 export declare class PresetController {
+    protected logger: ILogger;
     protected presetHelper: PresetHelper;
-    protected databaseServer: DatabaseServer;
-    constructor(presetHelper: PresetHelper, databaseServer: DatabaseServer);
+    protected databaseService: DatabaseService;
+    constructor(logger: ILogger, presetHelper: PresetHelper, databaseService: DatabaseService);
     initialize(): void;
 }

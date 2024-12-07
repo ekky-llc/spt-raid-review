@@ -1,18 +1,16 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { BossLocationSpawn, Wave } from "@spt-aki/models/eft/common/ILocationBase";
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { MinMax } from "@spt/models/common/MinMax";
+import { IBossLocationSpawn, IWave } from "@spt/models/eft/common/ILocationBase";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface ILocationConfig extends IBaseConfig {
-    kind: "aki-location";
-    /** Waves with a min/max of the same value don't spawn any bots, bsg only spawn the difference between min and max */
-    fixEmptyBotWavesSettings: IFixEmptyBotWavesSettings;
+    kind: "spt-location";
     /** Rogues are classified as bosses and spawn immediatly, this can result in no scavs spawning, delay rogues spawning to allow scavs to spawn first */
     rogueLighthouseSpawnTimeSettings: IRogueLighthouseSpawnTimeSettings;
     /** When a map has hit max alive bots, any wave that should spawn will be reduced to 1 bot in size and placed in a spawn queue, this splits waves into smaller sizes to reduce the impact of this behaviour */
     splitWaveIntoSingleSpawnsSettings: ISplitWaveSettings;
-    looseLootMultiplier: LootMultiplier;
-    staticLootMultiplier: LootMultiplier;
+    looseLootMultiplier: ILootMultiplier;
+    staticLootMultiplier: ILootMultiplier;
     /** Custom bot waves to add to a locations base json on game start if addCustomBotWavesToMaps is true */
-    customWaves: CustomWaves;
+    customWaves: ICustomWaves;
     /** Open zones to add to map */
     openZones: Record<string, string[]>;
     /** Key = map id, value = item tpls that should only have one forced loot spawn position */
@@ -21,23 +19,40 @@ export interface ILocationConfig extends IBaseConfig {
     fitLootIntoContainerAttempts: number;
     /** Add all possible zones to each maps `OpenZones` property */
     addOpenZonesToAllMaps: boolean;
-    /** Allow addition of custom bot waves designed by SPT to be added to maps - defined in  configs/location.json.customWaves*/
+    /** Allow addition of custom bot waves designed by SPT to be added to maps - defined in  configs/location.json.customWaves */
     addCustomBotWavesToMaps: boolean;
     /** Should the limits defined inside botTypeLimits to appled to locations on game start */
     enableBotTypeLimits: boolean;
-    /** Add limits to a locations base.MinMaxBots array if enableBotTypeLimits is true*/
+    /** Add limits to a locations base.MinMaxBots array if enableBotTypeLimits is true */
     botTypeLimits: Record<string, IBotTypeLimit[]>;
     /** container randomisation settings */
     containerRandomisationSettings: IContainerRandomistionSettings;
-    /** How full must a random loose magazine be %*/
+    /** How full must a random loose magazine be % */
     minFillLooseMagazinePercent: number;
-    /** How full must a random static magazine be %*/
+    /** How full must a random static magazine be % */
     minFillStaticMagazinePercent: number;
     allowDuplicateItemsInStaticContainers: boolean;
+    /** Chance loose magazines have ammo in them TODO - rename to dynamicMagazineLootHasAmmoChancePercent */
+    magazineLootHasAmmoChancePercent: number;
+    /** Chance static magazines have ammo in them */
+    staticMagazineLootHasAmmoChancePercent: number;
     /** Key: map, value: loose loot ids to ignore */
     looseLootBlacklist: Record<string, string[]>;
-    /** Key: map, value: settings to control how long scav raids are*/
+    /** Key: map, value: settings to control how long scav raids are */
     scavRaidTimeSettings: IScavRaidTimeSettings;
+    /** Settings to adjust mods for lootable equipment in raid */
+    equipmentLootSettings: IEquipmentLootSettings;
+    /** min percentage to set raider spawns at, -1 makes no changes */
+    reserveRaiderSpawnChanceOverrides: IReserveRaiderSpawnChanceOverrides;
+    /** Map ids players cannot visit */
+    nonMaps: string[];
+}
+export interface IReserveRaiderSpawnChanceOverrides {
+    nonTriggered: number;
+    triggered: number;
+}
+export interface IEquipmentLootSettings {
+    modSpawnChancePercent: Record<string, number>;
 }
 export interface IFixEmptyBotWavesSettings {
     enabled: boolean;
@@ -52,16 +67,16 @@ export interface ISplitWaveSettings {
     ignoreMaps: string[];
     waveSizeThreshold: number;
 }
-export interface CustomWaves {
+export interface ICustomWaves {
     /** Bosses spawn on raid start */
-    boss: Record<string, BossLocationSpawn[]>;
-    normal: Record<string, Wave[]>;
+    boss: Record<string, IBossLocationSpawn[]>;
+    normal: Record<string, IWave[]>;
 }
 export interface IBotTypeLimit extends MinMax {
     type: string;
 }
 /** Multiplier to apply to the loot count for a given map */
-export interface LootMultiplier {
+export interface ILootMultiplier {
     bigmap: number;
     develop: number;
     factory4_day: number;
@@ -78,6 +93,7 @@ export interface LootMultiplier {
     tarkovstreets: number;
     terminal: number;
     town: number;
+    sandbox: number;
 }
 export interface IContainerRandomistionSettings {
     enabled: boolean;

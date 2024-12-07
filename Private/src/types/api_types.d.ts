@@ -34,8 +34,11 @@ export interface TrackingRaidData {
   timeInRaid: string
   exitName: string
   exitStatus: string
+  type: string
+  player_status?: TrackingPlayerStatus[]
   players?: TrackingRaidDataPlayers[]
   kills?: TrackingRaidDataKills[]
+  ballistic?: TrackingBallistic[]
   looting?: TrackingRaidDataLoot[]
 }
 
@@ -54,7 +57,7 @@ export interface TrackingRaidDataPlayers {
 
 export interface TrackingRaidDataKills {
     time: number
-    killerId: string
+    profileId: string
     killedId: string
     weapon: string
     distance: string
@@ -63,13 +66,31 @@ export interface TrackingRaidDataKills {
 }
 
 export interface TrackingRaidDataLoot {
-  playerId: string
+  profileId: string
   time: number
   id: string
   name: string
   qty: string
   type: string
   added: string
+}
+
+export interface TrackingPlayerStatus {
+  raidId: string
+  profileId: string
+  time: number
+  status: string
+}
+
+export interface TrackingBallistic {
+  sessionId: string;
+  profileId: string;
+  time: number;
+  weaponId: string;
+  ammoId: string;
+  hitPlayerId: string;
+  source: string;
+  target: string;
 }
 
 export interface RaidReviewServerSettings {

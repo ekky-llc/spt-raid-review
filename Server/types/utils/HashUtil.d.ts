@@ -1,6 +1,6 @@
-/// <reference types="node" />
 import crypto from "node:crypto";
-import { TimeUtil } from "@spt-aki/utils/TimeUtil";
+import fs from "node:fs";
+import { TimeUtil } from "@spt/utils/TimeUtil";
 export declare class HashUtil {
     protected timeUtil: TimeUtil;
     constructor(timeUtil: TimeUtil);
@@ -9,8 +9,15 @@ export declare class HashUtil {
      * @returns 24 character hash
      */
     generate(): string;
+    /**
+     * is the passed in string a valid mongo id
+     * @param stringToCheck String to check
+     * @returns True when string is a valid mongo id
+     */
+    isValidMongoId(stringToCheck: string): boolean;
     generateMd5ForData(data: string): string;
     generateSha1ForData(data: string): string;
+    generateCRC32ForFile(filePath: fs.PathLike): number;
     /**
      * Create a hash for the data parameter
      * @param algorithm algorithm to use to hash

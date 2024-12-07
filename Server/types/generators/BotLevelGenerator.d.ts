@@ -1,29 +1,32 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { IRandomisedBotLevelResult } from "@spt-aki/models/eft/bot/IRandomisedBotLevelResult";
-import { IExpTable } from "@spt-aki/models/eft/common/IGlobals";
-import { IBotBase } from "@spt-aki/models/eft/common/tables/IBotBase";
-import { BotGenerationDetails } from "@spt-aki/models/spt/bots/BotGenerationDetails";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { MinMax } from "@spt/models/common/MinMax";
+import { IRandomisedBotLevelResult } from "@spt/models/eft/bot/IRandomisedBotLevelResult";
+import { IBotBase } from "@spt/models/eft/common/tables/IBotBase";
+import { IBotGenerationDetails } from "@spt/models/spt/bots/BotGenerationDetails";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { MathUtil } from "@spt/utils/MathUtil";
+import { RandomUtil } from "@spt/utils/RandomUtil";
 export declare class BotLevelGenerator {
     protected logger: ILogger;
     protected randomUtil: RandomUtil;
-    protected databaseServer: DatabaseServer;
-    constructor(logger: ILogger, randomUtil: RandomUtil, databaseServer: DatabaseServer);
+    protected databaseService: DatabaseService;
+    protected mathUtil: MathUtil;
+    constructor(logger: ILogger, randomUtil: RandomUtil, databaseService: DatabaseService, mathUtil: MathUtil);
     /**
      * Return a randomised bot level and exp value
-     * @param levelDetails min and max of level for bot
-     * @param botGenerationDetails Deatils to help generate a bot
-     * @param bot being level is being generated for
+     * @param levelDetails Min and max of level for bot
+     * @param botGenerationDetails Details to help generate a bot
+     * @param bot Bot the level is being generated for
      * @returns IRandomisedBotLevelResult object
      */
-    generateBotLevel(levelDetails: MinMax, botGenerationDetails: BotGenerationDetails, bot: IBotBase): IRandomisedBotLevelResult;
+    generateBotLevel(levelDetails: MinMax, botGenerationDetails: IBotGenerationDetails, bot: IBotBase): IRandomisedBotLevelResult;
+    protected chooseBotLevel(min: number, max: number, shift: number, number: number): number;
     /**
-     * Get the highest level a bot can be relative to the players level, but no futher than the max size from globals.exp_table
-     * @param playerLevel Players current level
-     * @param relativeDeltaMax max delta above player level to go
-     * @returns highest level possible for bot
+     * Return the min and max bot level based on a relative delta from the PMC level
+     * @param botGenerationDetails Details to help generate a bot
+     * @param levelDetails
+     * @param maxlevel Max level allowed
+     * @returns A MinMax of the lowest and highest level to generate the bots
      */
-    protected getHighestRelativeBotLevel(playerLevel: number, relativeDeltaMax: number, levelDetails: MinMax, expTable: IExpTable[]): number;
+    protected getRelativeBotLevelRange(botGenerationDetails: IBotGenerationDetails, levelDetails: MinMax, maxAvailableLevel: number): MinMax;
 }

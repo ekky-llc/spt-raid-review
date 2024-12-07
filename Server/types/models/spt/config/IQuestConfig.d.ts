@@ -1,10 +1,10 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { ELocationName } from "@spt-aki/models/enums/ELocationName";
-import { SeasonalEventType } from "@spt-aki/models/enums/SeasonalEventType";
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { MinMax } from "@spt/models/common/MinMax";
+import { ELocationName } from "@spt/models/enums/ELocationName";
+import { SeasonalEventType } from "@spt/models/enums/SeasonalEventType";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface IQuestConfig extends IBaseConfig {
-    kind: "aki-quest";
-    redeemTime: number;
+    kind: "spt-quest";
+    mailRedeemTimeHours: Record<string, number>;
     questTemplateIds: IPlayerTypeQuestIds;
     /** Show non-seasonal quests be shown to player */
     showNonSeasonalEventQuests: boolean;
@@ -13,6 +13,10 @@ export interface IQuestConfig extends IBaseConfig {
     locationIdMap: Record<string, string>;
     bearOnlyQuests: string[];
     usecOnlyQuests: string[];
+    /** Quests that the keyed game version do not see/access */
+    profileBlacklist: Record<string, string[]>;
+    /** key=questid, gameversions that can see/access quest */
+    profileWhitelist: Record<string, string[]>;
 }
 export interface IPlayerTypeQuestIds {
     pmc: IQuestTypeIds;
@@ -47,11 +51,15 @@ export interface IRepeatableQuestConfig {
     /** Item tplIds to ignore when generating rewards */
     rewardBlacklist: string[];
     rewardAmmoStackMinSize: number;
+    freeChangesAvailable: number;
+    freeChanges: number;
+    keepDailyQuestTypeOnReplacement: boolean;
 }
 export interface IRewardScaling {
     levels: number[];
     experience: number[];
     roubles: number[];
+    gpCoins: number[];
     items: number[];
     reputation: number[];
     rewardSpread: number;

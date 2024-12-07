@@ -17,16 +17,15 @@ using EFT.Communications;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections;
+using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.1.1")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.3.0")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
-        public static float updateInterval = 0.0f;
-        public static float lastUpdateTime = 0.0f;
         public static float PlayerTrackingInterval = 5f;
 
         // RAID_REVIEW
@@ -45,17 +44,15 @@ namespace RAID_REVIEW
         public static GameWorld gameWorld;
         public static RaidSettings raid;
         public static Player myPlayer;
-        public static IEnumerable<Player> allPlayers;
 
         // BepInEx
-        public static string PluginFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static ConfigEntry<KeyboardShortcut> LaunchWebpageKey;
         public static ConfigEntry<bool> PlayerTracking;
         public static ConfigEntry<bool> InsertMenuItem;
         public static ConfigEntry<bool> RecordingNotification;
         public static ConfigEntry<bool> KillTracking;
         public static ConfigEntry<bool> LootTracking;
-        public static ConfigEntry<bool> ExtractTracking;
+        public static ConfigEntry<bool> BallisticsTracking;
         public static ConfigEntry<string> ServerAddress;
         public static ConfigEntry<string> ServerWsPort;
         public static ConfigEntry<string> ServerHttpPort;
@@ -88,6 +85,7 @@ namespace RAID_REVIEW
             PlayerTracking = Config.Bind<bool>("Tracking Settings", "Player Tracking", true, "Enables location tracking of players and bots.");
             KillTracking = Config.Bind<bool>("Tracking Settings", "Kill Tracking", true, "Enables location tracking of kills.");
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
+            BallisticsTracking = Config.Bind<bool>("Tracking Settings", "Ballistics Tracking", true, "Enables location tracking of ballistics.");
 
             // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
@@ -101,6 +99,7 @@ namespace RAID_REVIEW
             new RAID_REVIEW_menuTaskBar_setButtonsAvailablePatch().Enable();
             new RAID_REVIEW_Player_OnBeenKilledByAggressorPatch().Enable();
             new RAID_REVIEW_Player_OnItemAddedOrRemovedPatch().Enable();
+            new RAID_REVIEW_ClientGameWorld_ShotDelegatePatch().Enable();
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Patches Loaded");
 
             Telemetry.Connect(RAID_REVIEW_WS_Server);
@@ -192,7 +191,6 @@ namespace RAID_REVIEW
 
                         }
 
-
                         // Checks if a player / bot has died since the last check...
                         if (player.HealthController.IsAlive)
                         {
@@ -235,7 +233,12 @@ namespace RAID_REVIEW
                                 float angle = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
                                 float dir = angle;
 
-                                var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir);
+                                // Health Data
+                                ValueStruct commonHealth = player.HealthController.GetBodyPartHealth(EBodyPart.Common, true);
+                                float currentHealth = commonHealth.Current;
+                                float currentHealthMaximum = commonHealth.Current;
+
+                                var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir, currentHealth, currentHealthMaximum);
                                 _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                             }
 

@@ -1,6 +1,8 @@
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile'
 import { CONSTANTS } from '../../constant'
 import { Logger } from 'src/Utils/logger'
+
+import config from '../../../config.json'
 
 export interface SessionManagerRaid {
     raidId: string
@@ -8,11 +10,11 @@ export interface SessionManagerRaid {
     timeout: number
 }
 
-export type SessionManagerPlayerMap = Map<string, IAkiProfile>
+export type SessionManagerPlayerMap = Map<string, ISptProfile>
 
 export interface SessionManagerPlayer {
     raidId: string
-    profile: IAkiProfile
+    profile: ISptProfile
     timeout: number
 }
 
@@ -47,10 +49,11 @@ export class SessionManager {
 
                     // timeoutId would be the 'guid' of the raid
                     const raid = this.getRaid(timeoutId)
+                    this.logger.debug(`[RAID_TIMEOUT] Timeout: ${raid.timeout}`);
                     raid.timeout++
 
-                    // If raid times out after 2 minutes, remove the raid.
-                    if (raid.timeout >= 2) {
+                    // DEFAULT: If raid times out after 5 minutes, remove the raid.
+                    if (raid.timeout >= (config.session_manager__raid_timeout ?? 5)) {
                         this.removeRaid(
                             timeoutId,
                             CONSTANTS.REASON_RAID_REMOVAL__TIMEOUT
@@ -62,10 +65,11 @@ export class SessionManager {
 
                     // timeoutId would be the 'guid' of the player
                     const player = this.getProfile(timeoutId)
+                    this.logger.debug(`[PLAYER_TIMEOUT] Timeout: ${player.timeout}`);
                     player.timeout++
 
                     // If player times out after 240 minutes, remove the profile.
-                    if (player.timeout >= 240) {
+                    if (player.timeout >= (config.session_manager__player_timeout ?? 240)) {
                         if (player.raidId) {
                             this.removePlayerFromRaid(player.raidId, timeoutId)
                         }
@@ -103,11 +107,10 @@ export class SessionManager {
     }
 
     pingProfile(profileId: string): void {
-        if (!this.profiles.has(profileId)) {
+        if (this.profiles.has(profileId)) {
+            this.getProfile(profileId).timeout = 0;
             return
         }
-
-        this.getProfile(profileId).timeout = 0
     }
 
     // Raid Handlers
@@ -149,10 +152,10 @@ export class SessionManager {
     }
 
     pingRaid(raidId: string): void {
-        if (!this.raids.has(raidId)) {
+        if (this.raids.has(raidId)) {
+            this.getRaid(raidId).timeout = 0;
             return
         }
-        this.getRaid(raidId).timeout = 0
     }
 
     // Player To Raid Handler

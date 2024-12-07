@@ -1,16 +1,13 @@
-/// <reference types="node" />
 import fs from "node:fs";
+import { IDaum } from "@spt/models/eft/itemEvent/IItemEventRouterRequest";
+import { LogBackgroundColor } from "@spt/models/spt/logging/LogBackgroundColor";
+import { LogTextColor } from "@spt/models/spt/logging/LogTextColor";
+import { SptLogger } from "@spt/models/spt/logging/SptLogger";
+import { IAsyncQueue } from "@spt/models/spt/utils/IAsyncQueue";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
 import winston from "winston";
-import { Daum } from "@spt-aki/models/eft/itemEvent/IItemEventRouterRequest";
-import { LogBackgroundColor } from "@spt-aki/models/spt/logging/LogBackgroundColor";
-import { LogTextColor } from "@spt-aki/models/spt/logging/LogTextColor";
-import { SptLogger } from "@spt-aki/models/spt/logging/SptLogger";
-import { IAsyncQueue } from "@spt-aki/models/spt/utils/IAsyncQueue";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { IUUidGenerator } from "@spt-aki/models/spt/utils/IUuidGenerator";
 export declare abstract class AbstractWinstonLogger implements ILogger {
     protected asyncQueue: IAsyncQueue;
-    protected uuidGenerator: IUUidGenerator;
     protected showDebugInConsole: boolean;
     protected filePath: string;
     protected logLevels: {
@@ -44,15 +41,16 @@ export declare abstract class AbstractWinstonLogger implements ILogger {
     };
     protected logger: winston.Logger & SptLogger;
     protected writeFilePromisify: (path: fs.PathLike, data: string, options?: any) => Promise<void>;
-    constructor(asyncQueue: IAsyncQueue, uuidGenerator: IUUidGenerator);
+    constructor(asyncQueue: IAsyncQueue);
     protected abstract isLogToFile(): boolean;
     protected abstract isLogToConsole(): boolean;
     protected abstract isLogExceptions(): boolean;
     protected abstract getFilePath(): string;
     protected abstract getFileName(): string;
+    protected getLogFrequency(): string;
     protected getLogMaxSize(): string;
     protected getLogMaxFiles(): string;
-    writeToLogFile(data: string | Daum): Promise<void>;
+    writeToLogFile(data: string | IDaum): Promise<void>;
     log(data: string | Error | Record<string, unknown>, color: string, backgroundColor?: string): Promise<void>;
     error(data: string | Record<string, unknown>): Promise<void>;
     warning(data: string | Record<string, unknown>): Promise<void>;

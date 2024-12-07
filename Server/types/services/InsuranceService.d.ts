@@ -1,82 +1,59 @@
-import { DialogueHelper } from "@spt-aki/helpers/DialogueHelper";
-import { HandbookHelper } from "@spt-aki/helpers/HandbookHelper";
-import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
-import { SecureContainerHelper } from "@spt-aki/helpers/SecureContainerHelper";
-import { TraderHelper } from "@spt-aki/helpers/TraderHelper";
-import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
-import { Item } from "@spt-aki/models/eft/common/tables/IItem";
-import { ITraderBase } from "@spt-aki/models/eft/common/tables/ITrader";
-import { IInsuredItemsData } from "@spt-aki/models/eft/inRaid/IInsuredItemsData";
-import { ISaveProgressRequestData } from "@spt-aki/models/eft/inRaid/ISaveProgressRequestData";
-import { IInsuranceConfig } from "@spt-aki/models/spt/config/IInsuranceConfig";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { SaveServer } from "@spt-aki/servers/SaveServer";
-import { LocaleService } from "@spt-aki/services/LocaleService";
-import { LocalisationService } from "@spt-aki/services/LocalisationService";
-import { MailSendService } from "@spt-aki/services/MailSendService";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
-import { TimeUtil } from "@spt-aki/utils/TimeUtil";
+import { ItemHelper } from "@spt/helpers/ItemHelper";
+import { ProfileHelper } from "@spt/helpers/ProfileHelper";
+import { TraderHelper } from "@spt/helpers/TraderHelper";
+import { IPmcData } from "@spt/models/eft/common/IPmcData";
+import { IItem } from "@spt/models/eft/common/tables/IItem";
+import { ITraderBase } from "@spt/models/eft/common/tables/ITrader";
+import { IInsuranceConfig } from "@spt/models/spt/config/IInsuranceConfig";
+import { IInsuranceEquipmentPkg } from "@spt/models/spt/services/IInsuranceEquipmentPkg";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { SaveServer } from "@spt/servers/SaveServer";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { LocalisationService } from "@spt/services/LocalisationService";
+import { MailSendService } from "@spt/services/MailSendService";
+import { HashUtil } from "@spt/utils/HashUtil";
+import { RandomUtil } from "@spt/utils/RandomUtil";
+import { TimeUtil } from "@spt/utils/TimeUtil";
+import { ICloner } from "@spt/utils/cloners/ICloner";
 export declare class InsuranceService {
     protected logger: ILogger;
-    protected databaseServer: DatabaseServer;
-    protected secureContainerHelper: SecureContainerHelper;
+    protected databaseService: DatabaseService;
     protected randomUtil: RandomUtil;
     protected itemHelper: ItemHelper;
-    protected jsonUtil: JsonUtil;
+    protected hashUtil: HashUtil;
     protected timeUtil: TimeUtil;
     protected saveServer: SaveServer;
     protected traderHelper: TraderHelper;
-    protected dialogueHelper: DialogueHelper;
-    protected handbookHelper: HandbookHelper;
+    protected profileHelper: ProfileHelper;
     protected localisationService: LocalisationService;
-    protected localeService: LocaleService;
     protected mailSendService: MailSendService;
     protected configServer: ConfigServer;
-    protected insured: Record<string, Record<string, Item[]>>;
+    protected cloner: ICloner;
+    protected insured: Record<string, Record<string, IItem[]>>;
     protected insuranceConfig: IInsuranceConfig;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, secureContainerHelper: SecureContainerHelper, randomUtil: RandomUtil, itemHelper: ItemHelper, jsonUtil: JsonUtil, timeUtil: TimeUtil, saveServer: SaveServer, traderHelper: TraderHelper, dialogueHelper: DialogueHelper, handbookHelper: HandbookHelper, localisationService: LocalisationService, localeService: LocaleService, mailSendService: MailSendService, configServer: ConfigServer);
+    constructor(logger: ILogger, databaseService: DatabaseService, randomUtil: RandomUtil, itemHelper: ItemHelper, hashUtil: HashUtil, timeUtil: TimeUtil, saveServer: SaveServer, traderHelper: TraderHelper, profileHelper: ProfileHelper, localisationService: LocalisationService, mailSendService: MailSendService, configServer: ConfigServer, cloner: ICloner);
     /**
      * Does player have insurance array
      * @param sessionId Player id
      * @returns True if exists
      */
-    insuranceExists(sessionId: string): boolean;
+    isuranceDictionaryExists(sessionId: string): boolean;
     /**
      * Get all insured items by all traders for a profile
      * @param sessionId Profile id (session id)
      * @returns Item array
      */
-    getInsurance(sessionId: string): Record<string, Item[]>;
-    /**
-     * Get insured items by profile id + trader id
-     * @param sessionId Profile id (session id)
-     * @param traderId Trader items were insured with
-     * @returns Item array
-     */
-    getInsuranceItems(sessionId: string, traderId: string): Item[];
+    getInsurance(sessionId: string): Record<string, IItem[]>;
     resetInsurance(sessionId: string): void;
     /**
-     * Sends stored insured items as message to player
-     * @param pmcData profile to send insured items to
+     * Sends `i will go look for your stuff` trader message +
+     * Store lost insurance items inside profile for later retreval
+     * @param pmcData Profile to send insured items to
      * @param sessionID SessionId of current player
-     * @param mapId Id of the map player died/exited that caused the insurance to be issued on
+     * @param mapId Id of the location player died/exited that caused the insurance to be issued on
      */
-    sendInsuredItems(pmcData: IPmcData, sessionID: string, mapId: string): void;
-    /**
-     * Send a message to player informing them gear was lost
-     * @param sessionId Session id
-     * @param locationName name of map insurance was lost on
-     */
-    sendLostInsuranceMessage(sessionId: string, locationName?: string): void;
-    /**
-     * Check all root insured items and remove location property + set slotId to 'hideout'
-     * @param sessionId Session id
-     * @param traderId Trader id
-     */
-    protected removeLocationProperty(sessionId: string, traderId: string): void;
+    startPostRaidInsuranceLostProcess(pmcData: IPmcData, sessionID: string, mapId: string): void;
     /**
      * Get a timestamp of when insurance items should be sent to player based on trader used to insure
      * Apply insurance return bonus if found in profile
@@ -86,35 +63,34 @@ export declare class InsuranceService {
      */
     protected getInsuranceReturnTimestamp(pmcData: IPmcData, trader: ITraderBase): number;
     /**
+     * Take the insurance item packages within a profile session and ensure that each of the items in that package are
+     * not orphaned from their parent ID.
+     *
+     * @param sessionID The session ID to update insurance equipment packages in.
+     * @returns void
+     */
+    protected adoptOrphanedInsEquipment(sessionID: string): void;
+    protected getMaxInsuranceStorageTime(traderBase: ITraderBase): number;
+    /**
      * Store lost gear post-raid inside profile, ready for later code to pick it up and mail it
-     * @param pmcData player profile to store gear in
-     * @param offraidData post-raid request object
-     * @param preRaidGear gear player wore prior to raid
-     * @param sessionID Session id
-     * @param playerDied did the player die in raid
+     * @param equipmentPkg Gear to store - generated by getGearLostInRaid()
      */
-    storeLostGear(pmcData: IPmcData, offraidData: ISaveProgressRequestData, preRaidGear: Item[], sessionID: string, playerDied: boolean): void;
+    storeGearLostInRaidToSendLater(sessionID: string, equipmentPkg: IInsuranceEquipmentPkg[]): void;
     /**
-     * Take preraid item and update properties to ensure its ready to be given to player in insurance return mail
-     * @param pmcData Player profile
-     * @param insuredItem Insured items properties
-     * @param preRaidItem Insured item as it was pre-raid
-     * @param insuredItemFromClient Item data when player left raid (durability values)
-     * @returns Item object
+     * For the passed in items, find the trader it was insured against
+     * @param sessionId Session id
+     * @param lostInsuredItems Insured items lost in a raid
+     * @param pmcProfile Player profile
+     * @returns IInsuranceEquipmentPkg array
      */
-    protected getInsuredItemDetails(pmcData: IPmcData, preRaidItem: Item, insuredItemFromClient: IInsuredItemsData): Item;
+    mapInsuredItemsToTrader(sessionId: string, lostInsuredItems: IItem[], pmcProfile: IPmcData): IInsuranceEquipmentPkg[];
     /**
-     * Reset slotId property to "hideout" when necessary (used to be in )
-     * @param pmcData Players pmcData.Inventory.equipment value
-     * @param itemToReturn item we will send to player as insurance return
+     * Some items should never be returned in insurance but BSG send them in the request
+     * @param lostItem Item being returned in insurance
+     * @param inventoryItems Player inventory
+     * @returns True if item
      */
-    protected updateSlotIdValue(playerBaseInventoryEquipmentId: string, itemToReturn: Item): void;
-    /**
-     * Create a hash table for an array of items, keyed by items _id
-     * @param items Items to hash
-     * @returns Hashtable
-     */
-    protected createItemHashTable(items: Item[]): Record<string, Item>;
+    protected itemCannotBeLostOnDeath(lostItem: IItem, inventoryItems: IItem[]): boolean;
     /**
      * Add gear item to InsuredItems array in player profile
      * @param sessionID Session id
@@ -122,12 +98,7 @@ export declare class InsuranceService {
      * @param itemToReturnToPlayer item to store
      * @param traderId Id of trader item was insured with
      */
-    protected addGearToSend(gear: {
-        sessionID: string;
-        pmcData: IPmcData;
-        itemToReturnToPlayer: Item;
-        traderId: string;
-    }): void;
+    protected addGearToSend(gear: IInsuranceEquipmentPkg): void;
     /**
      * Does insurance exist for a player and by trader
      * @param sessionId Player id (session id)
@@ -145,9 +116,9 @@ export declare class InsuranceService {
      * Store insured item
      * @param sessionId Player id (session id)
      * @param traderId Trader item insured with
-     * @param itemToAdd Insured item
+     * @param itemToAdd Insured item (with children)
      */
-    addInsuranceItemToArray(sessionId: string, traderId: string, itemToAdd: Item): void;
+    addInsuranceItemToArray(sessionId: string, traderId: string, itemToAdd: IItem): void;
     /**
      * Get price of insurance * multiplier from config
      * @param pmcData Player profile
@@ -155,5 +126,11 @@ export declare class InsuranceService {
      * @param traderId Trader item is insured with
      * @returns price in roubles
      */
-    getPremium(pmcData: IPmcData, inventoryItem: Item, traderId: string): number;
+    getRoublePriceToInsureItemWithTrader(pmcData: IPmcData, inventoryItem: IItem, traderId: string): number;
+    /**
+     * Returns the ID that should be used for a root-level Item's parentId property value within in the context of insurance.
+     * @param sessionID Players id
+     * @returns The root item Id.
+     */
+    getRootItemParentID(sessionID: string): string;
 }

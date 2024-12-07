@@ -1,20 +1,20 @@
-import { Ixyz } from "@spt-aki/models/eft/common/Ixyz";
-import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { Ixyz } from "@spt/models/eft/common/Ixyz";
+import { IItem } from "@spt/models/eft/common/tables/IItem";
 export interface ILooseLoot {
-    spawnpointCount: SpawnpointCount;
-    spawnpointsForced: SpawnpointsForced[];
-    spawnpoints: Spawnpoint[];
+    spawnpointCount: ISpawnpointCount;
+    spawnpointsForced: ISpawnpointsForced[];
+    spawnpoints: ISpawnpoint[];
 }
-export interface SpawnpointCount {
+export interface ISpawnpointCount {
     mean: number;
     std: number;
 }
-export interface SpawnpointsForced {
+export interface ISpawnpointsForced {
     locationId: string;
     probability: number;
-    template: SpawnpointTemplate;
+    template: ISpawnpointTemplate;
 }
-export interface SpawnpointTemplate {
+export interface ISpawnpointTemplate {
     Id: string;
     IsContainer: boolean;
     useGravity: boolean;
@@ -23,20 +23,26 @@ export interface SpawnpointTemplate {
     Rotation: Ixyz;
     IsAlwaysSpawn: boolean;
     IsGroupPosition: boolean;
-    GroupPositions: any[];
+    GroupPositions: IGroupPostion[];
     Root: string;
-    Items: Item[];
+    Items: IItem[];
 }
-export interface Spawnpoint {
+export interface IGroupPostion {
+    Name: string;
+    Weight: number;
+    Postion: Ixyz;
+    Rotation: Ixyz;
+}
+export interface ISpawnpoint {
     locationId: string;
     probability: number;
-    template: SpawnpointTemplate;
+    template: ISpawnpointTemplate;
     itemDistribution: ItemDistribution[];
 }
 export interface ItemDistribution {
-    composedKey: ComposedKey;
+    composedKey: IComposedKey;
     relativeProbability: number;
 }
-export interface ComposedKey {
+export interface IComposedKey {
     key: string;
 }

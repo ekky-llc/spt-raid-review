@@ -9,14 +9,14 @@ import cookieParser from 'cookie-parser'
 import basicAuth from 'express-basic-auth'
 import compression from 'compression' 
 
-import { SaveServer } from '@spt-aki/servers/SaveServer'
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
-import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
-import { LocaleService } from '@spt-aki/services/LocaleService'
+import { SaveServer } from '@spt/servers/SaveServer'
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile'
+import { ProfileHelper } from '@spt/helpers/ProfileHelper'
+import { LocaleService } from '@spt/services/LocaleService'
 
 import config from '../../config.json'
 import { DeleteFile, ReadFile } from '../Controllers/FileSystem/DataSaver'
-import CompileRaidPositionalData from '../Controllers/PositionalData/CompileRaidPositionalData'
+import CompileRaidPositionalData, { ACTIVE_POSITIONAL_DATA_STRUCTURE } from '../Controllers/PositionalData/CompileRaidPositionalData'
 import { generateInterpolatedFramesBezier } from '../Utils/utils'
 import { getRaidData } from '../Controllers/Collection/GetRaidData'
 import { sendStatistics } from '../Controllers/Telemetry/RaidStatistics'
@@ -52,7 +52,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     app.use(compression())
 
     const basicAuthUsers = {};
-    Object.values(profileServer.getProfiles()).map((p : IAkiProfile) => basicAuthUsers[p.info.username] = p.info.password);
+    Object.values(profileServer.getProfiles()).map((p : ISptProfile) => basicAuthUsers[p.info.username] = p.info.password);
 
     // Basic Auth has been implemented for people who host Fika remotely.
     // It's not the greatest level of protection, but I cannot be arsed to implement oAuth for sucha niche use case.
@@ -102,61 +102,8 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         } 
     })
 
-    app.get('/api/server/settings', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
-        try {
-            const sqlSettingsQuery = `SELECT * FROM setting ORDER BY id ASC`
-            const data = (await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[API:SETTINGS] `, e))) as any[]
-            const settings = _.groupBy(data, 'key')
-            res.json(settings)
-        } catch (error) {
-            res.json(null)
-        }
-    })
-
-    app.put('/api/server/settings', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
-        try {
-            const settingsToUpdate = req.body() as { key: string; value: string }[]
-
-            // Could improve this into a single query...
-            for (let i = 0; i < settingsToUpdate.length; i++) {
-                const setting = settingsToUpdate[i]
-                const sqlSettingsQuery = `UPDATE setting * SET value = ? WHERE key = ?`
-                const sqlSettingsValues = [setting.key, setting.value]
-                await db.all(sqlSettingsQuery, sqlSettingsValues).catch((e: Error) => logger.error(`[API:SETTINGS] `, e))
-            }
-
-            // I'm not too worried about performance, I just need it to work right now...
-            const sqlSettingsQuery = `SELECT * FROM setting ORDER BY id ASC`
-            const data = (await db.all(sqlSettingsQuery).catch((e: Error) => logger.error(`[API:SETTINGS] `, e))) as any[]
-            const settings = _.groupBy(data, 'key')
-
-            res.json(settings)
-        } catch (error) {
-            res.json(null)
-        }
-    })
-
-    app.get('/api/server/deleteAllData', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
-        try {
-            // Burn it all
-            const keys = ['raid', 'kills', 'looting', 'player']
-            for (let i = 0; i < keys.length; i++) {
-                const key = keys[i]
-                const sqlKeyQuery = `DELETE FROM ${key}`
-                await db.all(sqlKeyQuery).catch((e: Error) => logger.error(`[API:SETTINGS] `, e))
-
-                rmSync(`${__dirname}/../../../data/positions`, { force: true, recursive: true })
-                mkdirSync(`${__dirname}/../../../data/positions`)
-            }
-
-            res.json(true)
-        } catch (error) {
-            res.json(true)
-        }
-    })
-
     app.get('/api/profile/all', (req: Request, res: Response) => {
-        let profiles = saveServer.getProfiles() as Record<string, IAkiProfile>
+        let profiles = saveServer.getProfiles() as Record<string, ISptProfile>
 
         for (const profile_k in profiles) {
             let profile = profiles[profile_k]
@@ -169,70 +116,22 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         return res.json(profiles)
     })
 
-    app.get('/api/profile/:profileId', (req: Request, res: Response) => {
-        const profiles = saveServer.getProfiles() as Record<string, IAkiProfile>
+    app.get('/api/raids', async (req: Request, res: Response) => {
+        let { profiles } = req.query as { profiles?: string };
 
-        return res.json(profiles[req.params.profileId])
-    })
-
-    app.get('/api/profile/:profileId/raids/all', async (req: Request, res: Response) => {
-        let { profileId } = req.params
-
-        const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = '${profileId}' AND timeInRaid > 10 ORDER BY id DESC`
-
+        let profileFilter = null;
+        if (profiles) {
+            let profileIdsEnc = JSON.parse(profiles);
+            profileFilter = profileIdsEnc.length > 0 ? profileIdsEnc.map(pid => `profileId == '${pid}'`).join(' AND ') : null;
+        }
+            
+        const sqlRaidQuery = `SELECT * FROM raid WHERE ${ profileFilter ? `${profileFilter} AND` : '' } timeInRaid > 10 ORDER BY id DESC`
         const data = await db.all(sqlRaidQuery).catch((e: Error) => logger.error(`[API:RAIDS-ALL] `, e))
 
         res.json(data)
     })
 
-    app.post('/api/profile/:profileId/raids/deleteAllData', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
-        const deletedRaids = []
-        try {
-            let { raidIds } = req.body
-
-            for (let i = 0; i < raidIds.length; i++) {
-                const raidId = raidIds[i]
-                const keys = ['raid', 'kills', 'looting', 'player']
-                for (let i = 0; i < keys.length; i++) {
-                    const key = keys[i]
-                    const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`
-                    const sqlKeyValues = [raidId]
-                    await db.all(sqlKeyQuery, sqlKeyValues).catch((e: Error) => logger.error(`[API:DELETE-ALL] `, e))
-                }
-
-                DeleteFile('positions', '', '', `${raidId}_positions`)
-                DeleteFile('positions', '', '', `${raidId}_V2_positions.json`)
-
-                deletedRaids.push(raidId)
-            }
-
-            res.json(deletedRaids)
-        } catch (error) {
-            logger.log(error)
-            res.json(deletedRaids)
-        }
-    })
-
-    app.post('/api/profile/:profileId/raids/deleteTempFiles', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
-        const deletedTempFiles = []
-        try {
-            let { raidIds } = req.body
-
-            for (let i = 0; i < raidIds.length; i++) {
-                const raidId = raidIds[i]
-                logger.log(`Deleting temp files for Raid Id: '${raidId}'.`)
-                DeleteFile('positions', '', '', `${raidId}_positions`)
-                deletedTempFiles.push(raidId)
-            }
-
-            res.json(deletedTempFiles)
-        } catch (error) {
-            logger.log(error)
-            res.json(deletedTempFiles)
-        }
-    })
-
-    app.get('/api/profile/:profileId/raids/:raidId', async (req: Request, res: Response) => {
+    app.get('/api/raids/:raidId', async (req: Request, res: Response) => {
         try {
             let { raidId } = req.params
 
@@ -257,38 +156,24 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         }
     })
 
-    app.get('/api/profile/:profileId/raids/:raidId/tempFiles', async (req: Request, res: Response) => {
+    app.get('/api/raids/:raidId/positions', async (req: Request, res: Response) => {
         let { raidId } = req.params
 
-        const tempFiles = ReadFile(logger, 'positions', '', '', `${raidId}_positions`)
-        if (tempFiles) {
-            return res.json(true)
-        }
-
-        return res.json(false)
-    })
-
-    app.get('/api/profile/:profileId/raids/:raidId/positions', async (req: Request, res: Response) => {
-        let { raidId } = req.params
-
-        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
-
+        const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
         if (positionalDataRaw) {
             let positionalData = JSON.parse(positionalDataRaw)
-
             positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
-
             return res.json(positionalData)
         }
 
         return []
     })
 
-    app.get('/api/profile/:profileId/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
+    app.get('/api/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
         let { raidId } = req.params;
     
         try {
-            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_V2_positions.json`)
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             let positionalData = JSON.parse(positionalDataRaw)
             positionalData = generateInterpolatedFramesBezier(positionalData, 5, 24)
     
@@ -315,13 +200,74 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             console.error('Error processing heatmap data:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
-    });
-     
+    }); 
 
-    app.get('/api/profile/:profileId/raids/:raidId/positions/compile', async (req: Request, res: Response) => {
+    app.get('/api/profile/:profileId/raids/all', async (req: Request, res: Response) => {
+        let { profileId } = req.params
+
+        const sqlRaidQuery = `SELECT * FROM raid WHERE profileId = '${profileId}' AND timeInRaid > 10 ORDER BY id DESC`
+
+        const data = await db.all(sqlRaidQuery).catch((e: Error) => logger.error(`[API:RAIDS-ALL] `, e))
+
+        res.json(data)
+    })
+
+    app.get('/api/raids/:raidId/tempFiles', async (req: Request, res: Response) => {
         let { raidId } = req.params
-        CompileRaidPositionalData(raidId, logger)
-        res.json({ message: 'OK' })
+
+        const tempFiles = ReadFile(logger, 'positions', '', '', `${raidId}_positions`)
+        if (tempFiles) {
+            return res.json(true)
+        }
+
+        return res.json(false)
+    })
+
+    app.post('/api/raids/deleteAllData', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
+        const deletedRaids = []
+        try {
+            let { raidIds } = req.body
+
+            for (let i = 0; i < raidIds.length; i++) {
+                const raidId = raidIds[i]
+                const keys = ['raid', 'kills', 'looting', 'player', 'player_status', 'ballistic']
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i]
+                    const sqlKeyQuery = `DELETE FROM ${key} WHERE raidId = ?`
+                    const sqlKeyValues = [raidId]
+                    await db.all(sqlKeyQuery, sqlKeyValues).catch((e: Error) => logger.error(`[API:DELETE-ALL] `, e))
+                }
+
+                DeleteFile('positions', '', '', `${raidId}_positions`)
+                DeleteFile('positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
+
+                deletedRaids.push(raidId)
+            }
+
+            res.json(deletedRaids)
+        } catch (error) {
+            logger.log(error)
+            res.json(deletedRaids)
+        }
+    })
+
+    app.post('/api/raids/deleteTempFiles', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
+        const deletedTempFiles = []
+        try {
+            let { raidIds } = req.body
+
+            for (let i = 0; i < raidIds.length; i++) {
+                const raidId = raidIds[i]
+                logger.log(`Deleting temp files for Raid Id: '${raidId}'.`)
+                DeleteFile('positions', '', '', `${raidId}_positions`)
+                deletedTempFiles.push(raidId)
+            }
+
+            res.json(deletedTempFiles)
+        } catch (error) {
+            logger.log(error)
+            res.json(deletedTempFiles)
+        }
     })
 
     app.get('*', (req: Request, res: Response) => {

@@ -24,7 +24,7 @@ export interface positional_data__grouped {
 // Data Structure Versions
 // 1 = '' = positions[][]
 // 2 = 'V2' = { <player-id> : positions[]  }
-const ACTIVE_POSITIONAL_DATA_STRUCTURE = 'V2';
+export const ACTIVE_POSITIONAL_DATA_STRUCTURE = 'V3';
 
 function CompileRaidPositionalData(raid_guid: string, logger: Logger) : positional_data__grouped {
     logger.log(`Starting - Compiling positional data (${ACTIVE_POSITIONAL_DATA_STRUCTURE}) for '${raid_guid}' into '.json' format.`);
@@ -56,9 +56,25 @@ function CompileRaidPositionalData(raid_guid: string, logger: Logger) : position
         const file = files[i];
         const [ keys_str, ...data_str ] = file.data.split('\n');
         const keys = keys_str.replace('\n', '').split(',');
-        const rows = data_str.filter((row) => row !== '').map(row => row.split(','));
 
-        logger.log(`    Found a total of '${rows.length}' recorded positions, processing into data structure '${ACTIVE_POSITIONAL_DATA_STRUCTURE}'.`)
+        if (keys.length === 7) {
+            keys.push('health');
+            keys.push('maxHealth');
+        }
+
+        const rows = data_str.filter((row) => row !== '').map(row => {
+            const values = row.split(',');
+
+            // If we process 'V2' positional data, add the missing health information.
+            if (values.length === 7) {
+                values.push(null);
+                values.push(null);
+            }
+
+            return values;
+        });
+
+        logger.log(`Found a total of '${rows.length}' recorded positions, processing into data structure '${ACTIVE_POSITIONAL_DATA_STRUCTURE}'.`)
         if (file.datapoint === 'positions') {
 
             let allPositions = [];
@@ -70,7 +86,7 @@ function CompileRaidPositionalData(raid_guid: string, logger: Logger) : position
                     const key = keys[k];
                     position[key] = row[k];
 
-                    if (['time', 'x', 'y', 'z', 'dir'].includes(key)) {
+                    if (['time', 'x', 'y', 'z', 'dir', 'health', 'maxHealth'].includes(key)) {
                         position[key] = Number(row[k])
                     }
                 }

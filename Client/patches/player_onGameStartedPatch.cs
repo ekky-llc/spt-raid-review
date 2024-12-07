@@ -1,4 +1,4 @@
-﻿using Aki.Reflection.Patching;
+﻿using SPT.Reflection.Patching;
 using Comfort.Common;
 using EFT;
 using EFT.Communications;
@@ -74,8 +74,10 @@ namespace RAID_REVIEW
                 if (RAID_REVIEW.SOLARINT_SAIN__DETECTED)
                 {
                     RAID_REVIEW.searchingForSainComponents = true;
-                    _ = SAIN_Integration.CheckForSainComponents(true);
+                    _ = SAIN_Integration.CheckForSainComponents(false);
                 }
+
+                BotChecker.BotCheckLoop(false);
 
                 return;
             }

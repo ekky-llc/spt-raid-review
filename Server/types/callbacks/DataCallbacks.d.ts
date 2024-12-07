@@ -1,27 +1,30 @@
-import { HideoutController } from "@spt-aki/controllers/HideoutController";
-import { RagfairController } from "@spt-aki/controllers/RagfairController";
-import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
-import { IGlobals } from "@spt-aki/models/eft/common/IGlobals";
-import { ICustomizationItem } from "@spt-aki/models/eft/common/tables/ICustomizationItem";
-import { IHandbookBase } from "@spt-aki/models/eft/common/tables/IHandbookBase";
-import { IGetItemPricesResponse } from "@spt-aki/models/eft/game/IGetItemPricesResponse";
-import { IHideoutArea } from "@spt-aki/models/eft/hideout/IHideoutArea";
-import { IHideoutProduction } from "@spt-aki/models/eft/hideout/IHideoutProduction";
-import { IHideoutScavCase } from "@spt-aki/models/eft/hideout/IHideoutScavCase";
-import { IHideoutSettingsBase } from "@spt-aki/models/eft/hideout/IHideoutSettingsBase";
-import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
-import { ISettingsBase } from "@spt-aki/models/spt/server/ISettingsBase";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
+import { HideoutController } from "@spt/controllers/HideoutController";
+import { TraderController } from "@spt/controllers/TraderController";
+import { TraderHelper } from "@spt/helpers/TraderHelper";
+import { IEmptyRequestData } from "@spt/models/eft/common/IEmptyRequestData";
+import { IGlobals } from "@spt/models/eft/common/IGlobals";
+import { ICustomizationItem } from "@spt/models/eft/common/tables/ICustomizationItem";
+import { IHandbookBase } from "@spt/models/eft/common/tables/IHandbookBase";
+import { IGetItemPricesResponse } from "@spt/models/eft/game/IGetItemPricesResponse";
+import { IHideoutArea } from "@spt/models/eft/hideout/IHideoutArea";
+import { IHideoutProductionData } from "@spt/models/eft/hideout/IHideoutProduction";
+import { IHideoutSettingsBase } from "@spt/models/eft/hideout/IHideoutSettingsBase";
+import { IGetBodyResponseData } from "@spt/models/eft/httpResponse/IGetBodyResponseData";
+import { ISettingsBase } from "@spt/models/spt/server/ISettingsBase";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { HttpResponseUtil } from "@spt/utils/HttpResponseUtil";
+import { TimeUtil } from "@spt/utils/TimeUtil";
 /**
  * Handle client requests
  */
 export declare class DataCallbacks {
     protected httpResponse: HttpResponseUtil;
-    protected databaseServer: DatabaseServer;
-    protected ragfairController: RagfairController;
+    protected timeUtil: TimeUtil;
+    protected traderHelper: TraderHelper;
+    protected databaseService: DatabaseService;
+    protected traderController: TraderController;
     protected hideoutController: HideoutController;
-    constructor(httpResponse: HttpResponseUtil, databaseServer: DatabaseServer, ragfairController: RagfairController, hideoutController: HideoutController);
+    constructor(httpResponse: HttpResponseUtil, timeUtil: TimeUtil, traderHelper: TraderHelper, databaseService: DatabaseService, traderController: TraderController, hideoutController: HideoutController);
     /**
      * Handle client/settings
      * @returns ISettingsBase
@@ -58,8 +61,7 @@ export declare class DataCallbacks {
      */
     getHideoutSettings(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IHideoutSettingsBase>;
     getHideoutAreas(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IHideoutArea[]>;
-    gethideoutProduction(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IHideoutProduction[]>;
-    getHideoutScavcase(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IHideoutScavCase[]>;
+    getHideoutProduction(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IHideoutProductionData>;
     /**
      * Handle client/languages
      */
@@ -79,7 +81,6 @@ export declare class DataCallbacks {
     /**
      * Handle client/items/prices/
      * Called when viewing a traders assorts
-     * TODO -  fully implement this
      */
     getItemPrices(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IGetItemPricesResponse>;
 }

@@ -143,8 +143,6 @@ async function main() {
         // Log the success message. Write out the path to the mod package.
         logger.log("success", "------------------------------------");
         logger.log("success", "Build script completed successfully!");
-        logger.log("success", "Your mod package has been created in the 'dist' directory:");
-        logger.log("success", `/${path.relative(process.cwd(), path.join(distDir, `${projectName}.zip`))}`);
         logger.log("success", "------------------------------------");
         if (!verbose) {
             logger.log("success", "To see a detailed build log, use `npm run buildinfo`.");

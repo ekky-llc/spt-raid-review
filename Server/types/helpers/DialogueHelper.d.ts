@@ -1,14 +1,13 @@
-import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
-import { NotificationSendHelper } from "@spt-aki/helpers/NotificationSendHelper";
-import { NotifierHelper } from "@spt-aki/helpers/NotifierHelper";
-import { Item } from "@spt-aki/models/eft/common/tables/IItem";
-import { Dialogue, MessageContent, MessagePreview } from "@spt-aki/models/eft/profile/IAkiProfile";
-import { MessageType } from "@spt-aki/models/enums/MessageType";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { SaveServer } from "@spt-aki/servers/SaveServer";
-import { LocalisationService } from "@spt-aki/services/LocalisationService";
-import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { ItemHelper } from "@spt/helpers/ItemHelper";
+import { NotificationSendHelper } from "@spt/helpers/NotificationSendHelper";
+import { NotifierHelper } from "@spt/helpers/NotifierHelper";
+import { IItem } from "@spt/models/eft/common/tables/IItem";
+import { IDialogue, IMessagePreview } from "@spt/models/eft/profile/ISptProfile";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { SaveServer } from "@spt/servers/SaveServer";
+import { LocalisationService } from "@spt/services/LocalisationService";
+import { HashUtil } from "@spt/utils/HashUtil";
 export declare class DialogueHelper {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
@@ -20,19 +19,11 @@ export declare class DialogueHelper {
     protected itemHelper: ItemHelper;
     constructor(logger: ILogger, hashUtil: HashUtil, saveServer: SaveServer, databaseServer: DatabaseServer, notifierHelper: NotifierHelper, notificationSendHelper: NotificationSendHelper, localisationService: LocalisationService, itemHelper: ItemHelper);
     /**
-     * @deprecated Use MailSendService.sendMessage() or helpers
-     */
-    createMessageContext(templateId: string, messageType: MessageType, maxStoreTime?: any): MessageContent;
-    /**
-     * @deprecated Use MailSendService.sendMessage() or helpers
-     */
-    addDialogueMessage(dialogueID: string, messageContent: MessageContent, sessionID: string, rewards?: Item[], messageType?: MessageType): void;
-    /**
      * Get the preview contents of the last message in a dialogue.
      * @param dialogue
      * @returns MessagePreview
      */
-    getMessagePreview(dialogue: Dialogue): MessagePreview;
+    getMessagePreview(dialogue: IDialogue): IMessagePreview;
     /**
      * Get the item contents for a particular message.
      * @param messageID
@@ -40,11 +31,11 @@ export declare class DialogueHelper {
      * @param itemId Item being moved to inventory
      * @returns
      */
-    getMessageItemContents(messageID: string, sessionID: string, itemId: string): Item[];
+    getMessageItemContents(messageID: string, sessionID: string, itemId: string): IItem[];
     /**
      * Get the dialogs dictionary for a profile, create if doesnt exist
      * @param sessionId Session/player id
      * @returns Dialog dictionary
      */
-    getDialogsForProfile(sessionId: string): Record<string, Dialogue>;
+    getDialogsForProfile(sessionId: string): Record<string, IDialogue>;
 }

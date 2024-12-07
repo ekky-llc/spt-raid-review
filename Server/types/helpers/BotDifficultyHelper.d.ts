@@ -1,37 +1,38 @@
-import { BotHelper } from "@spt-aki/helpers/BotHelper";
-import { Difficulty } from "@spt-aki/models/eft/common/tables/IBotType";
-import { IPmcConfig } from "@spt-aki/models/spt/config/IPmcConfig";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { LocalisationService } from "@spt-aki/services/LocalisationService";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { BotHelper } from "@spt/helpers/BotHelper";
+import { IDifficultyCategories } from "@spt/models/eft/common/tables/IBotType";
+import { IBots } from "@spt/models/spt/bots/IBots";
+import { IPmcConfig } from "@spt/models/spt/config/IPmcConfig";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { LocalisationService } from "@spt/services/LocalisationService";
+import { RandomUtil } from "@spt/utils/RandomUtil";
+import { ICloner } from "@spt/utils/cloners/ICloner";
 export declare class BotDifficultyHelper {
     protected logger: ILogger;
-    protected jsonUtil: JsonUtil;
-    protected databaseServer: DatabaseServer;
+    protected databaseService: DatabaseService;
     protected randomUtil: RandomUtil;
     protected localisationService: LocalisationService;
     protected botHelper: BotHelper;
     protected configServer: ConfigServer;
+    protected cloner: ICloner;
     protected pmcConfig: IPmcConfig;
-    constructor(logger: ILogger, jsonUtil: JsonUtil, databaseServer: DatabaseServer, randomUtil: RandomUtil, localisationService: LocalisationService, botHelper: BotHelper, configServer: ConfigServer);
-    getPmcDifficultySettings(pmcType: "bear" | "usec", difficulty: string, usecType: string, bearType: string): Difficulty;
+    constructor(logger: ILogger, databaseService: DatabaseService, randomUtil: RandomUtil, localisationService: LocalisationService, botHelper: BotHelper, configServer: ConfigServer, cloner: ICloner);
     /**
      * Get difficulty settings for desired bot type, if not found use assault bot types
      * @param type bot type to retrieve difficulty of
      * @param difficulty difficulty to get settings for (easy/normal etc)
+     * @param botDb bots from database
      * @returns Difficulty object
      */
-    getBotDifficultySettings(type: string, difficulty: string): Difficulty;
+    getBotDifficultySettings(type: string, difficulty: string, botDb: IBots): IDifficultyCategories;
     /**
      * Get difficulty settings for a PMC
      * @param type "usec" / "bear"
      * @param difficulty what difficulty to retrieve
      * @returns Difficulty object
      */
-    protected getDifficultySettings(type: string, difficulty: string): Difficulty;
+    protected getDifficultySettings(type: string, difficulty: string): IDifficultyCategories;
     /**
      * Translate chosen value from pre-raid difficulty dropdown into bot difficulty value
      * @param dropDownDifficulty Dropdown difficulty value to convert

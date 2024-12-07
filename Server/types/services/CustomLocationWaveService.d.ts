@@ -1,30 +1,28 @@
-import { BossLocationSpawn, Wave } from "@spt-aki/models/eft/common/ILocationBase";
-import { ILocationConfig } from "@spt-aki/models/spt/config/ILocationConfig";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { IBossLocationSpawn, IWave } from "@spt/models/eft/common/ILocationBase";
+import { ILocationConfig } from "@spt/models/spt/config/ILocationConfig";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt/servers/ConfigServer";
+import { DatabaseService } from "@spt/services/DatabaseService";
+import { RandomUtil } from "@spt/utils/RandomUtil";
 export declare class CustomLocationWaveService {
     protected logger: ILogger;
     protected randomUtil: RandomUtil;
-    protected jsonUtil: JsonUtil;
-    protected databaseServer: DatabaseServer;
+    protected databaseService: DatabaseService;
     protected configServer: ConfigServer;
     protected locationConfig: ILocationConfig;
-    constructor(logger: ILogger, randomUtil: RandomUtil, jsonUtil: JsonUtil, databaseServer: DatabaseServer, configServer: ConfigServer);
+    constructor(logger: ILogger, randomUtil: RandomUtil, databaseService: DatabaseService, configServer: ConfigServer);
     /**
      * Add a boss wave to a map
      * @param locationId e.g. factory4_day, bigmap
      * @param waveToAdd Boss wave to add to map
      */
-    addBossWaveToMap(locationId: string, waveToAdd: BossLocationSpawn): void;
+    addBossWaveToMap(locationId: string, waveToAdd: IBossLocationSpawn): void;
     /**
      * Add a normal bot wave to a map
      * @param locationId e.g. factory4_day, bigmap
      * @param waveToAdd Wave to add to map
      */
-    addNormalWaveToMap(locationId: string, waveToAdd: Wave): void;
+    addNormalWaveToMap(locationId: string, waveToAdd: IWave): void;
     /**
      * Clear all custom boss waves from a map
      * @param locationId e.g. factory4_day, bigmap

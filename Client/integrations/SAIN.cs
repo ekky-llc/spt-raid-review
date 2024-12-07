@@ -1,4 +1,4 @@
-using Aki.Reflection.Patching;
+using SPT.Reflection.Patching;
 using Comfort.Common;
 using EFT;
 using EFT.Communications;
@@ -14,8 +14,9 @@ namespace RAID_REVIEW
 {
     class SAIN_Integration
     {
-        public static async Task CheckForSainComponents(bool delay = true)
+        public static async Task CheckForSainComponents(bool endCheck = false)
         {
+            if(!RAID_REVIEW.SOLARINT_SAIN__DETECTED) return;
             try
             {
 
@@ -37,10 +38,8 @@ namespace RAID_REVIEW
 
                 while (RAID_REVIEW.searchingForSainComponents)
                 {
-                    if (delay)
-                    {
-                        await Task.Delay(5000);
-                    }
+                    if (!endCheck) await Task.Delay(5000); 
+                    else RAID_REVIEW.searchingForSainComponents = false;
 
                     if (RAID_REVIEW.sainBotController == null)
                     {
@@ -81,6 +80,8 @@ namespace RAID_REVIEW
                                 var trackingPlayer = RAID_REVIEW.trackingPlayers[profileId];
                                 var infoProperty = botComponent.GetType().GetProperty("Info");
                                 var info = infoProperty?.GetValue(botComponent);
+                                var profileProperty = info?.GetType().GetProperty("Profile");
+                                var profile = profileProperty?.GetValue(info);
 
                                 var personality = info?.GetType().GetProperty("Personality")?.GetValue(info);
 
@@ -93,14 +94,23 @@ namespace RAID_REVIEW
                                     trackingPlayer.mod_SAIN_brain = "UNKNOWN";
                                 }
 
-                                trackingPlayer.mod_SAIN_difficulty = info?.GetType().GetProperty("BotDifficulty")?.GetValue(info)?.ToString();
+                                var botDifficulty = info?.GetType().GetProperty("BotDifficulty")?.GetValue(info);
+                                if (botDifficulty == null)
+                                {
+                                    botDifficulty = profile?.GetType().GetField("BotDifficulty")?.GetValue(profile);
+                                }
+                                trackingPlayer.mod_SAIN_difficulty = botDifficulty?.ToString() ?? "";
 
-                                var profileProperty = info?.GetType().GetProperty("Profile");
-                                var isPMC = (bool?)profileProperty?.GetType().GetProperty("IsPMC")?.GetValue(profileProperty) ?? false;
+                                var isPmcValue = profile?.GetType().GetProperty("IsPMC")?.GetValue(profile);
+                                if (isPmcValue == null)
+                                {
+                                    isPmcValue = profile?.GetType().GetField("IsPMC")?.GetValue(profile);
+                                }
+                                var isPMC = (bool)isPmcValue;
 
                                 if (!isPMC)
                                 {
-                                    trackingPlayer.type = getBotType(botComponent);
+                                    trackingPlayer.type = getBotType(info, profile);
                                 }
 
                                 RAID_REVIEW.trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
@@ -110,8 +120,11 @@ namespace RAID_REVIEW
                             }
                         }
                     }
-
                 }
+
+                RAID_REVIEW.searchingForSainComponents = false;
+                RAID_REVIEW.updatedBots.Clear();
+                RAID_REVIEW.sainBotController = null;
                 return;
 
             }
@@ -121,50 +134,42 @@ namespace RAID_REVIEW
             }
         }
 
-        public static string getBotType(object botComponent)
+        public static string getBotType(object info, object profile)
         {
             string RR_WildSpawnType = "UNKNOWN";
             if (RAID_REVIEW.SOLARINT_SAIN__DETECTED)
             {
-                // Get the BotComponent type
-                Type botComponentType = Type.GetType("SAIN.SAINComponent.BotComponent, SAIN");
-
-                // Ensure botComponent is of the correct type
-                if (botComponent == null || !botComponentType.IsInstanceOfType(botComponent))
-                {
-                    LoggerInstance.Log?.LogError("Invalid BotComponent instance.");
-                    return RR_WildSpawnType;
-                }
-
-                // Access the Info property
-                PropertyInfo infoProperty = botComponentType.GetProperty("Info");
-                var info = infoProperty?.GetValue(botComponent);
-
                 if (info == null)
                 {
-                    LoggerInstance.Log?.LogError("Info property is null.");
+                    LoggerInstance.Log?.LogError("Info is null.");
                     return RR_WildSpawnType;
                 }
-
-                // Access the Profile property from Info
-                PropertyInfo profileProperty = info.GetType().GetProperty("Profile");
-                var profile = profileProperty?.GetValue(info);
-
                 if (profile == null)
                 {
-                    LoggerInstance.Log?.LogError("Profile property is null.");
+                    LoggerInstance.Log?.LogError("Profile is null.");
                     return RR_WildSpawnType;
                 }
 
-                // Access WildSpawnType and IsBoss properties from Profile
-                PropertyInfo wildSpawnTypeProperty = profile.GetType().GetProperty("WildSpawnType");
-                var wildSpawnType = wildSpawnTypeProperty?.GetValue(profile);
+                // Access WildSpawnType, IsBoss and IsPlayerScav properties
+                var wildSpawnType = profile.GetType().GetProperty("WildSpawnType")?.GetValue(profile);
+                if (wildSpawnType == null)
+                {
+                    wildSpawnType = profile.GetType().GetField("WildSpawnType")?.GetValue(profile);
+                }
 
-                PropertyInfo isBossProperty = profile.GetType().GetProperty("IsBoss");
-                bool isBoss = (bool)(isBossProperty?.GetValue(profile) ?? false);
+                var isBossValue = profile.GetType().GetProperty("IsBoss")?.GetValue(profile);
+                if (isBossValue == null)
+                {
+                    isBossValue = profile.GetType().GetField("IsBoss")?.GetValue(profile);
+                }
+                bool isBoss = (bool)isBossValue;
 
-                PropertyInfo isPlayerScavProperty = profile.GetType().GetProperty("IsPlayerScav");
-                bool isPlayerScav = (bool)(isPlayerScavProperty?.GetValue(profile) ?? false);
+                var isPlayerScavValue = profile.GetType().GetProperty("IsPlayerScav")?.GetValue(profile);
+                if (isPlayerScavValue == null)
+                {
+                    isPlayerScavValue = profile.GetType().GetField("IsPlayerScav")?.GetValue(profile);
+                }
+                bool isPlayerScav = (bool)isPlayerScavValue;
 
                 // Handle the wild spawn type
                 if (wildSpawnType != null)
