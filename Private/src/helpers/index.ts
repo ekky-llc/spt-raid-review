@@ -1,4 +1,5 @@
 export function msToHMS( ms: number ) : string {
+    console.log(ms)
     if (ms !== null) {
       return new Date(Number(ms)).toISOString().slice(11,19);
     }

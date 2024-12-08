@@ -5,6 +5,7 @@ import "./index.css";
 
 import Layout from './pages/V2/Layout';
 import Raids, { loader as RaidsLoader } from './pages/V2/Raids';
+import Settings, { loader as SettingsLoader } from './pages/V2/Settings';
 import Raid, { loader as RaidLoader } from "./pages/V2/Raid";
 import RaidOverview from "./pages/V2/RaidOverview";
 import RaidMap, { loader as RaidMapLoader } from "./pages/V2/RaidMap";
@@ -21,6 +22,11 @@ const v2_routes = [
         path: "/",
         element: <Raids />,
         loader: RaidsLoader
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
+        loader: SettingsLoader
       },
       {
         path: "/raid/:raidId",

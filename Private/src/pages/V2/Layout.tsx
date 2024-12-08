@@ -12,12 +12,15 @@ export default function Home() {
             { navigation.state === "loading" && <GlobalSpinner /> }
 
             <nav className="bg-eft border border-eft border-t-0 flex">
-                <div>
+                <div className="w-56">
                     <h1 className="font-bold text-2xl bg-black py-2 px-4 w-fit">RAID REVIEW</h1>
                 </div>
-                <ul className="text-black ml-4">
+                <ul className="text-black w-full flex justify-between">
                     <li className="text-base h-full hover:bg-black/20">
-                        <Link className="h-full w-full grid place-items-center px-4 underline" to="/">Recent Raids</Link>
+                        <Link className="h-full w-full grid place-items-center px-4 underline" to="/">Recent</Link>
+                    </li>
+                    <li className="text-base h-full hover:bg-black/20">
+                        <Link className="h-full w-full grid place-items-center px-4 underline" to="/settings">Settings</Link>
                     </li>
                 </ul>
             </nav>

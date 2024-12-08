@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import _ from "lodash";
 import { LOCATIONS } from "../../helpers/locations";
 import cyr_to_en from '../../assets/cyr_to_en.json';
+import { transliterateCyrillicToLatin } from "../../helpers/transliterateCyrillicToLatin";
 
 export default function RaidOverview() {
     const { raid, intl: intl_dir_ot } = useOutletContext() as { raid: TrackingRaidData, intl: { [key:string] : string } };
@@ -209,7 +210,7 @@ export default function RaidOverview() {
               <td className="text-right p-2 uppercase">{ p.team === 'Savage' ? 'Scav' : p.team }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.group }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.level }</td>
-              <td className="text-left p-2">{KIA ? '' : ' 💀 '}{ intl(p.name, intl_dir) }</td>
+              <td className="text-left p-2">{KIA ? '' : ' 💀 '}{ transliterateCyrillicToLatin(intl(p.name, intl_dir)) }</td>
               <td className="text-right p-2 capitalize">{ raid.detectedMods.match(/SAIN/gi) ? SAIN : '' }</td>
               <td className="text-center p-2 w-12 border-l border-eft">{ calcStats ? calcStats.get(p.profileId)?.kills || '-' : null  }</td>
               <td className={`text-center p-2 w-12 ${(calcStats && (calcStats.get(p.profileId)?.lootings || 0) < 0) ? 'text-red-400' : 'text-green-400'}`}>{ calcStats ? calcStats.get(p.profileId)?.lootings || '-'  : null }</td>

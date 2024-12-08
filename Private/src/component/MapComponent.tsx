@@ -20,6 +20,7 @@ import BotMapping from '../assets/botMapping.json'
 import 'leaflet/dist/leaflet.css';
 import '../modules/leaflet-heat.js'
 import './Map.css'
+import { transliterateCyrillicToLatin } from '../helpers/transliterateCyrillicToLatin.js';
 
 function getCRS(mapData) {
     let scaleX = 1;
@@ -287,9 +288,9 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                 newEvents.push({
                     time: kill.time,
                     profileId: kill.profileId,
-                    profileNickname: profileNickname ? intl(profileNickname.name, intl_dir) : 'Unknown',
+                    profileNickname: profileNickname ? transliterateCyrillicToLatin(intl(profileNickname.name, intl_dir)) : 'Unknown',
                     killedId: kill.killedId,
-                    killedNickname: killedNickname ? intl(killedNickname.name, intl_dir) : 'Unknown',
+                    killedNickname: killedNickname ? transliterateCyrillicToLatin(intl(killedNickname.name, intl_dir)) : 'Unknown',
                     weapon: kill.weapon,
                     distance: Number(kill.distance),
                     source: JSON.parse(kill.positionKiller),
@@ -1016,7 +1017,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background: getPlayerColor(player, index) }}></span>
                                             <div>
                                                 <span className="capitalize">
-                                                    {intl(player.name, intl_dir)} ({getPlayerDifficultyAndBrain(player)})
+                                                    {transliterateCyrillicToLatin(intl(player.name, intl_dir))} ({getPlayerDifficultyAndBrain(player)})
                                                 </span>
                                             </div>
                                         </div>

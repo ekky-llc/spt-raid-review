@@ -10,11 +10,15 @@ export async function loader(loaderData: any) {
     let raid = await api.getRaid(raidId);
     const intl = await api.getIntl();
 
-    return { raidId, raid, intl }
+    const ls_globalSettingsKey = 'rr:global_settings';
+    const default_globalSettings = { translateCyrillic: true }
+    const ls_globalSettings = localStorage.getItem(ls_globalSettingsKey);
+
+    return { raidId, raid, intl, globalSettings: ls_globalSettings ? JSON.parse(ls_globalSettings) : default_globalSettings }
 }
 export default function Raid() {
 
-  const { raidId, raid, intl } = useLoaderData() as any;
+  const { raidId, raid, intl, globalSettings} = useLoaderData() as any;
 
   return (
     <>
@@ -32,7 +36,7 @@ export default function Raid() {
       </div>
 
       <section>
-        <Outlet context={{ raid, intl }} />
+        <Outlet context={{ raid, intl, globalSettings }} />
       </section>
     </>
   )

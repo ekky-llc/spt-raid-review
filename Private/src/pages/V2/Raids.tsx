@@ -13,7 +13,7 @@ export async function loader() {
     let raids = await api.getRaids([]);
     let profiles = await api.getProfiles();
 
-    return { raids, profiles }
+    return { raids, profiles}
 }
 
 export default function Raids() {

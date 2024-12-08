@@ -50,23 +50,23 @@ export default function RaidSettings() {
                         <strong>Settings</strong>
 
                         { tempDataAvail ? 
-                        <div className="flex flex-col justify-start border border-eft p-2">
-                            <span className="text-center mb-1">Delete Temporary Files</span>
+                        <div className="flex items-center justify-between border border-eft p-2">
+                            <span className="text-center">Delete Temporary Files</span>
                             <button 
-                                className={`w-100 text-sm p-2 py-1 hover:bg-neutral-500/25 text-sm cursor-pointer border border-eft text-eft mb-2`}
+                                className={`w-100 text-sm p-2 py-1 hover:bg-neutral-500/25 text-sm cursor-pointer border border-eft text-eft`}
                                 onClick={() => deleteTempRaidData(raidId)}
                                 >Clean Up</button>
                         </div>
                         :''}
 
-                        <div className="mt-2 flex flex-col justify-start border border-rose-500 p-2 text-rose-500">
-                            { !deleteConfirm ?  <span className="text-center mb-1">Permanently raid data</span> :<span className="text-center mb-1">Are you really sure?</span>}
+                        <div className="mt-2 flex items-center justify-between border border-rose-500 p-2 text-rose-500">
+                            { !deleteConfirm ?  <span className="text-center">Permanently raid data</span> :<span className="text-center mb-1">Are you really sure?</span>}
                             <button 
-                                className={`w-100 text-sm p-2 py-1 ${deleteConfirm ? 'hidden' : ''} text-sm cursor-pointer border border-rose-500 hover:bg-rose-500/25 text-rose-00 mb-2`} 
+                                className={`w-100 text-sm p-2 py-1 ${deleteConfirm ? 'hidden' : ''} text-sm cursor-pointer border border-rose-500 hover:bg-rose-500/25 text-rose-00`} 
                                 onClick={() => setDeleteConfirm(true)}
                             >Delete</button>
                             <button 
-                                className={`w-100 text-sm p-2 py-1 ${deleteConfirm ? '' : 'hidden'} text-sm cursor-pointer border border-rose-500 hover:bg-rose-500/25 text-rose-00 mb-2`}
+                                className={`w-100 text-sm p-2 py-1 ${deleteConfirm ? '' : 'hidden'} text-sm cursor-pointer border border-rose-500 hover:bg-rose-500/25 text-rose-00`}
                                 onClick={() => deleteAllRaidData(raidId)}
                             >Yes</button>
                         </div>
