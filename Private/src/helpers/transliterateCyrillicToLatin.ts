@@ -18,7 +18,7 @@ export function transliterateCyrillicToLatin(text: string) {
             'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
             'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
             'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-            'ш': 'sh', 'щ': 'shch', 'ъ': '', 'ы': 'y', 'ь': '',
+            'ш': 'sh', 'щ': 'shch', 'ъ': '', 'ы': 'y', 'ь': '\'',
             'э': 'e', 'ю': 'yu', 'я': 'ya'
         } as { [ key: string ]: string };
         
@@ -27,3 +27,4 @@ export function transliterateCyrillicToLatin(text: string) {
 
     return text;
 }
+

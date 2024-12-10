@@ -82,10 +82,6 @@ function getScaledBounds(bounds, scaleFactor) {
         [centerY - newHeight / 2, centerX - newWidth / 2],
         [centerY + newHeight / 2, centerX + newWidth / 2]
     ];
-
-    // console.log("Initial Rectangle:", bounds);
-    // console.log("Scaled Rectangle:", newBounds);
-    // console.log("Center:", L.bounds(bounds).getCenter(true));
     
     return newBounds;
 }
@@ -615,14 +611,11 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
         }
 
         if (sliderTimes.length === 0) {
-            times = _.chain(times)
-                .uniq()
-                .sort((t) => t)
-                .value()
+            times = _.chain(times).uniq().sort((t) => t).value()
             setSliderTimes(times)
             setTimeStartLimit(times[0])
             setTimeEndLimit(times[times.length - 1])
-            setTimeCurrentIndex(times.length - 1)
+            setTimeCurrentIndex(0)
         }
     }, [mapIsReady, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus])
 
@@ -779,6 +772,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         const interval = setInterval(() => {
             setTimeCurrentIndex((prevIndex) => {
+
                 // Check if we've reached the end of the sliderTimes
                 if (prevIndex >= sliderTimes.length - 1) {
                     clearInterval(interval)
@@ -805,6 +799,67 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         return () => clearInterval(interval)
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory])
+
+    // Keyboard Support
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+          switch (event.key) {
+            case ' ':
+              event.preventDefault(); // Prevent page scrolling
+              setPlaying((prev) => !prev);
+              break;
+      
+            case 'ArrowUp':
+              setPlaybackSpeed((prev) => Math.min(prev * 2, 16)); // Cap at 16x
+              break;
+      
+            case 'ArrowDown':
+              setPlaybackSpeed((prev) => Math.max(prev / 2, 1)); // Min at 1x
+              break;
+      
+            case 'ArrowRight': {
+              setTimeCurrentIndex((prev) => {
+                const newIndex = Math.min(prev + playbackSpeed, sliderTimes.length - 1);
+      
+                if (!preserveHistory) {
+                  setTimeStartLimit(sliderTimes[Math.max(0, newIndex - 200)]);
+                } else {
+                  setTimeStartLimit(sliderTimes[0]);
+                }
+      
+                setTimeEndLimit(sliderTimes[newIndex]);
+                return newIndex;
+              });
+              break;
+            }
+      
+            case 'ArrowLeft': {
+              setPlaying(false); // Pause while scrubbing backwards
+              setTimeCurrentIndex((prev) => {
+                const newIndex = Math.max(prev - playbackSpeed, 0);
+      
+                if (!preserveHistory) {
+                  setTimeStartLimit(sliderTimes[Math.max(0, newIndex - 200)]);
+                } else {
+                  setTimeStartLimit(sliderTimes[0]);
+                }
+      
+                setTimeEndLimit(sliderTimes[newIndex]);
+                return newIndex;
+              });
+              break;
+            }
+      
+            default:
+              break;
+          }
+        };
+      
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+        };
+      }, [sliderTimes, playbackSpeed, preserveHistory]);         
 
     function clearMap(m, timeRange) {
         if (!m || !mapIsReady) return;
@@ -1102,6 +1157,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                         <button className={`text-sm p-2 py-1 text-sm ${!playing ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setPlaying(false)}>
                             ⏹️
                         </button>
+
                         <button className={`text-sm p-2 py-1 text-sm ${playbackSpeed === 1 ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setPlaybackSpeed(1)}>
                             1x
                         </button>
@@ -1117,6 +1173,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                         <button className={`text-sm p-2 py-1 mr-4 text-sm ${playbackSpeed === 16 ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setPlaybackSpeed(16)}>
                             16x
                         </button>
+
                         <button className={`text-sm p-2 py-1 text-sm ${!hideSettings ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideSettings(!hideSettings)}>
                             ⚙️
                         </button>
