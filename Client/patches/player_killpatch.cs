@@ -4,6 +4,7 @@ using SPT.Reflection.Patching;
 using UnityEngine;
 using Newtonsoft.Json;
 using System;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
@@ -38,6 +39,7 @@ namespace RAID_REVIEW
                     };
 
                     Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));
+
                 }
             }
 

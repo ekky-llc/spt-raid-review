@@ -28,10 +28,11 @@ namespace RAID_REVIEW
         // Framerate
         public static float PlayerTrackingInterval = 5f;
 
-        // RAID_REVIEW
+        // Raid Review
         public static string sessionId = null;
         public static bool inRaid = false;
         public static bool tracking = false;
+        public static int WebSocketFailureCount = 0;
         public static bool WebSocketConnected = false;
         public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
         public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
@@ -113,6 +114,8 @@ namespace RAID_REVIEW
         {
             while (true)
             {
+                if (WebSocketConnected == false) continue;
+                
                 yield return new WaitForSeconds(1.0f / PlayerTrackingInterval);
 
                 try

@@ -45,6 +45,7 @@ namespace RAID_REVIEW
                 };
 
                 Telemetry.Send("BALLISTIC", JsonConvert.SerializeObject(newTackingBallistic));
+
                 return;
             }
 

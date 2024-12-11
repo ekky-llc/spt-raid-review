@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
@@ -38,9 +39,10 @@ namespace RAID_REVIEW
 
                 BotChecker.BotCheckLoop(true);
                 if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) _ = SAIN_Integration.CheckForSainComponents(true);
+
                 Telemetry.Send("PLAYER_CHECK", JsonConvert.SerializeObject(RAID_REVIEW.trackingPlayers.Values));
                 Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
-
+                
                 if (RAID_REVIEW.RecordingNotification.Value && RAID_REVIEW.WebSocketConnected) {
                     NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
                 }

@@ -56,9 +56,11 @@ namespace RAID_REVIEW
                 }
             });
         }
-        public static Task Send(string Action, string Payload)
+        public static void Send(string Action, string Payload)
         {
-            return Task.Run(() =>
+            if (RAID_REVIEW.WebSocketConnected == false) return; 
+            
+            Task.Run(() =>
             {
                 if (RAID_REVIEW.EnableRecording.Value) 
                 {
@@ -73,6 +75,11 @@ namespace RAID_REVIEW
                     }
                     catch (Exception ex)
                     {
+                        RAID_REVIEW.WebSocketFailureCount++;
+                        if (RAID_REVIEW.WebSocketFailureCount > 5) {
+                            RAID_REVIEW.WebSocketConnected = false;
+                            return;
+                        }
                         Logger.LogError($"WebSocket send error: {ex.Message}");
                     }
                 }
