@@ -190,7 +190,7 @@ namespace RAID_REVIEW
                             }
 
                             trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
-                            _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
+                            Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
 
                         }
 
@@ -242,7 +242,7 @@ namespace RAID_REVIEW
                                 float currentHealthMaximum = commonHealth.Current;
 
                                 var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir, currentHealth, currentHealthMaximum);
-                                _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
+                                Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                             }
 
                         }

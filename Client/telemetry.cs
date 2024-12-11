@@ -59,7 +59,7 @@ namespace RAID_REVIEW
         public static void Send(string Action, string Payload)
         {
             if (RAID_REVIEW.WebSocketConnected == false) return; 
-            
+
             Task.Run(() =>
             {
                 if (RAID_REVIEW.EnableRecording.Value) 
@@ -76,8 +76,15 @@ namespace RAID_REVIEW
                     catch (Exception ex)
                     {
                         RAID_REVIEW.WebSocketFailureCount++;
-                        if (RAID_REVIEW.WebSocketFailureCount > 5) {
+                        if (RAID_REVIEW.WebSocketFailureCount > 25) {
+
                             RAID_REVIEW.WebSocketConnected = false;
+                            if (RAID_REVIEW.RecordingNotification.Value)
+                            {
+                                NotificationManagerClass.DisplayMessageNotification("Raid Review: Tracking Failed > 25 Times", ENotificationDurationType.Long);
+                                NotificationManagerClass.DisplayMessageNotification("Raid Review: Disabled Until Game Restarted", ENotificationDurationType.Long);
+                            }
+
                             return;
                         }
                         Logger.LogError($"WebSocket send error: {ex.Message}");

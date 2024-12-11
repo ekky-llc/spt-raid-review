@@ -116,7 +116,7 @@ namespace RAID_REVIEW
                                 RAID_REVIEW.trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
                                 RAID_REVIEW.updatedBots[trackingPlayer.profileId] = trackingPlayer;
                                 LoggerInstance.Log.LogInfo($"RAID_REVIEW :::: INFO :::: Updating player {trackingPlayer.name} with brain {trackingPlayer.mod_SAIN_brain}, type {trackingPlayer.type}, difficulty {trackingPlayer.mod_SAIN_difficulty}");
-                                _ = Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
+                                Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
                             }
                         }
                     }
