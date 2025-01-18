@@ -1,0 +1,1 @@
+ALTER TABLE raid ADD "imported" INTEGER DEFAULT 0;

@@ -11,6 +11,7 @@ import { CONSTANTS } from "../../constant";
 import { Logger } from '../../Utils/logger';
 import { ISptProfile } from '@spt/models/eft/profile/ISptProfile';
 import { CheckForMissingMainPlayer } from '../DataIntegrity/CheckForMissingMainPlayer';
+import { persist } from '../Persistance/persistanceHandlers';
 
 async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Database, sqlite3.Statement>, sessionManager: SessionManager, modDetector: ModDetector, logger : Logger, profiles: Record<string, ISptProfile>, post_raid_processing: cron.ScheduledTask) {
     try {
@@ -111,18 +112,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     post_raid_processing.stop();
                     logger.log(`Disabled Post Processing: Raid Started`);
 
-                    const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, type, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    db.run(start_raid_sql, [
-                        raidId,
-                        payload_object.profileId,
-                        payload_object.location,
-                        payload_object.time,
-                        payload_object.timeInRaid,
-                        payload_object.type,
-                        "",
-                        "",
-                        payload_object.detectedMods || "",
-                    ]).catch((e:Error) => logger.error(`[SQL_ERR:START_RAID]`, e));
+                    persist.startRaid(db, raidId, payload_object, logger);
 
                     break;
 
@@ -131,20 +121,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     logger.debug(`[END:RAIDS] ` + JSON.stringify(Array.from(sessionManager.getRaids().entries())));
                     logger.debug(`[END:PROFILES] ` + JSON.stringify(Array.from(sessionManager.getProfiles().entries()).map(p => p[1].profile = null)));
 
-                    const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, type, exitName, exitStatus, detectedMods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    db
-                        .run(end_raid_sql, [
-                            raidId,
-                            payload_object.profileId,
-                            payload_object.location,
-                            payload_object.time,
-                            payload_object.timeInRaid,
-                            payload_object.type,
-                            payload_object.exitName || "",
-                            payload_object.exitStatus || -1,
-                            payload_object.detectedMods || "",
-                        ])
-                        .catch((e: Error) => logger.error(`[SQL_ERR:END_RAID]`, e));
+                    persist.endRaid(db, raidId, payload_object, logger);
 
                     // FIKA Raid Handler
                     if (isFikaInstalled.client && isFikaInstalled.server) {
@@ -163,95 +140,35 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     break;
 
                 case "PLAYER_CHECK":
+                    
                     await NoOneLeftBehind(db, logger, raidId, payload_object);
                     break;
 
                 case "PLAYER_UPDATE":
-                    const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, mod_SAIN_difficulty = ?, type = ? WHERE raidId = ? AND profileId = ?";
-                    db.run(player_update_sql, [
-                        payload_object.mod_SAIN_brain, 
-                        payload_object.mod_SAIN_difficulty,
-                        payload_object.type, 
-                        raidId, 
-                        payload_object.profileId
-                    ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR:UPDATE_PLAYER]`, e));
-
+                    
+                    persist.updatePlayer(db, raidId, payload_object, logger);
                     break;
                 
                 case "PLAYER_STATUS":
-                    const player_status_sql = `INSERT INTO player_status (raidId, profileId, time, status) VALUES (?, ?, ?, ?)`;
-                    db.run(player_status_sql, [
-                        raidId,
-                        payload_object.profileId,
-                        payload_object.time,
-                        payload_object.status,
-                    ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_STATUS_INSERT]`, e));
+
+                    persist.insertPlayerStatus(db, raidId, payload_object, logger);
                     break;
                     
                 case "PLAYER":
-                    const playerExists_sql = `SELECT * FROM player WHERE raidId = ? AND profileId = ?`;
-                    const playerExists = await db.all(playerExists_sql, [
-                        raidId, 
-                        payload_object.profileId
-                    ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_EXISTS]`, e));
 
-                    // Stops duplicates, it's hacky, but it's working...
-                    if (playerExists && playerExists.length) {
-                        return;
-                    }
-
-                    const player_sql = `INSERT INTO player (raidId, profileId, level, team, name, "group", spawnTime, type, mod_SAIN_brain, mod_SAIN_difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    db.run(player_sql, [
-                        raidId,
-                        payload_object.profileId,
-                        payload_object.level,
-                        payload_object.team,
-                        payload_object.name,
-                        payload_object.group,
-                        payload_object.spawnTime,
-                        payload_object.type,
-                        payload_object.mod_SAIN_brain,
-                        payload_object.mod_SAIN_difficulty
-                    ])
-                    .catch((e: Error) => logger.error(`[SQL_ERR:ADD_PLAYER_INSERT]`, e));
-
+                    const playerExists = await persist.checkPlayerExists(db, raidId, payload_object, logger);
+                    if (playerExists && playerExists.length) return;
+                    persist.insertPlayer(db, raidId, payload_object, logger);
                     break;
 
                 case "BALLISTIC":
 
-                    const ballistic_sql = `INSERT INTO ballistic (raidId, time, profileId, weaponId, ammoId, hitPlayerId, source, target) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                    db.run(ballistic_sql, [
-                        raidId,
-                        payload_object.time,
-                        payload_object.profileId,
-                        payload_object.weaponId,
-                        payload_object.ammoId,
-                        payload_object.hitPlayerId,
-                        payload_object.source,
-                        payload_object.target
-                    ]).catch((e: Error) => logger.error(`[SQL_ERR:ADD_TRACKING_BALLISTIC]`, e));
-
+                    persist.insertBallistic(db, raidId, payload_object, logger);
                     break;
 
                 case "KILL":
-                    const kill_sql = `INSERT INTO kills (raidId, time, profileId, killedId, weapon, distance, bodyPart, positionKiller, positionKilled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    db
-                        .run(kill_sql, [
-                            raidId,
-                            payload_object.time,
-                            payload_object.profileId,
-                            payload_object.killedId,
-                            payload_object.weapon,
-                            payload_object.distance,
-                            payload_object.bodyPart,
-                            payload_object.positionKiller,
-                            payload_object.positionKilled,
-                        ])
-                        .catch((e: Error) => logger.error(`[SQL_ERR:ADD_KILL]`, e));
 
+                    persist.insertKill(db, raidId, payload_object, logger);
                     break;
 
                 case "POSITION":
@@ -263,19 +180,8 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                     break;
 
                 case "LOOT":
-                    const loot_sql = `INSERT INTO looting (raidId, profileId, time, qty, itemId, itemName, added) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                    db
-                        .run(loot_sql, [
-                            raidId, 
-                            payload_object.profileId, 
-                            payload_object.time, 
-                            payload_object.qty, 
-                            payload_object.itemId, 
-                            payload_object.itemName, 
-                            payload_object.added
-                        ])
-                        .catch((e: Error) => logger.error(`[SQL_ERR:ADD_LOOTING]`, e));
 
+                    persist.insertLoot(db, raidId, payload_object, logger);
                     break;
 
                 default:

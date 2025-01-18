@@ -33,11 +33,10 @@ export default function Raids() {
 
             <div className='flex justify-between my-2'>
                 <div className="flex gap-2">
-                    {/* <button className='py-1 px-4 bg-eft text-black hover:opacity-75'>Filters</button> */}
+                    <Link className='py-1 px-4 bg-eft text-black hover:opacity-75' to={`/import`}>Import</Link>
                 </div>
                 <div className="flex gap-2">
                     <button onClick={refreshData} className='py-1 px-4 bg-eft text-black hover:opacity-75'>Refresh</button>
-                    {/* <button className='py-1 px-4 bg-eft text-black hover:opacity-75'>Import</button> */}
                 </div>
             </div>
 

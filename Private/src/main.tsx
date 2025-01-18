@@ -12,6 +12,7 @@ import RaidMap, { loader as RaidMapLoader } from "./pages/V2/RaidMap";
 import RaidCharts from "./pages/V2/RaidCharts";
 import RaidTimeline from "./pages/V2/RaidTimeline";
 import RaidSettings, { loader as RaidSettingsLoader } from "./pages/V2/RaidSettings";
+import RaidImport from "./pages/V2/RaidImport";
 
 const v2_routes = [
   {
@@ -27,6 +28,10 @@ const v2_routes = [
         path: "/settings",
         element: <Settings />,
         loader: SettingsLoader
+      },
+      {
+        path: "/import",
+        element: <RaidImport />
       },
       {
         path: "/raid/:raidId",

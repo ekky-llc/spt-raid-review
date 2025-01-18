@@ -1,7 +1,7 @@
 import { ISptProfile } from '../../../Server/types/models/eft/profile/ISptProfile';
 import { TrackingRaidData, TrackingCoreDataRaids } from '../types/api_types';
 
-let isDev = window.location.host.includes("5173");
+let isDev = window.location.host.includes("517");
 let hostname = isDev ? 'http://127.0.0.1:7829' : '';
 
 const api = {
@@ -33,7 +33,6 @@ const api = {
         }
     },
 
-
     getProfiles: async function() : Promise<ISptProfile[]> {
         let profiles = [] as ISptProfile[];
         try {
@@ -48,7 +47,6 @@ const api = {
         }
     },
 
-
     getRaid : async function(raidId: string) : Promise<TrackingRaidData> {
         let raid = {} as TrackingRaidData;
         try {
@@ -60,6 +58,50 @@ const api = {
         
         catch (error) {
             return raid;
+        }
+    },
+
+    exportRaid: async function (raidId: string): Promise<TrackingRaidData> {
+        let raid = {} as TrackingRaidData;
+        try {
+            const response = await fetch(hostname + `/api/raids/${raidId}/export`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch the file');
+            }
+
+            const fileBlob = await response.blob();
+            const downloadLink = document.createElement('a');
+            const url = window.URL.createObjectURL(fileBlob);
+            downloadLink.href = url;
+            downloadLink.download = `${raidId}.raidreview`;
+            downloadLink.click();
+    
+            window.URL.revokeObjectURL(url);
+    
+            return raid;
+        } catch (error) {
+            console.error('Error exporting raid:', error);
+            return raid;
+        }
+    },    
+
+    importRaid: async function (payload: FormData) {
+        try {
+            const response = await fetch(hostname + `/api/raids/import`, {
+                method: "POST",
+                body: payload,
+            });
+
+            if (response.ok) {
+                return true;
+            }
+            
+            else {
+                throw Error(`There was an issue uploading the raid.`)
+            }
+        } catch (error) {
+            console.error(error)
+            return false;
         }
     },
 

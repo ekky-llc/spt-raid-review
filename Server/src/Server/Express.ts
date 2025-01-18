@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from 'express'
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { mkdirSync, rmSync, writeFile, writeFileSync } from 'fs'
 import path from 'path'
 import cors from 'cors'
 import _ from 'lodash'
@@ -21,6 +21,8 @@ import { generateInterpolatedFramesBezier } from '../Utils/utils'
 import { getRaidData } from '../Controllers/Collection/GetRaidData'
 import { sendStatistics } from '../Controllers/Telemetry/RaidStatistics'
 import { Logger } from '../Utils/logger'
+import { compressData, decompressData } from '../Utils/compression'
+import { importRaidData } from '../Controllers/Persistance/importRaid'
 
 const app: Express = express()
 const port = config.web_client_port || 7829
@@ -131,6 +133,48 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         res.json(data)
     })
 
+    app.post('/api/raids/import', async (req: Request, res: Response) => {
+        let fileData = Buffer.from([]);
+        const boundary = req.headers['content-type']?.split('boundary=')[1];
+        if (!boundary) {
+            return res.status(400).json({ message: 'Invalid form data' });
+        }
+    
+        req.on('data', (chunk) => {
+            fileData = Buffer.concat([fileData, chunk]);
+        });
+
+        req.on('end', async () => {
+            const fileStart = fileData.indexOf('\r\n\r\n') + 4;
+            const fileEnd = fileData.lastIndexOf(`--${boundary}--`) - 2;
+
+            const fileBuffer = fileData.slice(fileStart, fileEnd);
+            const fileHeaders = fileData.slice(0, fileStart).toString();
+    
+            const contentDisposition = fileHeaders.match(/filename="(.+?)"/);
+            if (!contentDisposition) return res.status(400).json({ message: 'No file name found' });
+    
+            const decompressed = await decompressData(fileBuffer)
+            const raidId = await importRaidData(db, logger, JSON.parse(decompressed));
+
+            const fileName = `${raidId}__import.json`;
+            const filePath = path.join(__dirname, 'uploads', fileName);
+
+            writeFile(filePath, decompressed, (err) => {
+                if (err) return res.status(500).json({ message: 'File upload failed', error: err.message });
+    
+                res.status(200).json({
+                    message: 'File uploaded and processed successfully',
+                    file: { name: `${raidId}__import.json`, path: filePath },
+                });
+            });
+        });
+    
+        req.on('error', (err) => {
+            res.status(500).json({ message: 'File upload error', error: err.message });
+        });
+    })
+
     app.get('/api/raids/:raidId', async (req: Request, res: Response) => {
         try {
             let { raidId } = req.params
@@ -168,6 +212,46 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
 
         return []
     })
+
+    app.get('/api/raids/:raidId/export', async (req: Request, res: Response) => {
+
+        try {
+            let { raidId } = req.params
+
+            const raid = await getRaidData(db, logger, raidId);
+
+            if (!raid) {
+                throw Error(`Raid could not be found`);
+            }
+
+            if (raid.positionsTracked === 'RAW') {
+                CompileRaidPositionalData(raidId, logger)
+                raid.positionsTracked = 'COMPILED'
+            }
+
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
+            let positionalData = JSON.parse(positionalDataRaw);
+
+            const compressedBuffer = await compressData(
+                JSON.stringify(
+                    {
+                        raid,
+                        positions: positionalData
+                    }
+                )
+            );
+
+            res.setHeader('Content-Type', 'application/gzip');
+            res.setHeader('Content-Disposition', `attachment; filename=${raidId}.raidreview`);
+            return res.send(compressedBuffer);
+        } 
+        
+        catch (error) {
+            logger.log(error)
+            return res.json(null)
+        }
+
+    });
 
     app.get('/api/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
         let { raidId } = req.params;

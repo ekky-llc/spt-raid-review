@@ -20,6 +20,10 @@ export default function Raid() {
 
   const { raidId, raid, intl, globalSettings} = useLoaderData() as any;
 
+  async function handleExport() {
+    await api.exportRaid(raidId);
+  }
+
   return (
     <>
       <div className='flex justify-between my-2'>
@@ -30,7 +34,7 @@ export default function Raid() {
               <Link to={`/raid/${raidId}/map`} className='py-1 px-4 bg-eft text-black hover:opacity-75'>Map</Link>
           </div>
           <div className="flex gap-2">
-              {/* <button className='py-1 px-4 bg-eft text-black hover:opacity-75'>Export</button> */}
+              <button className='py-1 px-4 bg-eft text-black hover:opacity-75' onClick={handleExport}>Export</button>
               <Link to={`/raid/${raidId}/settings`} className='py-1 px-4 bg-eft text-black hover:opacity-75'>Settings</Link>
           </div>
       </div>
