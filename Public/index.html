@@ -3,162 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raid Review Mod - Statistics Hub</title>
+    <title>Raid Review Mod</title>
     <style>
         @import url('https://fonts.cdnfonts.com/css/bender');
 
         html, body {
             margin: 0;
             padding: 0;
-            background-image: url('./background.png');
+            background-color: #1e1e1e;
+            /* background-image: url('./background.png'); */
             background-size: cover;
             background-repeat: no-repeat;
             font-family: 'Bender', sans-serif;
         }
 
-        main {
-            background-color: rgba(0, 0, 0, 0.75);
-            height: 100vh;
-            display: grid;
-            place-content: center;
+        .text-eft {
+            color: #9a8866;
         }
 
         .dashboard {
             border: 1px solid #9a8866;
-            background-color: black;
             color: #9a8866;
             padding: 16px;
         }
 
-        .header {
-            text-align: center;
-            /* margin-bottom: 12px; */
-        }
-
-        h2 {
-            margin: 0;
-        }
-
-        .header p {
-            margin: 0;
-        }
-
-        table {
-            width: 100%;
-        }
-
-        thead * {
-            font-weight: bold;
-            font-size: large;
-        }
-
-        .thin {
-            font-weight: lighter;
-        }
-
-        td:nth-of-type(2) {
-            text-align: right;
-        }
-
-        .smaller {
-            font-size: x-small;
-        }
-
-        .smaller td:first {
-            padding-left: 12px;
-        }
     </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <main>
-        <div class="dashboard">
-            <div class="header">
-                <h2>SPT Raid Review Mod - Statistics Server</h2>
-                <p>Data Collection In-Progress... Check back soon[tm]</p>
-                <!-- <p>Active Raids (Live) - 22</p> -->
+
+        <section class="bg-[#9a8866] w-full">
+            <div class="lg:w-[960px] text-black mx-auto py-2 px-4">
+                <p class="text-xs mx-auto leading-0 my-4">
+                    <strong class="text-lg">A Quick Disclaimer, Just so we’re clear.</strong><br />
+                    This site and mod are **not** affiliated with, endorsed by, or officially connected to EFT or the geniuses behind SPT. 
+                    All trademarks, logos, and brand names are **definitely** the property of the real owners (not us, unfortunately).
+                    This mod is created by fans, for the fans, with **absolutely no permission** from the big shots, and is intended to enhance the gaming experience for people who actually love the game. So, yeah, we're just here for the fun, don't sue us. <br /><br />Никита, пожалуйста, не удаляй сайт.
+                </p>
             </div>
-            <!-- <div class="statistics-grid">
-                <table>
-                    <thead>
-                        <tr>
-                            <td>Tracked Statistic<span class="thin"> [17/06/2024 - Present]</span></td>
-                            <td>Value</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Raids</td>
-                            <td>22</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- Survived</td>
-                            <td>223</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- Killed</td>
-                            <td>223</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- MIA</td>
-                            <td>223</td>
-                        </tr>
-                        <tr>
-                            <td>Players</td>
-                            <td>22</td>
-                        </tr>
-                        <tr>
-                            <td>Kills</td>
-                            <td>22</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- USEC</td>
-                            <td>223</td>
-                        </tr>
-                        <tr class="smaller">                            
-                            <td>- BEAR</td>
-                            <td>223</td>
-                        </tr>
-                        <tr class="smaller">                            
-                            <td>- SCAV</td>
-                            <td>224</td>
-                        </tr>
-                        <tr>
-                            <td>Locations</td>
-                            <td>22</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- Customs</td>
-                            <td>22</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- Shoreline</td>
-                            <td>22</td>
-                        </tr>
-                        <tr class="smaller">
-                            <td>- Factory</td>
-                            <td>22</td>
-                        </tr>
-                        <tr>
-                            <td>Lootings</td>
-                            <td>22</td>
-                        </tr>
-                        <tr>
-                            <td>Distance Travelled (Km)</td>
-                            <td>22</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div> -->
-        </div>
+            
+        </section>
+
+        <nav class="text-eft bg-[#1e1e1e] lg:w-[960px] mx-auto py-4 flex justify-between sticky top-0 px-2">
+            <div>
+                <h2 class="text-2xl font-bold">Raid Review Mod</h2>
+            </div>
+            <div class="flex gap-4 items-center">
+                <a class="py-1 px-4 border border-[#9a8866] hover:bg-[#9a8866]/25" target="_blank" href="https://sp-tarkov.com/#download?ref=raidreview.online">Install SPT</a>
+                <a class="py-1 px-4 bg-[#9a8866] text-black hover:opacity-75" target="_blank" href="https://hub.sp-tarkov.com/files/file/2037-raid-review/">Get The Mod</a>
+            </div>
+        </nav>
+
+        <section class="w-full mt-12 pt-12 px-2">
+            <div class="lg:w-[960px] text-eft mx-auto text-center">
+                <h1 class="text-4xl font-bold">
+                    A Post Raid Replay System for Singleplayer Tarkov
+                </h1>
+                <p class="lg:w-[750px] text-lg mx-auto mt-2">
+                    A detailed replay system with heatmap overlay, review kills, lootings, positional data, and just get a general understanding of what was going on in your <span class="underline font-bold">offline</span> raids!
+                </p>
+                <div class="lg:w-[860px] mx-auto mt-12 bg-[#9a8866] p-2 pb-0 rounded-t-3xl">
+                    <video class="rounded-t-2xl" autoplay loop>
+                        <source src="./m2-res_1080p.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-black w-full px-4">
+            <div class="lg:w-[960px] text-eft mx-auto text-center py-12">
+                <h2 class="text-3xl font-bold">Packed with Features</h2>
+                <p class="text-base text-[#9a8866] mt-4">
+                    Brace yourself for the ultimate overkill of raid analysis tools you probably didn’t know you needed. From replaying your "totally pro" moments to over-analyzing bot behaviors like a true raid scientist, this system gives you everything you've always wanted.
+                </p>                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Heatmap Overlay</h3>
+                        <p class="text-black mt-2">
+                            Visualize your movements and actions with an intuitive heatmap for detailed analysis.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Event Timeline</h3>
+                        <p class="text-black mt-2">
+                            Replay and review key moments like kills, lootings, and interactions, all in a convenient timeline view.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Interactive Maps</h3>
+                        <p class="text-black mt-2">
+                            Dive into detailed, multi-level maps with real-time filters and markers for ultimate clarity.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Player Tracking</h3>
+                        <p class="text-black mt-2">
+                            Follow specific players or bots to analyze strategies and gain competitive insights.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Detailed Raid Stats</h3>
+                        <p class="text-black mt-2">
+                            Get a comprehensive overview of raid performance, from kills to looted items and bot interactions.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">SAIN Integration</h3>
+                        <p class="text-black mt-2">
+                            If installed, view bot personality and type details for enhanced analysis.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Kill Breakdown</h3>
+                        <p class="text-black mt-2">
+                            Dive into detailed stats about who, how, and when you took down enemies or got taken down yourself.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Loot Tracker</h3>
+                        <p class="text-black mt-2">
+                            Review every piece of loot you snagged during a raid and flex those gains in your squad chat.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Bot Intelligence Insights</h3>
+                        <p class="text-black mt-2">
+                            Analyze bot behavior and decision-making to understand how they outsmarted you or didn’t.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Custom Filters</h3>
+                        <p class="text-black mt-2">
+                            Filter events like kills, looting, or both to focus on exactly what you’re looking for in each replay.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Heatmap Customization</h3>
+                        <p class="text-black mt-2">
+                            Customize your heatmap to display specific actions like combat, movement, or looting.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Performance Metrics</h3>
+                        <p class="text-black mt-2">
+                            Measure and evaluate raid performance with metrics like survival time, accuracy, and more.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Power User Controls</h3>
+                        <p class="text-black mt-2">
+                            Use keyboard controls to quickly rewind, fast-forward, and slow down your raid replays.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">AI Behavior Insights</h3>
+                        <p class="text-black mt-2">
+                            Understand how AI bots behaved during the raid, including their tactics and positioning.
+                        </p>
+                    </div>
+                    <div class="bg-[#9a8866] p-6 rounded-md transition-all hover:scale-110">
+                        <h3 class="text-xl font-semibold text-black">Internationalization</h3>
+                        <p class="text-black mt-2">
+                            Enjoy support for multiple languages making the system accessible to a global audience.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="bg-[#9a8866] w-full px-4">
+            <div class="lg:w-[960px] text-black mx-auto py-12 text-center">
+                <h2 class="text-3xl font-bold">Wow, this must be super popular?!</h2>
+                <p class="text-lg">Check out the numbers that show just how much this has taken off!</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">500K+</h3>
+                        <p class="mt-2">Social Media Impressions</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">30k+</h3>
+                        <p class="mt-2">Downloads</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">100k+</h3>
+                        <p class="mt-2">Raids Tracked</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">~50%</h3>
+                        <p class="mt-2">Positive Feedback</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">2</h3>
+                        <p class="mt-2">Mod Integrations</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">3</h3>
+                        <p class="mt-2">Supported Languages</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">100+</h3>
+                        <p class="mt-2">Daily Replays Generated</p>
+                    </div>
+                    <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
+                        <h3 class="text-4xl font-bold">5+</h3>
+                        <p class="mt-2">Community Contributors</p>
+                    </div>
+                </div>
+                <p class="my-4">Some of these numbers are a joke... I hope you know that...</p>
+            </div>
+        </section>        
+
     </main>
 
     <script>
-
-        async function getStatistics() {
-
-            const data = await fetch(``)
-
-        }
 
     </script>
 </body>
