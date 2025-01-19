@@ -13,6 +13,7 @@ import RaidCharts from "./pages/V2/RaidCharts";
 import RaidTimeline from "./pages/V2/RaidTimeline";
 import RaidSettings, { loader as RaidSettingsLoader } from "./pages/V2/RaidSettings";
 import RaidImport from "./pages/V2/RaidImport";
+import CommunityHome from "./pages/Community/CommunityHome";
 
 const v2_routes = [
   {
@@ -67,7 +68,16 @@ const v2_routes = [
   
 ]
 
-const router = createBrowserRouter(v2_routes);
+const community_routes = [
+  {
+    path: '/',
+    element: <CommunityHome />
+  }
+]
+
+console.log(import.meta.env)
+const routeToUse = import.meta.env.VITE_COMMUNITY ? community_routes : v2_routes;
+const router = createBrowserRouter(routeToUse);
 
 ReactDOM.createRoot(document.getElementById("root") as Element).render(
   <React.StrictMode>
