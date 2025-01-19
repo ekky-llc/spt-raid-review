@@ -27,31 +27,96 @@
             padding: 16px;
         }
 
+        #menu {
+            display: none;
+        }
+
+        #menu.fullscreen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #1e1e1ee5;
+            z-index: 1000;
+        }
+
+        #mobile-menu-trigger {
+            z-index: 2000;
+        }
+
+        @media (min-width: 1024px) {
+            #mobile-menu-trigger {
+                display: none;
+            }
+
+            #menu {
+                display: flex !important;
+            }
+        }
+
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <main>
 
-        <section class="bg-[#9a8866] w-full">
+        <section id="disclaimer" class="bg-[#9a8866] w-full hidden">
             <div class="lg:w-[960px] text-black mx-auto py-2 px-4">
-                <p class="text-xs mx-auto leading-0 my-4">
+                <p class="text-sm mx-auto leading-0 my-4">
                     <strong class="text-lg">A Quick Disclaimer, Just so we’re clear.</strong><br />
                     This site and mod are **not** affiliated with, endorsed by, or officially connected to EFT or the geniuses behind SPT. 
                     All trademarks, logos, and brand names are **definitely** the property of the real owners (not us, unfortunately).
-                    This mod is created by fans, for the fans, with **absolutely no permission** from the big shots, and is intended to enhance the gaming experience for people who actually love the game. So, yeah, we're just here for the fun, don't sue us. <br /><br />Никита, пожалуйста, не удаляй сайт.
+                    This mod is created by fans, for the fans, with **absolutely no permission** from the big shots, and is intended to enhance the gaming experience for people who actually love the game. So, yeah, we're just here for the fun, don't sue us. 
+                    <br />
+                    <br />
+                    Никита, пожалуйста, не удаляй сайт.
                 </p>
+
+                <button class="underline">
+                    Hide Message
+                </button>
             </div>
-            
         </section>
 
-        <nav class="text-eft bg-[#1e1e1e] lg:w-[960px] mx-auto py-4 flex justify-between sticky top-0 px-2">
-            <div>
-                <h2 class="text-2xl font-bold">Raid Review Mod</h2>
-            </div>
-            <div class="flex gap-4 items-center">
-                <a class="py-1 px-4 border border-[#9a8866] hover:bg-[#9a8866]/25" target="_blank" href="https://sp-tarkov.com/#download?ref=raidreview.online">Install SPT</a>
-                <a class="py-1 px-4 bg-[#9a8866] text-black hover:opacity-75" target="_blank" href="https://hub.sp-tarkov.com/files/file/2037-raid-review/">Get The Mod</a>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const disclaimerSection = document.getElementById("disclaimer");
+                const hideButton = disclaimerSection.querySelector("button");
+
+                // Default to hidden if no preference is set
+                if (localStorage.getItem("disclaimerHidden") !== "false") {
+                    disclaimerSection.style.display = "none";
+                } else {
+                    disclaimerSection.style.display = "block";
+                }
+
+                // Add a click event listener to the button
+                hideButton.addEventListener("click", function () {
+                    disclaimerSection.style.display = "none";
+                    localStorage.setItem("disclaimerHidden", "true"); // Remember the user's choice
+                });
+            });
+        </script>
+
+        <nav class="text-eft bg-[#1e1e1e] py-4 sticky top-0 px-4">
+            <div class="lg:w-[960px] flex lg:flex-row flex-col justify-between mx-auto">
+                <div>
+                    <h2 class="text-2xl font-bold">Raid Review Mod</h2>
+                </div>
+                <div id="menu" class="hidden gap-4 items-center lg:flex">
+                    <a class="py-1 px-4 border border-[#9a8866] hover:bg-[#9a8866]/25" target="_blank" href="https://sp-tarkov.com/#download?ref=raidreview.online">Get SPT</a>
+                    <a class="py-1 px-4 border border-[#9a8866] hover:bg-[#9a8866]/25" target="_blank" href="https://ko-fi.com/ekky1328?ref=raidreview.online">Support</a>
+                    <a class="py-1 px-4 bg-[#9a8866] text-black hover:opacity-75" target="_blank" href="https://hub.sp-tarkov.com/files/file/2037-raid-review/">Install Mod</a>
+                </div>
+                <div id="mobile-menu-trigger" class="rotate-90 text-2xl px-3 text-center pb-2 rounded-full bg-[#9a8866] text-black w-[40px] h-[40px] fixed right-3 top-3">
+                    <span id="mobile-menu-closed" class="absolute bottom-[3px] right-[12px] mb-1">|||</span>
+                    <span id="mobile-menu-open" class="rotate-90 absolute bottom-[0px] right-[11px] mb-1 hidden">x</span>
+                </div>
             </div>
         </nav>
 
@@ -63,6 +128,10 @@
                 <p class="lg:w-[750px] text-lg mx-auto mt-2">
                     A detailed replay system with heatmap overlay, review kills, lootings, positional data, and just get a general understanding of what was going on in your <span class="underline font-bold">offline</span> raids!
                 </p>
+                <div class="flex gap-4 mx-auto w-fit my-8">
+                    <a class="py-1 px-4 border border-[#9a8866] hover:bg-[#9a8866]/25" target="_blank" href="https://community.raid-review.online">Community Hub</a>
+                    <a class="py-1 px-4 bg-[#9a8866] text-black hover:opacity-75" target="_blank" href="https://hub.sp-tarkov.com/files/file/2037-raid-review/">Install Mod</a>
+                </div>
                 <div class="lg:w-[860px] mx-auto mt-12 bg-[#9a8866] p-2 pb-0 rounded-t-3xl">
                     <video class="rounded-t-2xl" autoplay loop>
                         <source src="./m2-res_1080p.mp4" type="video/mp4">
@@ -175,7 +244,7 @@
         <section class="bg-[#9a8866] w-full px-4">
             <div class="lg:w-[960px] text-black mx-auto py-12 text-center">
                 <h2 class="text-3xl font-bold">Wow, this must be super popular?!</h2>
-                <p class="text-lg">Check out the numbers that show just how much this has taken off!</p>
+                <p class="text-lg font-bold">Check out the numbers that show just how much this has taken off!</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
                     <div class="p-4 bg-[#1e1e1e] rounded-md shadow-md text-[#9a8866]">
                         <h3 class="text-4xl font-bold">500K+</h3>
@@ -210,14 +279,1599 @@
                         <p class="mt-2">Community Contributors</p>
                     </div>
                 </div>
-                <p class="my-4">Some of these numbers are a joke... I hope you know that...</p>
+                <p class="my-4 font-bold">Some of these numbers are a joke... I hope you know that...</p>
             </div>
         </section>        
+
+        <section class="py-12 bg-black">
+            <div class="lg:w-[960px] mx-auto px-4">
+                <div class="py-4 text-[#9a8866] mb-4">
+                    <h2 class="text-2xl font-bold text-center">The community <span class="text-red-500">loves</span> this mod!</h2>
+                    <p class="text-base lg:w-3/4 mx-auto text-center">Over the months I've collected some of the nice things people have said about this mod, it's always healthy to know what people are saying about your work, so you can improve, and absolutely not think about the <span class="text-gray-700">negative ones everynight before you go to sleep... crying.</span></p>
+                </div>
+
+                <div id="testimonial-switcher" class="text-[#9a8866] border border-[#9a8866] w-min flex mx-auto rounded-md my-4">
+                    <div id="discord" class="px-2 py-1 m-1 cursor-pointer bg-[#9a8866] text-black rounded-md">
+                        Discord
+                    </div>
+                    <div id="reddit" class="px-2 py-1 m-1 cursor-pointer">
+                        Reddit
+                    </div>
+                    <div id="youtube" class="px-2 py-1 m-1 cursor-pointer">
+                        YouTube
+                    </div>
+                    <div id="tiktok" class="px-2 py-1 m-1 cursor-pointer">
+                        TikTok
+                    </div>
+                    <div id="modpage" class="px-2 py-1 m-1 cursor-pointer">
+                        Mod
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const switcher = document.getElementById("testimonial-switcher");
+                        const tabs = switcher.querySelectorAll("div");
+
+                        tabs.forEach(tab => {
+                            tab.addEventListener("click", () => {
+                                // Remove active styles from all tabs
+                                tabs.forEach(t => {
+                                    t.classList.remove("bg-[#9a8866]", "text-black", "rounded-md");
+                                    t.classList.add("text-[#9a8866]");
+                                });
+
+                                let tabid = tab.id;
+                                document.querySelectorAll('.comment-container').forEach(cont => {
+                                    if (cont.id.includes(tabid)) {
+                                        cont.classList.remove("hidden");
+                                        cont.classList.add("block");
+                                    }
+
+                                    else {
+                                        cont.classList.remove("block");
+                                        cont.classList.add("hidden");   
+                                    }
+                                })
+
+                                // Add active styles to the clicked tab
+                                tab.classList.add("bg-[#9a8866]", "text-black", "rounded-md");
+                                tab.classList.remove("text-[#9a8866]");
+                            });
+                        });
+                    });
+                </script>
+                
+                <div id="discord-comments" class="comment-container">
+                    <div class="flex lg:flex-row flex-col items-start gap-4">
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans mb-2">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-yellow-400">McDewgle</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base pb-2">
+                                    Raid Review was a detriment to the SPT community :sadge:
+                                </p>
+                                <div class="absolute flex gap-2">
+                                    <p class="px-2 py-0.5 rounded-full border border-[#505050] bg-[#040404] text-white cursor-pointer transition-all hover:scale-105">
+                                        <span class="mb-1">❤️</span> 
+                                        <span class="pr-1 text-sm">102</span>
+                                    </p>
+                                    <p class="px-2 py-0.5 rounded-full border border-[#505050] bg-[#040404] text-white cursor-pointer transition-all hover:scale-105">
+                                        <span class="mb-1">😢</span> 
+                                        <span class="pr-1 text-sm">1</span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Sora20030c</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    raid review is top tier mod
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Ekky</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    The guy who made this mod sux
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">🦆 mod enjoyer 🌺🍀</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    raid review is goated
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Shadow</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    Also that raid review mod is fuk'ng great
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Gregorius</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    Just wanna say the raid review mod is one of the coolest things ever.
+                                </p>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans mb-2">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-cyan-400">CJ</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base pb-2">
+                                    Raid review was a mistake.
+                                </p>     
+                                <div class="absolute flex gap-2">
+                                    <p class="px-2 py-0.5 rounded-full border border-[#505050] bg-[#040404] text-white cursor-pointer transition-all hover:scale-105">
+                                        <span class="mb-1">❤️</span> 
+                                        <span class="pr-1 text-sm">82</span>
+                                    </p>
+                                    <p class="px-2 py-0.5 rounded-full border border-[#505050] bg-[#040404] text-white cursor-pointer transition-all hover:scale-105">
+                                        <span class="mb-1">😢</span> 
+                                        <span class="pr-1 text-sm">1</span>
+                                    </p>
+                                </div>                             
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-pink-400">pepy</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    Raid Review. Probably the coolest mod that exists tbh.
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Deluph</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    Raid review it is both crazy funny and useful to rewatch what happened in the raid.
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Kruscle</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    damn raid review is cool
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">cloudd</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    raid review is cool
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">ekkys_second_account</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    all my homies hate raid review
+                                </p>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Metadeth901</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    Thanks to Raid Review, now I can see where this AI PMC ran all the way from other side of the map just to spit in my mouth and unalive me
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-purple-400">Daten</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    Raid 👏 Review 👏
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-white">Luna 🌺</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    omg raid review is so fkn cool
+                                </p>                                
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans mb-2">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-yellow-400">McDewgle</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base pb-2">
+                                    But I would also like to point out that I think Dynamic Maps and Raid Review are a bane
+                                </p>         
+                                <div class="absolute flex gap-2">
+                                    <p class="px-2 py-0.5 rounded-full border border-[#505050] bg-[#040404] text-white cursor-pointer transition-all hover:scale-105">
+                                        <span class="mb-1">❤️</span> 
+                                        <span class="pr-1 text-sm">23</span>
+                                    </p>
+                                    <p class="px-2 py-0.5 rounded-full border border-[#505050] bg-[#040404] text-white cursor-pointer transition-all hover:scale-105">
+                                        <span class="mb-1">😢</span> 
+                                        <span class="pr-1 text-sm">1</span>
+                                    </p>
+                                </div>                        
+                            </div>
+
+                            <div class="discord p-4 bg-[#313338] border-[#2b2d31] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-base font-semibold text-purple-500">BSG Employee (Cult)</span>
+                                    </div>
+                                </div>
+                                <p class="text-[#d5dee1] text-base">
+                                    raid review is pretty nice
+                                </p>                                
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="reddit-comments" class="comment-container hidden">
+                    <div class="flex lg:flex-row flex-col items-start gap-4">
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/Zhalo_S</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    this goes so hard hell yeah
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            387
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/[deleted]</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This would be great for us players who dont cheat. Every day i tell myself to not give in and buy cheats myself. You can only get speed hacked and one tapped and watch people steal loot so many times before you lose it
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+                            
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/postvolta</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    That's amazing. I thought it was more of a concept, like "this is what it could look like... if the data was there," The fact you actually made it using data that exists in Tarkov is incredible. Fair fucking play. Example #1242312 of how the devs aren't especially capable (considering that 'other' game mode has better AI than Tarkov)
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            21
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+                            
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/The_Kinds_Slayer</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Holy sheeeit... Arena Breakout Infinite already has this... Tarkov only wakes up when a competitor shows up. Such losers trash game 😆
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                    </p>
+                                    <p class="py-0.5 text-blue-700 cursor-pointer flex items-center">
+                                        <svg class="rotate-180" rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            -1
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/ShermantorYT</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This would be a literal gamechanger, as well as to catch potential cheaters and fast track their accounts to get looked at by someone official
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1K
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/Ghostman223</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    yeah lets just keep adding more features from ABI lol
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                    </p>
+                                    <p class="py-0.5 text-blue-700 cursor-pointer flex items-center">
+                                        <svg class="rotate-180" rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            -2
+                                        </span>
+                                    </p>
+                                </div>                                 
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/Ghostman223</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    yeah lets just keep adding more features from ABI lol
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                    </p>
+                                    <p class="py-0.5 text-blue-700 cursor-pointer flex items-center">
+                                        <svg class="rotate-180" rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            -2
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/Das_Leckerwurstbrot</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    "Given the opportunity, players will optimise the fun out of the game."
+                                </p>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    People will learn where players usually are at specific times in the raid. The fun of Tarkov is NOT knowing where the enemy might be. Jesus Christ ever since the fucking Unheard Edition disaster and the subsequent pandering to casual players the game seems to be going the way of any bullshit live service game. Loosing the original vision people came for.
+                                </p>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Don't give this shit to players.
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                    </p>
+                                    <p class="py-0.5 text-blue-700 cursor-pointer flex items-center">
+                                        <svg class="rotate-180" rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            -2
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/KokoJumbi</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    this is too helpful and too nice to be implemented by BSG
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            108
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/Breezzzayyy</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Very nice... BOLD of you to assume EFT can handle this.
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            363
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/Bull3tN3ct4r</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    General Sam brought this up in one of his videos, and I think it's an awesome idea. Seeing the rats taking unique routes and the chads going to the popular spots.
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            4
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/TurboNexus</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Watch how nikita tweets this as "a new idea in the works" in a couple of weeks. The dude just lurks around the mod forum and takes shit now.
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-orange-800 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            12
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="downvote-outline" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 1c.072 0 .145 0 .218.006A4.1 4.1 0 0 1 14 5.184V9h3.138a1.751 1.751 0 0 1 1.234 2.993L10.59 19.72a.836.836 0 0 1-1.18 0l-7.782-7.727A1.751 1.751 0 0 1 2.861 9H6V5.118a4.134 4.134 0 0 1 .854-2.592A3.99 3.99 0 0 1 10 1Zm0 17.193 7.315-7.264a.251.251 0 0 0-.177-.429H12.5V5.184A2.631 2.631 0 0 0 10.136 2.5a2.441 2.441 0 0 0-1.856.682A2.478 2.478 0 0 0 7.5 5v5.5H2.861a.251.251 0 0 0-.176.429L10 18.193Z"></path></svg>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="reddit p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">/u/iTzHenPat</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Wtf am i suppose to do with this info? Player movement is cool and all but i doubt the average tarkov players sees the difference between someone rushing to a spot and a hacker , or even just camping some spot. This shit would create so many false flags. This is dumb.
+                                </p>
+                                <div class="flex gap-2">
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center">
+                                        <svg rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                    </p>
+                                    <p class="py-0.5 text-blue-700 cursor-pointer flex items-center">
+                                        <svg class="rotate-180" rpl="" fill="currentColor" height="16" icon-name="upvote-fill" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M10 19c-.072 0-.145 0-.218-.006A4.1 4.1 0 0 1 6 14.816V11H2.862a1.751 1.751 0 0 1-1.234-2.993L9.41.28a.836.836 0 0 1 1.18 0l7.782 7.727A1.751 1.751 0 0 1 17.139 11H14v3.882a4.134 4.134 0 0 1-.854 2.592A3.99 3.99 0 0 1 10 19Z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            -23
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="youtube-comments" class="comment-container hidden">
+                    <div class="flex lg:flex-row flex-col items-start gap-4">
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@NoFear1979</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This is very nice and it is probably the best way to debunk the myth: Are the raids really dead? But also get a verification if for instance "looting bots" mod actually make bots traverse the map. Without having "questing bots" in the modline. But also try the same for "questing bots" mod without having the "looting bots" mod in the modline.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@foodieontour</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This mod is crazy... SPT gets a whole different level. I hope it will get to the point of Stalker Gamma or sorts where we will have SPT even years later as an engaging and never dull moment game
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            108
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@substunner</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Lol. This has been part of arena breakout since the start.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@demolitionkid2</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    I think arena breakouts is better and I could care less what bsg does
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[20px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                          
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@NunSuperior</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    So cool. This is what a good modding community can do for games.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            16
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@atatame</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This mod is great. I just really wish this was in regular Tarkov.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            5
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@EricBorn</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Just found the mod yesterday, got it installed and love it! I always thought it would be cool if they did this on live so you could identify hackers easier, create heat maps based on player movement and fighting patterns, stuff like that. It's even better than you brought it to SPT so I can do all that myself! Awesome work!
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@devinhickman1230</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Woahhh!! Something else that shouldve been released 5 years ago!!!
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            1
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@Meloche67</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Soooo they need to pay general sam
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            2
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@VladiSSius</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This is legit one of things unrelated to the gameplay but actually very important in reviewing your raid (if you are training for EFT with SPT). Not just for training, but also for "debugging" to see if bots are properly spawned at their location/where they get stuck/etc etc etc without having to actually using bot debug tools. At first, I wasn't really paying attention to it, but now I uses it heavily to post-monitor my raid to see for errors and stuff, but also it's fun to rewind what's been going on in raid.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            5
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@Plaguings</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Oh damn, this is awesome! SPT mod devs never fail to surprise.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            6
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@ogtaki</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Definitely, shoukd have been in the game years ago
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            46
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="youtube p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-sm font-semibold text-white">@sniperbobdave8350</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This is an awesome idea. I think I would be pretty cool to have a first person perspective of all the other players on the map as well.
+                                </p>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex items-center">
+                                        <svg class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M13 3a3 3 0 0 1 2.995 2.824l.005 .176v4h2a3 3 0 0 1 2.98 2.65l.015 .174l.005 .176l-.02 .196l-1.006 5.032c-.381 1.626 -1.502 2.796 -2.81 2.78l-.164 -.008h-8a1 1 0 0 1 -.993 -.883l-.007 -.117l.001 -9.536a1 1 0 0 1 .5 -.865a2.998 2.998 0 0 0 1.492 -2.397l.007 -.202v-1a3 3 0 0 1 3 -3z"></path><path d="M5 10a1 1 0 0 1 .993 .883l.007 .117v9a1 1 0 0 1 -.883 .993l-.117 .007h-1a2 2 0 0 1 -1.995 -1.85l-.005 -.15v-7a2 2 0 0 1 1.85 -1.995l.15 -.005h1z"></path></svg>
+                                        <span class="text-sm text-white pl-2">
+                                            46
+                                        </span>
+                                    </p>
+                                    <p class="py-0.5 text-gray-500 cursor-pointer flex items-center transform scale-x-[-1]">
+                                        <svg class="w-[24px] " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="32" height="32" stroke-width="2"> <path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3"></path> </svg> 
+                                        <span class="text-sm text-white pl-2">
+                                            
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="tiktok" class="comment-container hidden">
+                    <div class="flex lg:flex-row flex-col items-start gap-4">
+
+                        <div class="w-full lg:w-[50%] flex flex-col gap-4">
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">Dont care</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        Desperately needed, also to see map flow and how people play.
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            1030
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">Brandon Lee Jones</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        It'll be so fun to watch the guy cheating teleport across the map to not get banned
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            618
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">Timberhost3</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        please I'm begging 😭🙏 put it in the game
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            0
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">Jusef Johnson</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        when they copy the "copy"
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            69
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">Ronnie Thompson</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        weren't they just complaining school arena breakout stealing their game and now they are stealing mechanics
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            69
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[50%] flex flex-col gap-4">
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">sir_john_iii</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        It’s Almost like they didn’t just steal it from arena breakout infinite
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            33
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">PonyoDabz710</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        lmao ABI does it and now tsrkov wants to add it hmmm
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            9
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">N3KO</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        give a new system that can be used as an esp for hackers and increase the CPU reliance worsening performance great idea
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            3
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">ExtremeTrash</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        Taking it from arena breakout
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            0
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                            <div class="tiktok p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans grid grid-cols-[1fr_auto] gap-4">
+                                <div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col flex-1">
+                                            <span></span>
+                                            <span class="text-sm font-semibold text-white">genericleftyslogan</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-[#d5dee1] pb-2">
+                                        The feature they’re copying from AB:I, even though they claim AB:I is copying them?
+                                    </p>
+                                </div>
+                                <div class="flex">
+                                    <p class="py-0.5 text-white cursor-pointer flex flex-col justify-center items-center">
+                                        <svg  class="w-[20px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                                            <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z"></path>
+                                          </svg>
+                                        <span class="text-sm text-white">
+                                            0
+                                        </span>
+                                    </p>
+                                </div>                                
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="modpage" class="comment-container hidden">
+                    <div class="flex lg:flex-row flex-col items-start gap-4">
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Snoops</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Hey, thanks for the mod
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Chazu</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Thanks a lot for this mod ! :love:
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">gFresh</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    im amazed at this community and the continued ideas that keep coming! well done this is some thing cool
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Morsh220</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Saw this mods usage was trending over on the Reddit. Pretty badass such a thing exists!
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Watsy</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Man that is bloody awesome. Thank you so much. What a great idea :)
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Zerglrisk</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Love it ! Now I can now monitor my friend's play. Thank you!
+                                </p>                              
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">prxz</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This mod is incredible. Just what I was looking for. Thank You.
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Skruphi</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Such an epic mod, thank you and thank you for your help trying to get it working!
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Deluph</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    I appreciate your work. Thank you for this increible mod!
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">KCH Armory</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    This is insane!
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">StarVox</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Another mod directly out of my fantasy list. Amazing concept, cannot wait to try it.
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Wanuboi</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    wtf ! big w man, thats insane, not useful for me, but i can definitly see people using this for multiple reasons, great work, another big support for the awesome SPT community
+                                </p>                              
+                            </div>
+
+                        </div>
+
+                        <div class="w-full lg:w-[33%] flex flex-col gap-4">
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Chazistired</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Calling it now, this is gunna be one of the best mods for learning ever. To finally have a live visualization of your pathing and actions on say a loot run you want to teach a friend, they can finally see your pathing on the route and where you'll tend to get into fights. Amazing utility tool ngl :thumbup:
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">Kasmeister</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    I've been waiting for a mod like this forever. Thanks for bringing one to SPT!
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">theycallmesalute</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    Hey, awesome mod...I couldn't even imagine that such thing could be possible in SPT!
+                                </p>                              
+                            </div>
+
+                            <div class="modpage p-4 pb-2 bg-[#121212] border-[#5e5e5e] rounded-xl font-sans">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col flex-1">
+                                        <span></span>
+                                        <span class="text-xl font-semibold text-yellow-500">TheDragonLad</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-[#d5dee1] pb-2">
+                                    The mod works great and this is honestly super helpful. Idk how y'all do it when comes to making mods but this is just great, thanks for your hard work man it really paid off ^^
+                                </p>                              
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section> 
+
+        <section class="bg-[#9a8866] w-full px-4">
+            <div class="lg:w-[960px] text-left mx-auto text-center py-12">
+                <h1 class="text-2xl font-bold">
+                    Supported By The Community on Ko-Fi
+                </h1>
+                <p class="lg:w-[750px] text-base mx-auto">
+                    A heartfelt thank you to everyone who has supported me on Ko-Fi! 
+                    Here's a breakdown of the contributions and how they've helped keep this project alive.
+                </p>
+                <div class="mt-6">
+                    <h2 class="text-xl font-semibold">Supporters</h2>
+                    <p class="mb-4">Total Donated - $95.00</p>
+                    <ul class="text-left grid lg:grid-cols-3 mx-auto w-fit gap-4 text-center">
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">AnotherGermanFool</span> donated <span class="font-bold">$50</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">Watsy</span> donated <span class="font-bold">$20</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">FNARGUNNER</span> donated <span class="font-bold">$5</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">Anonymous</span> donated <span class="font-bold">$5</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">PRiles</span> donated <span class="font-bold">$5</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">Q.M.O</span> donated <span class="font-bold">$5</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">東野</span> donated <span class="font-bold">$3</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">Delphu</span> donated <span class="font-bold">$1</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            <span class="font-bold">Fejlip</span> donated <span class="font-bold">$1</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="mt-12">
+                    <h2 class="text-xl font-semibold">Funding Breakdown</h2>
+                    <p class="mb-4">Total Spent - $95.00</p>
+                    <ul class="text-left grid lg:grid-cols-2 mx-auto w-fit gap-4 text-center">
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            Hosting Fees - <span class="font-bold">$30</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            Pizza - <span class="font-bold">$30</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            Blackdog Institute - <span class="font-bold">$20</span>
+                        </li>
+                        <li class="bg-black p-2 rounded-xl px-4 text-[#9a8866]">
+                            Coffee - <span class="font-bold">$15</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="mt-6">
+                    <p class="text-lg">
+                        If you'd like to support the project, feel free to visit my <a href="https://ko-fi.com/ekky1328?ref=raidreview.online" target="_blank" class="underline">Ko-Fi page</a>.
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="py-12 bg-black">
+            <div class="lg:w-[960px] mx-auto px-4">
+                <div class="py-4 text-[#9a8866] mb-4">
+                    <h2 class="text-2xl font-bold text-center">GitHub Code Contributions</h2>
+                    <p class="text-base lg:w-3/4 mx-auto text-center">
+                        A big thank you to all the amazing contributors who have helped improve this project. Your time, effort, and expertise have been invaluable!
+                    </p>
+                </div>
+                <div class="mt-6 text-[#9a8866] ">
+                    <h2 class="text-xl font-semibold text-center mb-4">Project Contributors</h2>
+                    <ul class="text-left grid lg:grid-cols-4 mx-auto w-fit gap-4 text-center">
+                        <li class="bg-[#9a8866] p-2 rounded-xl px-4 text-black">
+                            <span class="font-bold">Chazut</span> - 41 Commits
+                        </li>
+                        <li class="bg-[#9a8866] p-2 rounded-xl px-4 text-black">
+                            <span class="font-bold">RavenX8</span> - 3 Commits
+                        </li>
+                        <li class="bg-[#9a8866] p-2 rounded-xl px-4 text-black">
+                            <span class="font-bold">drwsif</span> - 1 Commits
+                        </li>
+                        <li class="bg-[#9a8866] p-2 rounded-xl px-4 text-black">
+                            <span class="font-bold">olli991</span> - 1 Commits
+                        </li>
+                    </ul>
+                </div>
+                <div class="mt-12">
+                    <p class="text-lg text-center text-[#9a8866]">
+                        If you'd like to contribute to the project, visit the <a href="https://github.com/your-repo" target="_blank" class="underline">GitHub repository</a>.
+                    </p>
+                </div>
+            </div>
+        </section>
 
     </main>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menu = document.getElementById("menu");
+            const mobileMenuTrigger = document.getElementById("mobile-menu-trigger");
 
+            // Add a click event listener to the mobile menu trigger
+            mobileMenuTrigger.addEventListener("click", function () {
+
+                if (menu.classList.contains("fullscreen")) {
+                    menu.classList.remove("fullscreen");
+                    menu.style.display = "none";
+                    document.querySelector('body').style.overflow = 'auto';
+                    document.getElementById('mobile-menu-closed').classList.remove('hidden');
+                    document.getElementById('mobile-menu-open').classList.add('hidden');
+                } 
+                
+                else {
+                    menu.classList.add("fullscreen");
+                    menu.style.display = "flex";
+                    document.querySelector('body').style.overflow = 'hidden';
+                    document.getElementById('mobile-menu-closed').classList.add('hidden');
+                    document.getElementById('mobile-menu-open').classList.remove('hidden');
+                }
+            });
+
+            const links = menu.querySelectorAll("a");
+            links.forEach(link => {
+                link.addEventListener("click", function () {
+                    menu.classList.remove("fullscreen");
+                    menu.style.display = "none";
+                });
+            });
+        });
     </script>
 </body>
 </html>
