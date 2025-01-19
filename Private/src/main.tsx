@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouteObject, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 import Layout from './pages/V2/Layout';
@@ -13,7 +13,11 @@ import RaidCharts from "./pages/V2/RaidCharts";
 import RaidTimeline from "./pages/V2/RaidTimeline";
 import RaidSettings, { loader as RaidSettingsLoader } from "./pages/V2/RaidSettings";
 import RaidImport from "./pages/V2/RaidImport";
+
 import CommunityHome from "./pages/Community/CommunityHome";
+import Account from "./pages/Community/Account";
+import Auth from "./pages/Community/Auth";
+import SignOut from "./pages/Community/SignOut";
 
 const v2_routes = [
   {
@@ -66,16 +70,30 @@ const v2_routes = [
     ]
   },
   
-]
+] as RouteObject[]
 
 const community_routes = [
   {
     path: '/',
-    element: <CommunityHome />
+    element: <CommunityHome />,
+    children: [
+      {
+        path: '/my-account',
+        element: <Account />
+      },
+      {
+        path: '/auth',
+        element: <Auth />
+      },
+      {
+        path: '/sign-out',
+        element: <SignOut />
+      }
+    ]
   }
-]
+]as RouteObject[]
 
-console.log(import.meta.env)
+
 const routeToUse = import.meta.env.VITE_COMMUNITY ? community_routes : v2_routes;
 const router = createBrowserRouter(routeToUse);
 

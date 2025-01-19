@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.7.9",
     "leaflet": "^1.9.4",
     "leaflet-fullscreen": "^1.0.2",
     "leaflet-rotatedmarker": "^0.2.0",
@@ -23,7 +24,8 @@
     "react-router-dom": "^6.18.0",
     "react-zoom-pan-pinch": "^3.4.4",
     "recharts": "^2.12.7",
-    "resize-observer-polyfill": "^1.5.1"
+    "resize-observer-polyfill": "^1.5.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.12",
