@@ -283,7 +283,7 @@
             </div>
         </section>        
 
-        <section class="py-12 bg-black">
+        <section class="py-12 bg-black pb-24">
             <div class="lg:w-[960px] mx-auto px-4">
                 <div class="py-4 text-[#9a8866] mb-4">
                     <h2 class="text-2xl font-bold text-center">The community <span class="text-red-500">loves</span> this mod!</h2>
@@ -1831,13 +1831,161 @@
                 </div>
                 <div class="mt-12">
                     <p class="text-lg text-center text-[#9a8866]">
-                        If you'd like to contribute to the project, visit the <a href="https://github.com/your-repo" target="_blank" class="underline">GitHub repository</a>.
+                        If you'd like to contribute to the project, visit the <a href="https://github.com/ekky-llc/spt-raid-review" target="_blank" class="underline">GitHub repository</a>.
                     </p>
                 </div>
             </div>
         </section>
 
+        <section class="faq-section bg-[#9a8866] py-12">
+            <div class="lg:w-[960px] mx-auto px-4">
+                <h2 class="text-2xl font-bold text-center mb-6">Frequently Asked Questions</h2>
+                <div class="faq-container mt-6 flex flex-col gap-4">
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq1')">
+                            Does this work with the Offical Verison of Escape From Tarkov?
+                        </button>
+                        <div class="faq-answer hidden" id="faq1">
+                            <p>No.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq5')">
+                            How do I install the mod?
+                        </button>
+                        <div class="faq-answer hidden" id="faq5">
+                            <p>To install the mod, download the latest release from the GitHub repository and follow the installation instructions in the README file.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq8')">
+                            Can I use this mod with other mods?
+                        </button>
+                        <div class="faq-answer hidden" id="faq8">
+                            <p>This mod is designed to work with most mods, but conflicts may arise depending on the specific mods you're using. Check the issues section on GitHub to see if others have experienced similar problems.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq13')">
+                            Is this mod safe to use?
+                        </button>
+                        <div class="faq-answer hidden" id="faq13">
+                            <p>Yes, this mod is open-source and reviewed by the community. It’s completely safe to use for single-player mode and doesn’t affect your game’s integrity or online experience. Please only download copies from the official repository, every released version is checked through Virus Total to assure you that it is a safe download.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq2')">
+                            Can you add XYZ feature to the mod?
+                        </button>
+                        <div class="faq-answer hidden" id="faq2">
+                            <p>You can contribute by submitting issues, code improvements, or documentation updates on GitHub. If it's something I'm interested in adding, then I'll donate my time to do so, otherwise, feel free to contribute to the project as you wish!</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq3')">
+                            Where can I find the source code?
+                        </button>
+                        <div class="faq-answer hidden" id="faq3">
+                            <p>The source code is available on GitHub at <a href="https://github.com/ekky-llc/spt-raid-review" target="_blank" class="underline">this link</a>.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq4')">
+                            I found a bug, and something is broken?
+                        </button>
+                        <div class="faq-answer hidden" id="faq4">
+                            <p>To report bugs, please open an issue on our GitHub repository at <a href="https://github.com/ekky-llc/spt-raid-review" target="_blank" class="underline">this link</a>.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleAnswer('faq422')">
+                            I saw my name in the testimonials section, and I don't want it there!
+                        </button>
+                        <div class="faq-answer hidden" id="faq422">
+                            <p>Go to the github, remove it from the code, lodge a pull request, I promise I wont deny it. 😉</p>
+                            <p>In all seriousness, if you don't want to be called out, don't say dumb shit in public forums.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <style>
+            .faq-section {
+                background-color: #9a8866;
+                padding-top: 4rem;
+                padding-bottom: 4rem;
+            }
+        
+            .faq-question {
+                background-color: #1E1E1E;
+                color: #9a8866;
+                font-size: 1.1rem;
+                font-weight: bold;
+                padding: 1rem;
+                width: 100%;
+                text-align: left;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+        
+            .faq-question:hover {
+                background-color: #000000;
+            }
+        
+            .faq-answer {
+                padding: 1rem 2rem;
+                color: white;
+                background-color: #000000;
+                margin: 0 20px;
+                border-radius: 0 0 8px 8px;
+            }
+        
+            .faq-answer p {
+                color: white;
+            }
+        
+            .hidden {
+                display: none;
+            }
+        
+            .faq-container {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+        </style>
+        
+        <script>
+            function toggleAnswer(id) {
+                const answers = document.querySelectorAll('.faq-answer');
+                const currentAnswer = document.getElementById(id);
+        
+                // Hide all answers first
+                answers.forEach(answer => {
+                    if (answer !== currentAnswer) {
+                        answer.classList.add('hidden');
+                    }
+                });
+        
+                // Toggle the current answer
+                currentAnswer.classList.toggle('hidden');
+            }
+        </script>
+        
     </main>
+
+    <footer class="py-4">
+        <div class="lg:w-[960px] mx-auto px-4 text-center flex flex-col lg:flex-row lg:justify-between">
+            <p class="text-sm text-white">
+                &copy; 2024. Raid Review Online. All rights reserved.
+            </p>
+            <p class="text-sm lg:mt-0 mt-2 text-white">
+                Made with <span class="text-red-600">&hearts;</span> from Australia 🦘
+            </p>
+        </div> 
+    </footer>     
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
