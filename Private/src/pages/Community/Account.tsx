@@ -24,10 +24,10 @@ export default function Account() {
                             <h1 className='font-bold'>Discord Details</h1>
                         </div>
                         <div className='border border-eft p-2'>
-                            <div className='grid grid-cols-[150px_auto]'>
+                            <div className='grid md:grid-cols-[150px_auto] grid-cols-1'>
                                 <p className='font-bold'>ID</p>
                                 <p>{ raidReviewStore.discordAccount.id }</p>
-                                <p className='font-bold'>Username</p>
+                                <p className='font-bold md:mt-0 mt-4'>Username</p>
                                 <p>{ raidReviewStore.discordAccount.username }</p>
                             </div>
                         </div>
@@ -39,7 +39,7 @@ export default function Account() {
                         <h1 className='font-bold'>Upload Token</h1>
                     </div>
                     <div className='border border-eft p-2'>
-                        <div className='grid grid-cols-[150px_auto]'>
+                        <div className='grid md:grid-cols-[150px_auto] grid-cols-1'>
                             <p className='font-bold'>Upload Token</p>
                             <p>{ raidReviewStore.raidReviewAccount?.uploadToken }</p>
                         </div>

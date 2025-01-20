@@ -197,7 +197,7 @@ export default function RaidTimeline() {
   }
 
   return (
-      <section className="raid-timeline">
+      <section className="raid-timeline overflow-x">
             <div className="w-full flex flex-row justify-between">
               <span className="text-lg font-bold">Timeline</span>
               <span>Filter by Username or Action</span>

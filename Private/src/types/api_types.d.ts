@@ -35,6 +35,8 @@ export interface TrackingRaidData {
   exitName: string
   exitStatus: string
   type: string
+  imported: boolean
+  public: boolean
   player_status?: TrackingPlayerStatus[]
   players?: TrackingRaidDataPlayers[]
   kills?: TrackingRaidDataKills[]

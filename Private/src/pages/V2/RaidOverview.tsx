@@ -242,10 +242,10 @@ export default function RaidOverview() {
             </table>
         </section>
 
-        <section className="mt-4">
+        <section className="mt-4 overflow-x">
             <div className="w-full flex flex-row justify-between">
               <span className="text-lg font-bold">Leaderboard</span>
-              <span>Sort by Side, Team or Spawned</span>
+              <span className="lg:block hidden">Sort by Side, Team or Spawned</span>
             </div>
             <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
                 <thead>

@@ -182,10 +182,10 @@ export default function RaidCharts() {
         <section className="chart-container">
 
             { raid.detectedMods.match(/SAIN/gi) ? 
-            <div className="gauges my-4">
+            <div className="grid lg:grid-cols-3 grid-cols-1 gap-4 my-4">
                 <div>
                     <div className='text-center w-full text-lg font-bold bg-eft text-black'>Bots By Team</div>
-                    <div className="border border-eft">
+                    <div className="border border-eft flex justify-center">
                         <PieChart width={290} height={200}>
                             <Pie
                                 dataKey="value"
@@ -204,7 +204,7 @@ export default function RaidCharts() {
                 </div>
                 <div>
                     <div className='text-center w-full text-lg font-bold bg-eft text-black'>Bots By Personalities</div>
-                    <div className="border border-eft">
+                    <div className="border border-eft flex justify-center">
                         <PieChart width={290} height={200}>
                             <Pie
                                 dataKey="value"
@@ -223,7 +223,7 @@ export default function RaidCharts() {
                 </div>
                 <div>
                     <div className='text-center w-full text-lg font-bold bg-eft text-black'>Bots By Difficulty</div>
-                    <div className="border border-eft">
+                    <div className="border border-eft flex justify-center">
                         <PieChart width={290} height={200}>
                             <Pie
                                 dataKey="value"

@@ -4,12 +4,15 @@ import GlobalSpinner from "../../component/GlobalSpinner";
 
 import './Layout.css'
 import { useRaidReviewCommunityStore } from "../../store/community";
+import { useEffect } from "react";
 
 export default function CommunityHome() {
     const navigation = useNavigation();
-
-
     const raidReviewStore = useRaidReviewCommunityStore(s => s);    
+
+    useEffect(() => {
+        document.title = `Raid Review Community Hub`
+    },[])
 
     const isDev = window.location.host.includes("517");
     const authLink = isDev ?
@@ -17,14 +20,19 @@ export default function CommunityHome() {
     "https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=https%3A%2F%2Fcommunity.raid-review.online%2Fauth&scope=identify";
 
     return (
-        <main className="text-eft font-mono relative mb-4 px-4 lg:p-0">
+        <main className="text-eft font-mono relative mb-4 px-4 lg:p-0 lg:w-[1280px] px-2">
             { navigation.state === "loading" && <GlobalSpinner /> }
 
-            <nav className="bg-eft border border-eft border-t-0 grid grid-cols-[auto_1fr]">
-                <div className="w-fit">
-                    <h1 className="font-bold text-2xl bg-black py-2 px-4 w-fit">RAID REVIEW COMMUNITY HUB</h1>
+            <nav className="bg-eft border border-eft border-t-0 grid md:grid-cols-[auto_1fr] grid-cols-1">
+                <div className="lg:w-fit w-full">
+                    <h1 className="font-bold md:text-2xl text-xl md:w-fit w-full bg-black py-2 px-4 md:text-left text-center">RAID REVIEW COMMUNITY HUB</h1>
                 </div>
-                <ul className="text-black flex justify-end">
+                <ul className="text-black flex md:justify-end justify-center">
+                    <li className="text-base h-full hover:bg-black/20">
+                        <Link className="h-full w-full grid place-items-center px-4 underline" to="https://raid-review.online">
+                            Main
+                        </Link>
+                    </li>
                     { raidReviewStore.discordAccount && raidReviewStore.discordToken ? ( 
                         <>
                             { window.location.pathname.match(/my-account/gi) ? (

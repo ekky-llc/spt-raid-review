@@ -8,7 +8,7 @@ export default function Home() {
     const navigation = useNavigation();
 
     return (
-        <main className="text-eft font-mono relative mb-4">
+        <main className="text-eft font-mono relative mb-4 lg:w-[1280px] px-2">
             { navigation.state === "loading" && <GlobalSpinner /> }
 
             <nav className="bg-eft border border-eft border-t-0 flex">

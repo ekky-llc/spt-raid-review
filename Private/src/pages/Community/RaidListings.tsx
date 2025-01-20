@@ -43,7 +43,7 @@ const RaidListings: FC = () => {
             </div>
             <hr className="border-eft mb-4" />
             <div>
-                <ul className='grid grid-cols-3 gap-4'>
+                <ul className='grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4'>
                     {raids.map((raid, index) => (
                         <li key={index} className='border border-eft min-h-[350px] relative'>
                             <img src={`/public/images/${raid.location}.png`} />

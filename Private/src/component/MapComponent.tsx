@@ -165,6 +165,9 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
     const [searchParams] = useSearchParams()
     const [currentMap, setCurrentMap] = useState('')
 
+    // Mobile
+    const [showLayer, setShowLayer] = useState(false);
+
     // Map
     const [mapIsReady, setMapIsReady] = useState(false);
     const [heatmapEnabled, setHeatmapEnabled] = useState(false)
@@ -1017,27 +1020,41 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
         }
     }
 
+
     return (
         <div className="map-container" key="map-wrapper">
             <div className="parent">
-                <nav className="flex top">
-                    <div>
+                <div id="mobile-nav" className='md:hidden flex w-full mb-2 justify-between'>
+                    <div className='flex gap-2'>
+                        <button onClick={() => setShowLayer(true)} className='py-1 px-4 bg-eft text-sm text-black hover:opacity-75'>Layers</button>
+                    </div>
+                    <Link to={`/raid/${raidId}`} className="py-1 px-4 bg-eft text-sm text-black hover:opacity-75">
+                        Close
+                    </Link>
+                </div>
+                <nav className={`flex top ${showLayer && 'open'}`}>
+                    {showLayer && (
+                        <div className='p-2 border-b-2 border-eft'>
+                                <button onClick={() => setShowLayer(false)} className='py-1 px-4 bg-eft text-sm text-black hover:opacity-75 w-full'>Close</button>
+                        </div>
+                    )}
+                    <div className={showLayer ? `flex flex-col h-fit p-2` : 'flex h-[40px]'}>
                         {availableLayers.map((layer) => (
                             <button
                                 key={layer.value}
-                                className={`text-sm p-2 mr-2 py-1 text-sm ${layer.value === selectedLayer ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`}
+                                className={`text-sm p-2 mr-2 py-1 text-sm ${layer.value === selectedLayer ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto w-full`}
                                 onClick={() => setSelectedLayer(layer.value)}
                             >
                                 {layer.name}
                             </button>
                         ))}
                     </div>
-                    <div className="ml-4">
+                    <div className={`lg:flex ${showLayer ? `flex flex-col p-2 border-t-2 border-eft` : 'ml-4'}`}>
                         {availableStyles.map((style) =>
                             style.name ? (
                                 <button
                                     key={style.value}
-                                    className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`}
+                                    className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto w-full`}
                                     onClick={() => setSelectedStyle(style.value)}
                                 >
                                     {style.name}
@@ -1047,7 +1064,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                             )
                         )}
                     </div>
-                    <Link to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto">
+                    <Link to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto hidden lg:block">
                         Close
                     </Link>
                 </nav>
@@ -1143,7 +1160,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                         preserveHistory={preserveHistory}
                         playerFocus={playerFocus}
                     />
-                    <div className="text-eft mb-2 flex justify-between">
+                    <div className="times text-eft mb-2 flex justify-between">
                         <span>{msToHMS(timeEndLimit)}</span>
                         <span className={`${hideNerdStats ? 'invisible' : ''}`}>
                             {((timeCurrentIndex / sliderTimes.length) * 100).toFixed(0)}% | {24 * playbackSpeed}fps | Frame: {timeCurrentIndex} / {sliderTimes.length - 1} | Cut In/Out (ms): {timeStartLimit} / {timeEndLimit}
@@ -1174,7 +1191,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                             16x
                         </button>
 
-                        <button className={`text-sm p-2 py-1 text-sm ${!hideSettings ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideSettings(!hideSettings)}>
+                        <button className={`text-sm p-2 py-1 text-sm ${!hideSettings ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft md:block hidden`} onClick={() => setHideSettings(!hideSettings)}>
                             ⚙️
                         </button>
                         <div className={`border border-eft p-1 flex gap-1 ${hideSettings ? 'invisible' : ''}`}>

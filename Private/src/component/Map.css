@@ -11,7 +11,7 @@
 }
 
 /* Grid Areas */
-.top {
+.top, #mobile-nav {
   grid-area: 1 / 1 / 2 / 5;
 }
 .sidebar {
