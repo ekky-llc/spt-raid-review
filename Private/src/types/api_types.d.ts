@@ -98,29 +98,38 @@ export interface RaidReviewServerSettings {
 }
 
 export interface DiscordAccount {
-  id: string
-  username: string
-  avatar: string
-  discriminator: string
-  public_flags: number
-  flags: number
-  banner: any
-  accent_color: number
-  global_name: string
-  avatar_decoration_data: any
-  banner_color: string
-  clan: any
-  primary_guild: any
-  mfa_enabled: boolean
-  locale: string
-  premium_type: number
-  email: string
-  verified: boolean
-  phone: string
-  nsfw_allowed: boolean
-  analytics_token: string
-  linked_users: Array<any>
-  purchased_flags: number
-  bio: string
-  authenticator_types: Array<number>
+    id: string
+    username: string
+    avatar: string
+    discriminator: string
+    public_flags: number
+    flags: number
+    banner: any
+    accent_color: number
+    global_name: string
+    avatar_decoration_data: any
+    banner_color: string
+    clan: any
+    primary_guild: any
+    mfa_enabled: boolean
+    locale: string
+    premium_type: number
+    email: string
+    verified: boolean
+    phone: string
+    nsfw_allowed: boolean
+    analytics_token: string
+    linked_users: Array<any>
+    purchased_flags: number
+    bio: string
+    authenticator_types: Array<number>
+}
+
+export interface RaidReviewAccount {
+    id: string
+    discordId: string
+    uploadToken: string
+    isActive: boolean
+    isBanned: boolean
+    created_at: string
 }

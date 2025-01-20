@@ -8,10 +8,16 @@ import { useRaidReviewCommunityStore } from "../../store/community";
 export default function CommunityHome() {
     const navigation = useNavigation();
 
+
     const raidReviewStore = useRaidReviewCommunityStore(s => s);    
 
+    const isDev = window.location.host.includes("517");
+    const authLink = isDev ?
+    "https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&scope=identify" :
+    "https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=https%3A%2F%2Fcommunity.raid-review.online%2Fauth&scope=identify";
+
     return (
-        <main className="text-eft font-mono relative mb-4">
+        <main className="text-eft font-mono relative mb-4 px-4 lg:p-0">
             { navigation.state === "loading" && <GlobalSpinner /> }
 
             <nav className="bg-eft border border-eft border-t-0 grid grid-cols-[auto_1fr]">
@@ -42,10 +48,7 @@ export default function CommunityHome() {
                         </>
                     ) : (
                         <li className="text-base h-full hover:bg-black/20">
-                            <a 
-                                className="h-full w-full grid place-items-center px-4 underline" 
-                                href="https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&scope=identify"
-                                >
+                            <a href={authLink} className="h-full w-full grid place-items-center px-4 underline">
                                 Sign In With Discord
                             </a>
                         </li>

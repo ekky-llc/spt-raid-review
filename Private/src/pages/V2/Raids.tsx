@@ -4,10 +4,10 @@ import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 import { TrackingRaidData } from '../../types/api_types';
 import { ISptProfile } from '../../../../Server/types/models/eft/profile/ISptProfile';
 import api from '../../api/api';
-import { LOCATIONS } from '../../helpers/locations';
+import { msToHMS } from '../../helpers';
+import { getLocation } from '../../helpers/locations';
 
 import './Raids.css'
-import { msToHMS } from '../../helpers';
 
 export async function loader() {
     let raids = await api.getRaids([]);
@@ -19,10 +19,6 @@ export async function loader() {
 export default function Raids() {
     const { raids, profiles } = useLoaderData() as { raids: TrackingRaidData[], profiles: { [key: string] : ISptProfile } };
     const navigate = useNavigate()
-
-    function getLocation(locationString: string) {
-        return LOCATIONS[locationString] || locationString
-    }
 
     function refreshData() {
         navigate('.', { replace: true })

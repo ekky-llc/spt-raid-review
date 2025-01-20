@@ -18,6 +18,7 @@ import CommunityHome from "./pages/Community/CommunityHome";
 import Account from "./pages/Community/Account";
 import Auth from "./pages/Community/Auth";
 import SignOut from "./pages/Community/SignOut";
+import RaidListings, { loader as RaidListingsLoader } from "./pages/Community/RaidListings";
 
 const v2_routes = [
   {
@@ -77,6 +78,11 @@ const community_routes = [
     path: '/',
     element: <CommunityHome />,
     children: [
+      {
+        path: '/',
+        element: <RaidListings />,
+        loader: RaidListingsLoader
+      },
       {
         path: '/my-account',
         element: <Account />

@@ -1,18 +1,18 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export const account = {
-    getAccount: async function(supabase: SupabaseClient, discordId: string): Promise<DiscordAccount | void> {
+    getAccount: async function(supabase: SupabaseClient, discordId: string): Promise<DiscordAccount | undefined | void> {
         try {
 
             const { data, error } = await supabase.from('account').select('*').eq('discordId', discordId);
 
-            if (data && data.length) {
+            if (data && Array.isArray(data)) {
                 return data[0];
             }
             
             if (error) {
-            console.error('Error fetching account:', error.message);
-            throw error;
+                console.error('Error fetching account:', error.message);
+                throw error;
             }
         } 
         
@@ -45,7 +45,7 @@ export const account = {
             }
             
             if (error) {
-                console.error('Error fetching account:', error.message);
+                console.error('Error registering account:', error.message);
                 throw error;
             }
         } 

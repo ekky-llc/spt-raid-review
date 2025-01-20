@@ -16,6 +16,7 @@ export async function loader(loaderData: any) {
 
     return { raidId, raid, intl, globalSettings: ls_globalSettings ? JSON.parse(ls_globalSettings) : default_globalSettings }
 }
+
 export default function Raid() {
 
   const { raidId, raid, intl, globalSettings} = useLoaderData() as any;

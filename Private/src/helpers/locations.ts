@@ -1,4 +1,4 @@
-export const LOCATIONS: { [key: string]: string } = {
+const LOCATIONS: { [key: string]: string } = {
     "bigmap": "Customs",
     "Sandbox": "Ground Zero",
     "Sandbox_high": "Ground Zero",
@@ -19,3 +19,12 @@ export const LOCATIONS: { [key: string]: string } = {
     "Woods": "Woods",
     "base": "Base"
 };
+
+function getLocation(locationString: string) {
+    return LOCATIONS[locationString] || locationString
+}
+
+export {
+    LOCATIONS,
+    getLocation
+}

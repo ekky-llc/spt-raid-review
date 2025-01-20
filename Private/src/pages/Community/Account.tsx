@@ -1,9 +1,18 @@
+import { useEffect } from 'react'
 import { useRaidReviewCommunityStore } from '../../store/community'
 import './Account.css'
+import { useNavigate } from 'react-router-dom'
 
 export default function Account() {
+    const navigator  = useNavigate();
 
     const raidReviewStore = useRaidReviewCommunityStore(s => s)
+
+    useEffect(() => {
+        if (raidReviewStore.discordToken === null) {
+            navigator('/')
+        }
+    }, [])
 
     return (
         <>
@@ -27,14 +36,12 @@ export default function Account() {
 
                 <div>
                     <div className='bg-[#9a8866] text-black px-2'>
-                        <h1 className='font-bold'>My Account</h1>
+                        <h1 className='font-bold'>Upload Token</h1>
                     </div>
                     <div className='border border-eft p-2'>
                         <div className='grid grid-cols-[150px_auto]'>
-                            <p className='font-bold'>Upload Key</p>
-                            <p>00000-00000-00000-00000</p>
-                            <p className='font-bold'>Uploaded Raids</p>
-                            <p>2/5</p>
+                            <p className='font-bold'>Upload Token</p>
+                            <p>{ raidReviewStore.raidReviewAccount?.uploadToken }</p>
                         </div>
                     </div>
                 </div>
