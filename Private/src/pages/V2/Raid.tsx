@@ -27,7 +27,7 @@ export default function Raid() {
 
   return (
     <>
-      <div className='lg:flex justify-between my-2'>
+      <div className='md:flex justify-between my-2'>
           <div className="flex gap-2">
               <Link to={`/raid/${raidId}/`} className='py-1 px-4 bg-eft text-black hover:opacity-75'>Overview</Link>
               <Link to={`/raid/${raidId}/charts`} className='py-1 px-4 bg-eft text-black hover:opacity-75'>Stats</Link>

@@ -1,5 +1,22 @@
 @media (max-width: 450px) {
 
+    .map-container .timeline {
+        width: calc(100vw - 15px);
+        margin: 0;
+        height: 175px;
+    }
+
+    .map-container .map-wrapper {
+        width: calc(100vw - 15px);
+        height: calc(100vh - 235px);
+    }
+
+}
+
+
+/* Mobile View */
+@media (max-width: 850px) {
+
     .map-container .sidebar {
         display: none;
     }
@@ -31,7 +48,7 @@
 
     .map-container .map-wrapper {
         width: calc(100vw - 15px);
-        height: calc(100vh - 200px);
+        height: calc(100vh - 235px);
     }
 
     .map-container .kill-stream {

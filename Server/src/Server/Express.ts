@@ -104,6 +104,17 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         } 
     })
 
+    app.get('/api/config', async (req: Request, res: Response) => {
+        try {
+            const { public_hub_base_url } = config;
+            res.json({
+                public_hub_base_url
+            })
+        } catch (error) {
+            res.json(null)
+        } 
+    })
+
     app.get('/api/profile/all', (req: Request, res: Response) => {
         let profiles = saveServer.getProfiles() as Record<string, ISptProfile>
 
@@ -251,6 +262,50 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             return res.json(null)
         }
 
+    });
+
+    app.post('/api/raids/:raidId/share', async (req: Request, res: Response) => {
+        try {
+            let { raidId } = req.params;
+            const payload = req.body;
+    
+            const raid = await getRaidData(db, logger, raidId);
+            if (!raid) throw new Error(`Raid could not be found`);
+    
+            if (raid.positionsTracked === 'RAW') {
+                CompileRaidPositionalData(raidId, logger);
+                raid.positionsTracked = 'COMPILED';
+            }
+    
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`);
+            const positionalData = JSON.parse(positionalDataRaw);
+    
+            const compressedBuffer = await compressData(
+                JSON.stringify({
+                    raid,
+                    positions: positionalData,
+                })
+            );
+    
+
+            const formData = new FormData();
+            formData.append('file', new Blob([compressedBuffer], { type: 'application/gzip' }), `${raidId}.raidreview`);
+            formData.append('payload', JSON.stringify(payload));
+            const uploadResponse = await fetch(`${config.public_hub_base_url}/api/v1/raid/receive`, {
+                method: 'POST',
+                body: formData,
+            });
+    
+            if (!uploadResponse.ok) {
+                throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+            }
+    
+            const responseJson = await uploadResponse.json();
+            return res.json(responseJson);
+        } catch (error) {
+            logger.error(error);
+            return res.status(500).json({ error: error.message });
+        }
     });
 
     app.get('/api/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {

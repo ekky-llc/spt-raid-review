@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouteObject, RouterProvider } from "react-router-dom";
 import "./index.css";
 
-import Layout from './pages/V2/Layout';
+import Layout, { loader as LayoutLoader, loader } from './pages/V2/Layout';
 import Raids, { loader as RaidsLoader } from './pages/V2/Raids';
 import Settings, { loader as SettingsLoader } from './pages/V2/Settings';
 import Raid, { loader as RaidLoader } from "./pages/V2/Raid";
@@ -19,11 +19,13 @@ import Account from "./pages/Community/Account";
 import Auth from "./pages/Community/Auth";
 import SignOut from "./pages/Community/SignOut";
 import RaidListings, { loader as RaidListingsLoader } from "./pages/Community/RaidListings";
+import RaidShare from "./pages/V2/RaidShare";
 
 const v2_routes = [
   {
     path : "/",
     element: <Layout />,
+    loader: LayoutLoader,
     children: [
       {
         path: "/",
@@ -60,6 +62,10 @@ const v2_routes = [
             path: "/raid/:raidId/map",
             element: <RaidMap />,
             loader: RaidMapLoader
+          },
+          { 
+            path: "/raid/:raidId/share",
+            element: <RaidShare />
           },
           { 
             path: "/raid/:raidId/settings",

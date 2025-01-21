@@ -1024,7 +1024,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
     return (
         <div className="map-container" key="map-wrapper">
             <div className="parent">
-                <div id="mobile-nav" className='md:hidden flex w-full mb-2 justify-between'>
+                <div id="mobile-nav" className='lg:hidden flex w-full mb-2 justify-between'>
                     <div className='flex gap-2'>
                         <button onClick={() => setShowLayer(true)} className='py-1 px-4 bg-eft text-sm text-black hover:opacity-75'>Layers</button>
                     </div>

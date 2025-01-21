@@ -242,29 +242,31 @@ export default function RaidOverview() {
             </table>
         </section>
 
-        <section className="mt-4 overflow-x">
+        <section className="mt-4">
             <div className="w-full flex flex-row justify-between">
               <span className="text-lg font-bold">Leaderboard</span>
               <span className="lg:block hidden">Sort by Side, Team or Spawned</span>
             </div>
-            <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
-                <thead>
-                    <tr className="bg-eft text-black">
-                        <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'TEAM' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('TEAM')}>Side</th>
-                        <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'GROUP' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('GROUP')}>Team</th>
-                        <th className="text-right px-2">Lvl</th>
-                        <th className="text-left px-2">Username</th>
-                        <th className="text-right px-2"> { raid.detectedMods.match(/SAIN/gi) ? 'SAIN' : '' }</th>
-                        <th className="text-center px-2" title="Kills">K</th>
-                        <th className="text-center px-2" title="Looted items">L</th>
-                        <th className="text-center px-2" title="Accuracy">A%</th>
-                        <th className={`text-right px-2 underline cursor-pointer ${groupedByType === '' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('')}>Spawned</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    { generatePlayerTable(raid) || <tr><td colSpan={9}>No Data.</td></tr>}
-                </tbody>
-            </table>
+            <div className="max-w-screen overflow-auto">
+              <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
+                  <thead>
+                      <tr className="bg-eft text-black">
+                          <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'TEAM' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('TEAM')}>Side</th>
+                          <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'GROUP' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('GROUP')}>Team</th>
+                          <th className="text-right px-2">Lvl</th>
+                          <th className="text-left px-2">Username</th>
+                          <th className="text-right px-2"> { raid.detectedMods.match(/SAIN/gi) ? 'SAIN' : '' }</th>
+                          <th className="text-center px-2" title="Kills">K</th>
+                          <th className="text-center px-2" title="Looted items">L</th>
+                          <th className="text-center px-2" title="Accuracy">A%</th>
+                          <th className={`text-right px-2 underline cursor-pointer ${groupedByType === '' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('')}>Spawned</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      { generatePlayerTable(raid) || <tr><td colSpan={9}>No Data.</td></tr>}
+                  </tbody>
+              </table>
+            </div>
         </section>
       </>
     );

@@ -1,19 +1,35 @@
-import { Link, Outlet, useNavigation } from "react-router-dom";
-
+import { Link, Outlet, useNavigation, useLoaderData } from "react-router-dom";
 import GlobalSpinner from "../../component/GlobalSpinner";
-
 import './Layout.css'
+import api from "../../api/api";
+import { useRaidReviewPrivateStore } from "../../store/private";
+import { useEffect } from "react";
+
+
+export async function loader() {
+    const config = await api.getConfig();
+    return { config }
+}
 
 export default function Home() {
+    const { config } = useLoaderData() as { config: null | { [key: string] : any } };
+    const raidReviewPrivateStore = useRaidReviewPrivateStore(s => s);
     const navigation = useNavigation();
+
+    useEffect(() => {
+        if (raidReviewPrivateStore?.config !== null || !config) return;
+        (() => {
+            raidReviewPrivateStore.setConfig(config);
+        })()
+    }, [])
 
     return (
         <main className="text-eft font-mono relative mb-4 lg:w-[1280px] px-2">
             { navigation.state === "loading" && <GlobalSpinner /> }
 
-            <nav className="bg-eft border border-eft border-t-0 flex">
-                <div className="w-56">
-                    <h1 className="font-bold text-2xl bg-black py-2 px-4 w-fit">RAID REVIEW</h1>
+            <nav className="bg-eft border border-eft border-t-0 flex md:flex-row flex-col">
+                <div className="lg:w-56 w-full">
+                    <h1 className="font-bold text-2xl bg-black py-2 px-4 lg:text-left text-center">RAID REVIEW</h1>
                 </div>
                 <ul className="text-black w-full flex justify-between">
                     <li className="text-base h-full hover:bg-black/20">

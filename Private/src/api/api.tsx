@@ -18,6 +18,19 @@ const api = {
         }
     },
 
+    getConfig: async function() : Promise<{ [key: string] : string }> {
+        let config = {} as { [key: string] : string };
+        try {
+            const response = await fetch(hostname + '/api/config');
+            const data = await response.json() as { [key: string] : string };
+            return data;
+        } 
+        
+        catch (error) {
+            return config;
+        }
+    },
+
     getRaids: async function(profileIds: string[] = []) : Promise<TrackingCoreDataRaids[]> {
         let raids = [] as TrackingCoreDataRaids[];
         try {

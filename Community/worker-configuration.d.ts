@@ -3,4 +3,5 @@
 interface Env {
     SUPABASE_URL: string;
     SUPABASE_KEY: string;
+    RAID_REVIEW: R2Bucket
 }

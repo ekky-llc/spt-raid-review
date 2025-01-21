@@ -197,38 +197,40 @@ export default function RaidTimeline() {
   }
 
   return (
-      <section className="raid-timeline overflow-x">
-            <div className="w-full flex flex-row justify-between">
-              <span className="text-lg font-bold">Timeline</span>
-              <span>Filter by Username or Action</span>
-            </div>
-        <table id="raid-timeline" className="mb-2 w-full border border-eft">
-            <thead>
-              <tr className="bg-eft text-black">
-                <th className="text-left px-2 cursor-pointer">Time</th>
-                <th className="text-right border-l relative border-r border-eft underline">
-                  <span className="cursor-pointer" onClick={() => setUsernameFilterModal(!usernameFilterModal)}>Username</span>
-                  { usernameFilterModal ? 
-                    <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2  w-full w-48 z-50">
-                      { generateUsernameToggle() }
-                    </div> : ''
-                  }
-                </th>
-                <th className="text-center px-2 relative underline cursor-pointer">
-                  <span className="cursor-pointer" onClick={() => setActionFilterModal(!actionFilterModal)}>Action</span>
-                  { actionFilterModal ? 
-                    <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2 w-full w-48 z-50">
-                      { generateActionToggle() }
-                    </div> : ''
-                  }
-                </th>
-                <th className="text-left px-2">Detail</th>
-              </tr>
-          </thead>
-          <tbody>
-            { generateTimeline() }
-          </tbody>
-        </table>
+      <section className="raid-timeline">
+        <div className="w-full flex flex-row justify-between">
+          <span className="text-lg font-bold">Timeline</span>
+          <span>Filter by Username or Action</span>
+        </div>
+        <div className="max-w-screen overflow-auto">
+          <table id="raid-timeline" className="mb-2 border border-eft">
+              <thead>
+                <tr className="bg-eft text-black">
+                  <th className="text-left px-2 cursor-pointer">Time</th>
+                  <th className="text-right border-l relative border-r border-eft underline min-w-[200px]">
+                    <span className="cursor-pointer" onClick={() => setUsernameFilterModal(!usernameFilterModal)}>Username</span>
+                    { usernameFilterModal ? 
+                      <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2  w-full w-48 z-50">
+                        { generateUsernameToggle() }
+                      </div> : ''
+                    }
+                  </th>
+                  <th className="text-center px-2 relative underline cursor-pointer min-w-[100px]">
+                    <span className="cursor-pointer" onClick={() => setActionFilterModal(!actionFilterModal)}>Action</span>
+                    { actionFilterModal ? 
+                      <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2 w-full w-48 z-50">
+                        { generateActionToggle() }
+                      </div> : ''
+                    }
+                  </th>
+                  <th className="text-left px-2 min-w-[500px] w-full">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+              { generateTimeline() }
+            </tbody>
+          </table>
+        </div>
     </section>
   )
 }
