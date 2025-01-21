@@ -135,3 +135,10 @@ export interface RaidReviewAccount {
     isBanned: boolean
     created_at: string
 }
+
+export interface ShareRaidPayload {
+  title: string
+  description: string
+  uploadToken: string
+  isPublic: boolean
+}

@@ -1,9 +1,12 @@
 import { gunzip } from "zlib";
 import { promisify } from "util";
+import _ from 'lodash';
 
 import { account } from "./controller/account";
 import { raid } from "./controller/raid";
 import { supabaseConnect } from "./controller/supabase";
+import { RaidShareDatafile, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
+import { generateInterpolatedFramesBezier } from "./utils/interpolation";
 
 const gunzipAsync = promisify(gunzip);
 
@@ -51,8 +54,8 @@ export default {
 				human: '/api/v1/raid/receive',
 				pattern: /^\/api\/v1\/raid\/receive/, 
 				handler: async (params) => {
-
 					try {
+
 
 						  const contentType = request.headers.get('Content-Type') || '';
 						  if (!contentType.includes('multipart/form-data')) return new Response("Invalid Content-Type", { status: 400 });
@@ -60,29 +63,48 @@ export default {
 						  const formData = await request.formData();
 						  const file = formData.get('file') as File;
 						  const payloadJson = formData.get('payload') as string;
-				  
+
 						  if (!file || !(file instanceof File)) return new Response("File is required", { status: 400 });
 						  if (!payloadJson) return new Response("Payload is required", { status: 400 });
 						  if (!payloadJson || typeof payloadJson !== 'string') return new Response("Payload is required and must be a valid JSON string", { status: 400 });
-					
+
 						  let payload;
 						  try {
-							payload = JSON.parse(payloadJson);
+							  payload = JSON.parse(payloadJson);
 						  } catch (err) {
 							  return new Response("Invalid JSON in payload", { status: 400 });
 						  }
 
+						  const payloadValidationErrors = validateRaidSharePayload(payload);
+						  console.log(payloadValidationErrors)
+						  if (payloadValidationErrors.length > 0) return new Response("Invalid payload", { status: 400 });
+
+						  const accountDetails = await account.getAccountByUploadToken(supabase, payload.uploadToken);
+						  if (!accountDetails) return new Response("Invalid token or banned", { status: 400 });
+
 						  const compressedBuffer = await file.arrayBuffer();
 						  const decompressedBuffer = await gunzipAsync(Buffer.from(compressedBuffer));  
 
+						  let decompressedData;
+						  try {
+							  decompressedData = JSON.parse(decompressedBuffer.toString());
+						  } catch (err) {
+							  return new Response("Decompressed data is not valid JSON", { status: 400 });
+						  }
+
+						  const dataValidationErrors = validateRaidShareDatafile(decompressedData);
+						  if (dataValidationErrors.length > 0) return new Response("Invalid payload", { status: 400 });
+
 						  const r2Key = `raids/${payload.uploadToken}/${file.name.replace('.raidreview', '.json')}`;
-						  const r2Response = await env.RAID_REVIEW.put(r2Key, decompressedBuffer, {
+						  await env.RAID_REVIEW.put(r2Key, decompressedBuffer, {
 						       httpMetadata: { contentType: "application/json" },
-						  });  
+						  }); 
+
+						  await raid.saveRaid(supabase, payload, accountDetails?.discordUsername, accountDetails?.id, r2Key);
 						  
 						  return new Response(
 						  	  JSON.stringify({ success: true }),
-						  	  { status: 200, headers: { 'Content-Type': 'application/json' } }
+						  	  { status: 200, headers }
 						  );
 					  }
 					  
@@ -90,14 +112,115 @@ export default {
 						  console.error("Error processing upload:", error);
 						  return new Response("Internal Server Error", { status: 500 });
 					  }
-
 				},
 			},
 			{
 				method: 'GET',
 				human: '/api/v1/raid/:raidId',
-				pattern: /^\/api\/raid\/(?<raidId>[^/]+)$/,
-				handler: async (params) => new Response(`Raid ID: ${params.raidId}`),
+				pattern: /^\/api\/v1\/raid\/(?<raidId>[^/]+)$/,
+				handler: async (params) => {
+					try {
+						const raidMetadata = await raid.getRaid(supabase, params.raidId);
+						if (!raidMetadata) {
+							console.log(`Could not locate Metadata for RaidID: '${params.raidId}'.`)
+							return new Response(null , { status: 204 })
+						};
+
+						const raidDataR2Response = await env.RAID_REVIEW.get(raidMetadata.storageKey);
+						if (!raidDataR2Response) {
+							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
+							return new Response(null , { status: 204 });
+						}
+
+						const raidDataBundle = await raidDataR2Response?.json() as RaidShareDatafile
+						const raidData = raidDataBundle.raid;
+						
+						return new Response(JSON.stringify(raidData), { status: 200, headers });
+					}
+
+					catch (error) {
+						return new Response("Internal Server Error", { status: 500 });
+					}
+				},
+			},
+			{
+				method: 'GET',
+				human: '/api/v1/raid/:raidId/positions',
+				pattern: /^\/api\/v1\/raid\/(?<raidId>[^/]+)\/positions$/,
+				handler: async (params) => {
+					try {
+						const raidMetadata = await raid.getRaid(supabase, params.raidId);
+						if (!raidMetadata) {
+							console.log(`Could not locate Metadata for RaidID: '${params.raidId}'.`)
+							return new Response(null , { status: 204 })
+						};
+
+						const raidDataR2Response = await env.RAID_REVIEW.get(raidMetadata.storageKey);
+						if (!raidDataR2Response) {
+							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
+							return new Response(null , { status: 204 });
+						}
+
+						const raidDataBundle = await raidDataR2Response?.json() as RaidShareDatafile
+						const raidData = raidDataBundle.positions;
+
+						const interpolated = generateInterpolatedFramesBezier(raidData, 5, 24)
+						
+						return new Response(JSON.stringify(interpolated), { status: 200, headers });
+					}
+
+					catch (error) {
+						return new Response("Internal Server Error", { status: 500 });
+					}
+				},
+			},
+			{
+				method: 'GET',
+				human: '/api/v1/raid/:raidId/heatmap',
+				pattern: /^\/api\/v1\/raid\/(?<raidId>[^/]+)\/positions\/heatmap$/,
+				handler: async (params) => {
+					try {
+						const raidMetadata = await raid.getRaid(supabase, params.raidId);
+						if (!raidMetadata) {
+							console.log(`Could not locate Metadata for RaidID: '${params.raidId}'.`)
+							return new Response(null , { status: 204 })
+						};
+
+						const raidDataR2Response = await env.RAID_REVIEW.get(raidMetadata.storageKey);
+						if (!raidDataR2Response) {
+							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
+							return new Response(null , { status: 204 });
+						}
+
+						const raidDataBundle = await raidDataR2Response?.json() as RaidShareDatafile
+						const raidData = raidDataBundle.positions;
+
+						const interpolated = generateInterpolatedFramesBezier(raidData, 5, 24)
+
+						const flattenedData = _.chain(interpolated).valuesIn().flatMapDeep().value();
+    
+						const points = flattenedData.map(entry => [entry.z, entry.x, 1]);
+						const pointMap = new Map();
+						points.forEach(([z, x]) => {
+							const key = `${z},${x}`;
+							if (pointMap.has(key)) {
+								if (pointMap.get(key)[2] < 1) {
+									pointMap.get(key)[2] += 1;
+								}
+							} else {
+								pointMap.set(key, [z, x, 1]);
+							}
+						});
+				
+						const aggregatedPoints = Array.from(pointMap.values());
+						
+						return new Response(JSON.stringify(aggregatedPoints), { status: 200, headers });
+					}
+
+					catch (error) {
+						return new Response("Internal Server Error", { status: 500 });
+					}
+				},
 			},
 
 			// Account Endpoints

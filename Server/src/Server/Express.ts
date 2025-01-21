@@ -243,17 +243,11 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             let positionalData = JSON.parse(positionalDataRaw);
 
-            const compressedBuffer = await compressData(
-                JSON.stringify(
-                    {
-                        raid,
-                        positions: positionalData
-                    }
-                )
-            );
+            const compressedBuffer = await compressData(JSON.stringify({ raid, positions: positionalData }));
 
             res.setHeader('Content-Type', 'application/gzip');
             res.setHeader('Content-Disposition', `attachment; filename=${raidId}.raidreview`);
+
             return res.send(compressedBuffer);
         } 
         
@@ -280,27 +274,25 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`);
             const positionalData = JSON.parse(positionalDataRaw);
     
-            const compressedBuffer = await compressData(
-                JSON.stringify({
-                    raid,
-                    positions: positionalData,
-                })
-            );
-    
+            const compressedBuffer = await compressData( JSON.stringify({ raid, positions: positionalData }));
 
+            const raidPublishPayload = {
+                ...payload,
+                raidId: raid.raidId,
+                location: raid.location,
+                timeInRaid: raid.timeInRaid,
+                exitName: raid.exitName,
+                exitStatus: raid.exitStatus
+            }
+            
             const formData = new FormData();
             formData.append('file', new Blob([compressedBuffer], { type: 'application/gzip' }), `${raidId}.raidreview`);
-            formData.append('payload', JSON.stringify(payload));
-            const uploadResponse = await fetch(`${config.public_hub_base_url}/api/v1/raid/receive`, {
-                method: 'POST',
-                body: formData,
-            });
-    
-            if (!uploadResponse.ok) {
-                throw new Error(`Upload failed: ${uploadResponse.statusText}`);
-            }
-    
+            formData.append('payload', JSON.stringify(raidPublishPayload));
+
+            const uploadResponse = await fetch(`${config.public_hub_base_url}/api/v1/raid/receive`, { method: 'POST', body: formData });
+            if (!uploadResponse.ok) throw new Error(`Upload failed: ${uploadResponse.statusText}`);
             const responseJson = await uploadResponse.json();
+            
             return res.json(responseJson);
         } catch (error) {
             logger.error(error);
@@ -414,7 +406,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     })
 
     app.listen(port, () => {
-        return logger.log(`Web Server is running at 'http://127.0.0.1:${port}'.`)
+        return logger.log(`Web Server is running at 'http://${config.server_base_url}:${port}'.`)
     })
 }
 

@@ -12,6 +12,8 @@
     "maximumLogFiles": 10,
 
 
+    "comment__server_base_url": "[SERVER] [DEFAULT: 127.0.0.1] Changes the Server IP in the logs, this does nothing else.",
+    "server_base_url": "127.0.0.1",
     "comment__web_socket_port": "[SERVER] [DEFAULT: 7828] Changes Default Web Socket port; modify this if the port is reserved in your environment.",
     "web_socket_port": 7828,
     "comment__web_client_port": "[SERVER] [DEFAULT: 7829] Changes Default HTTP port; modify this if the port is reserved in your environment.",

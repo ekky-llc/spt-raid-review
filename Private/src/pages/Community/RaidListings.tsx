@@ -64,7 +64,7 @@ const RaidListings: FC = () => {
                                     { raid.username }
                                 </div>
                             </div>
-                            <Link className='absolute underline text-sm bottom-0 font-bold right-0 bg-eft text-black w-fit px-2 py-1 hover:opacity-75 cursor-pointer' to={`/raid/${raid.id}`}>
+                            <Link className='absolute underline text-sm bottom-0 font-bold right-0 bg-eft text-black w-fit px-2 py-1 hover:opacity-75 cursor-pointer' to={`/raid/${raid.raidId}`}>
                                 View Raid
                             </Link>
                         </li>

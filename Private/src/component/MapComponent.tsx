@@ -21,6 +21,7 @@ import 'leaflet/dist/leaflet.css';
 import '../modules/leaflet-heat.js'
 import './Map.css'
 import { transliterateCyrillicToLatin } from '../helpers/transliterateCyrillicToLatin.js';
+import { community_api } from '../api/community_api.js';
 
 function getCRS(mapData) {
     let scaleX = 1;
@@ -160,7 +161,7 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export default function MapComponent({ raidData, raidId, positions, intl_dir }) {
+export default function MapComponent({ raidData, raidId, positions, intl_dir, communityHub }) {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const [currentMap, setCurrentMap] = useState('')
@@ -488,7 +489,12 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         (async () => {
             if (heatmapData.length === 0) {
-                const data = await api.getRaidHeatmapData(raidId)
+                let data = null;
+                if (communityHub) {
+                    data = await community_api.getRaidHeatmapData(raidId)
+                } else {
+                    data = await api.getRaidHeatmapData(raidId)
+                }
                 if (data) {
                     setHeatmapData(data)
                 }

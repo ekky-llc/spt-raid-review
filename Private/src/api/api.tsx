@@ -1,5 +1,5 @@
 import { ISptProfile } from '../../../Server/types/models/eft/profile/ISptProfile';
-import { TrackingRaidData, TrackingCoreDataRaids } from '../types/api_types';
+import { TrackingRaidData, TrackingCoreDataRaids, ShareRaidPayload } from '../types/api_types';
 
 let isDev = window.location.host.includes("517");
 let hostname = isDev ? 'http://127.0.0.1:7829' : '';
@@ -71,6 +71,29 @@ const api = {
         
         catch (error) {
             return raid;
+        }
+    },
+
+    shareRaid: async function(raidId: string, shareRaidPayload: ShareRaidPayload) {
+        try {
+            const response = await fetch(`${hostname}/api/raids/${raidId}/share`, {
+                method: "POST",
+                body: JSON.stringify(shareRaidPayload),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                return true;
+            }
+            
+            else {
+                throw Error(`There was an issue uploading the raid.`)
+            }
+        } catch (error) {
+            console.error(error)
+            return false;
         }
     },
 

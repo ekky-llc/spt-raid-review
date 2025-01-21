@@ -1,37 +1,50 @@
-// import { useLoaderData } from "react-router-dom";
-
 import { useState } from "react"
+import { useLoaderData } from "react-router-dom";
+
 import { useRaidReviewPrivateStore } from "../../store/private";
+import api from "../../api/api";
 
-// export async function loader(loaderData: any) {
+export async function loader(loaderData: any) {
 
-//     const raidId = loaderData.params.raidId as string;
-//     let raid = await api.getRaid(raidId);
-//     const intl = await api.getIntl();
+    const raidId = loaderData.params.raidId as string;
 
-//     const ls_globalSettingsKey = 'rr:global_settings';
-//     const default_globalSettings = { translateCyrillic: true }
-//     const ls_globalSettings = localStorage.getItem(ls_globalSettingsKey);
-
-//     return { raidId, raid, intl, globalSettings: ls_globalSettings ? JSON.parse(ls_globalSettings) : default_globalSettings }
-// }
+    return { raidId }
+}
 
 export default function RaidShare() {
 
     const privateRaidReviewStore = useRaidReviewPrivateStore(s => s)
-
-    //   const { raidId, raid, intl, globalSettings} = useLoaderData() as any;
+   const { raidId } = useLoaderData() as any;
 
     const [ title, setTitle ] = useState('');
     const [ description, setDescription ] = useState('');
+    const [ isPublic, setIsPublic ] = useState(true);
     const [ uploadToken, setUploadToken ] = useState('');
     const [ tokenIsValid, setTokenIsValid ] = useState(false);
 
-    // async function handleUpload() {
+    async function handleUpload() {
 
-    //     // Validate 
+        if (!tokenIsValid) return;
+        if (title.trim() === '') return;
+        if (description.trim() === '') return;
+        if (uploadToken.trim() === '') return;
+        
+        try {
+            
+            const response = api.shareRaid(raidId, {
+                title,
+                description,
+                uploadToken,
+                isPublic
+            })
 
-    // }
+            console.log(response);
+        } 
+        
+        catch (error) {
+            console.log(error);   
+        }
+    }
 
     async function validateToken() {
         setTokenIsValid(true)
@@ -61,6 +74,16 @@ export default function RaidShare() {
                             </div>
 
                             <div className="flex flex-col">
+                                <label className="ml-1" htmlFor="isPublic">Visibility</label>
+                                <div>
+                                    <select name="isPublic" id="isPublic" value={`${isPublic}`} onChange={(e) => setIsPublic(e.target.value === 'true')} className="placeholder-gray-700 bg-black px-2 py-1 border border-eft w-full mb-2">
+                                        <option value="true">Public</option>
+                                        <option value="false">Unlisted</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col">
                                 <div className="inline-block">
                                     <div className="inline-block">
                                         { tokenIsValid ? (<span>✅</span>): (<span>❌</span>)}
@@ -80,7 +103,7 @@ export default function RaidShare() {
                                 </div>
                             </div>
                             
-                            <button className={`py-1 px-4 bg-eft text-sm text-black ${tokenIsValid && title && description ? 'hover:opacity-75' : 'opacity-25 cursor-not-allowed'}`}>
+                            <button onClick={handleUpload} className={`py-1 px-4 bg-eft text-sm text-black ${tokenIsValid && title && description ? 'hover:opacity-75' : 'opacity-25 cursor-not-allowed'}`}>
                                 Start Upload
                             </button>
                         </div>
@@ -88,7 +111,10 @@ export default function RaidShare() {
                             <strong>Instructions</strong> 
                             <div className="text-sm mb-4">
                                 <p>
-                                    Add your title, description and ensure you enter your upload token, which you can generate via the {privateRaidReviewStore?.config?.public_hub_base_url ? (<a className="underline underline-offset-2" href={`${privateRaidReviewStore.config.public_hub_base_url}/get-token`} target="__blank">public hub</a>) : 'public hub'}.
+                                    Set your title, description, visibility and an upload token, which you can generate via the {privateRaidReviewStore?.config?.public_hub_base_url ? (<a className="underline underline-offset-2" href={`${privateRaidReviewStore.config.public_hub_base_url}/get-token`} target="__blank">public hub</a>) : 'public hub'}. Once have done this, and clicked on 'Start Upload' the server will package and upload your raid, and give you a public link you can visit/share.
+                                </p>
+                                <p className="mt-2">
+                                    🍻 Enjoy
                                 </p>
                             </div>
                             { typeof privateRaidReviewStore?.config?.public_hub_base_url === 'string' && privateRaidReviewStore.config.public_hub_base_url.includes('raid-review.online') && ( 
@@ -96,13 +122,13 @@ export default function RaidShare() {
                                     <strong>Quick Message</strong> 
                                     <div className="text-sm">
                                         <p> 
-                                            This project, servers and storage is maintained and funded through my own money (plus donations recieved).
+                                            This project,  and the servers/cloud storage powering this sharing feature is maintained and funded through my own money (& donations recieved).
                                         </p>
                                         <p className="mt-3"> 
-                                            I've set upload limits to <strong className="underline underline-offset-4">1 raid at a time per user</strong> so I can ensure things dont get out of control, and to prevent my credit-card from being eaten alive.
+                                            I've set upload limits to <strong className="underline underline-offset-4">1 raid at a time per user</strong> so I can ensure things dont get out of control, and to prevent my credit card from being eaten alive.
                                         </p>
                                         <p className="mt-3"> 
-                                            If you’d like to increase this limit for your own account, here are options available to you: <a className="underline underline-offset-2" href="https://raid-review.online/upgrade" target="__blank">https://raid-review.online/#upgrade</a>
+                                            If you’d like to increase this limit for your own account, there are options available to you here <a className="underline underline-offset-2" href="https://raid-review.online/upgrade" target="__blank">https://raid-review.online/#upgrade</a>
                                         </p>
                                         <p className="mt-3"> 
                                             Thank you for understanding, and I hope this feature helps or provides entertainment somehow.

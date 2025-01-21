@@ -1,10 +1,30 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export const account = {
-    getAccount: async function(supabase: SupabaseClient, discordId: string): Promise<DiscordAccount | undefined | void> {
+    getAccount: async function(supabase: SupabaseClient, discordId: string): Promise<Account | undefined | void> {
         try {
 
-            const { data, error } = await supabase.from('account').select('*').eq('discordId', discordId);
+            const { data, error } = await supabase.from('account').select('*').eq('discordId', discordId) as { data: Account[], error: any };;
+            if (data && Array.isArray(data)) {
+                return data[0];
+            }
+            
+            if (error) {
+                console.error('Error fetching account:', error.message);
+                throw error;
+            }
+        } 
+        
+        catch (err) {
+            console.error('Unexpected error:', err);
+            throw err;
+        }
+    },
+
+    getAccountByUploadToken: async function (supabase: SupabaseClient, uploadToken: string): Promise<Account | undefined | void> {
+        try {
+
+            const { data, error } = await supabase.from('account').select('*').eq('uploadToken', uploadToken).eq('isBanned', false) as { data: Account[], error: any };
 
             if (data && Array.isArray(data)) {
                 return data[0];
@@ -22,7 +42,7 @@ export const account = {
         }
     },
 
-    registerAccount: async function(supabase: SupabaseClient, discordAccessToken: string): Promise<DiscordAccount | void> {
+    registerAccount: async function(supabase: SupabaseClient, discordAccessToken: string): Promise<Account | void> {
         try {
 
             const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
@@ -37,8 +57,8 @@ export const account = {
                 throw `'Error fetching discord account: Invalid access token, or account does not exist.'`;
             }
 
-            const payload = [{ discordId: userData.id }]
-            const { data, error } = await supabase.from('account').insert(payload).select();
+            const payload = [{ discordUsername: userData.username, discordId: userData.id }]
+            const { data, error } = await supabase.from('account').insert(payload).select() as { data: Account[], error: any };
     
             if (data && data.length) {
                 return data[0];
@@ -84,4 +104,13 @@ export interface DiscordAccount {
     bio: string
     authenticator_types: Array<number>
 }
-  
+
+export interface Account {
+    id: string,
+    discordUsername: string,
+    discordId: string,
+    uploadToken: string,
+    isActive: boolean, 
+    isBanned: boolean, 
+    created_at: Date
+}

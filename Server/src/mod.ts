@@ -152,7 +152,7 @@ class Mod implements IPreSptLoadMod, IPostSptLoadMod {
             ws.on('message', (data: RawData) => messagePacketHandler(data, this.database, this.sessionManager, this.modDetector, this.logger, profiles, post_raid_processing))
         })
 
-        this.logger.log(`Websocket Server Listening on 'ws://127.0.0.1:${config.web_socket_port}'.`)
+        this.logger.log(`Websocket Server Listening on 'ws://${config.server_base_url}:${config.web_socket_port}'.`)
 
         WebServer(this.saveServer, this.profileHelper, this.database, this.intl, this.logger)
     }
