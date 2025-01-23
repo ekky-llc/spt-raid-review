@@ -112,5 +112,6 @@ export interface Account {
     uploadToken: string,
     isActive: boolean, 
     isBanned: boolean, 
+    membership: number,
     created_at: Date
 }

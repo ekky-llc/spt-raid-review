@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigation } from "react-router-dom";
+import { NavLink, Outlet, useNavigation } from "react-router";
 
 import GlobalSpinner from "../../component/GlobalSpinner";
 
@@ -25,30 +25,30 @@ export default function CommunityHome() {
 
             <nav className="bg-eft border border-eft border-t-0 grid md:grid-cols-[auto_1fr] grid-cols-1">
                 <div className="lg:w-fit w-full">
-                    <Link to="https://raid-review.online">
+                    <NavLink to="https://raid-review.online">
                     <h1 className="font-bold md:text-2xl text-xl md:w-fit w-full bg-black py-2 px-4 md:text-left text-center">RAID REVIEW COMMUNITY HUB</h1>
-                    </Link>
+                    </NavLink>
                 </div>
                 <ul className="text-black flex md:justify-end justify-center">
                     { raidReviewStore.discordAccount && raidReviewStore.discordToken ? ( 
                         <>
                             { window.location.pathname.match(/my-account/gi) ? (
                                 <li className="text-base h-full hover:bg-black/20">
-                                    <Link className="h-full w-full grid place-items-center px-4 underline" to="/">
+                                    <NavLink className="h-full w-full grid place-items-center px-4 underline" to="/">
                                         Home
-                                    </Link>
+                                    </NavLink>
                                 </li>
                             ) : (
                                 <li className="text-base h-full hover:bg-black/20">
-                                    <Link className="h-full w-full grid place-items-center px-4 underline" to="/my-account">
+                                    <NavLink className="h-full w-full grid place-items-center px-4 underline" to="/my-account">
                                         My Account
-                                    </Link>
+                                    </NavLink>
                                 </li>
                             )}
                             <li className="text-base h-full hover:bg-black/20">
-                                <Link className="h-full w-full grid place-items-center px-4 underline" to="/sign-out">
+                                <NavLink className="h-full w-full grid place-items-center px-4 underline" to="/sign-out">
                                     Sign Out
-                                </Link>
+                                </NavLink>
                             </li>
                         </>
                     ) : (

@@ -74,6 +74,44 @@ const api = {
         }
     },
 
+    verifyToken: async function(uploadToken: string): Promise<boolean | { raids: number, limit: number }> {
+
+        try {
+            const response = await fetch(`${hostname}/api/hub/verify-token`, {
+                method: "POST",
+                body: JSON.stringify({ uploadToken }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.status === 204) return false;
+
+            const data = await response.json();
+            return data
+        } 
+        
+        catch (error) {
+            return false;
+        }
+        
+    },
+
+    isRaidShared: async function(raidId: string) {
+
+        try {
+            const response = await fetch(`${hostname}/api/raids/${raidId}/check`);
+            if (response.status === 204) return false;
+
+            return true;
+        } 
+        
+        catch (error) {
+            return false;
+        }
+
+    },
+
     shareRaid: async function(raidId: string, shareRaidPayload: ShareRaidPayload) {
         try {
             const response = await fetch(`${hostname}/api/raids/${raidId}/share`, {

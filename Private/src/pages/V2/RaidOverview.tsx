@@ -1,7 +1,7 @@
 
 // import api from '../../api/api';
 
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router";
 import { TrackingRaidData, TrackingRaidDataPlayers } from '../../types/api_types'
 import './Raids.css'
 import { intl, msToHMS } from "../../helpers";

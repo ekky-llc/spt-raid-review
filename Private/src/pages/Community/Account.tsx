@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useRaidReviewCommunityStore } from '../../store/community'
 import './Account.css'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 export default function Account() {
     const navigator  = useNavigate();

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
+import { NavLink, LoaderFunctionArgs, useLoaderData } from 'react-router';
 import { community_api } from '../../api/community_api';
 import { getLocation } from '../../helpers/locations';
 
@@ -34,11 +34,11 @@ const RaidListings: FC = () => {
                     <h2 className='font-bold text-lg'>Uploaded: { days === 99999 ? `All Time` : `Last ${days} Days` }</h2>
                 </div>
                 <div className='flex gap-2'>
-                    <Link className='underline underline-offset-2' to="/?days=7">7</Link>
-                    <Link className='underline underline-offset-2' to="/?days=14">14</Link>
-                    <Link className='underline underline-offset-2' to="/?days=30">30</Link>
-                    <Link className='underline underline-offset-2' to="/?days=90">90</Link>
-                    <Link className='underline underline-offset-2' to="/?days=ALL">All</Link>
+                    <NavLink className='underline underline-offset-2' to="/?days=7">7</NavLink>
+                    <NavLink className='underline underline-offset-2' to="/?days=14">14</NavLink>
+                    <NavLink className='underline underline-offset-2' to="/?days=30">30</NavLink>
+                    <NavLink className='underline underline-offset-2' to="/?days=90">90</NavLink>
+                    <NavLink className='underline underline-offset-2' to="/?days=ALL">All</NavLink>
                 </div>
             </div>
             <hr className="border-eft mb-4" />
@@ -64,9 +64,9 @@ const RaidListings: FC = () => {
                                     { raid.username }
                                 </div>
                             </div>
-                            <Link className='absolute underline text-sm bottom-0 font-bold right-0 bg-eft text-black w-fit px-2 py-1 hover:opacity-75 cursor-pointer' to={`/raid/${raid.raidId}`}>
+                            <NavLink className='absolute underline text-sm bottom-0 font-bold right-0 bg-eft text-black w-fit px-2 py-1 hover:opacity-75 cursor-pointer' to={`/raid/${raid.raidId}`}>
                                 View Raid
-                            </Link>
+                            </NavLink>
                         </li>
                     ))}
                 </ul>

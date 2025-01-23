@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { account } from './account';
 
 export const raid = {
     getRaids: async (supabase: SupabaseClient, days: number = 7): Promise<Raid[] | void>  => {
@@ -75,8 +76,31 @@ export const raid = {
            throw error;
        }
     },
+
+    getUsersRaids: async (supabase: SupabaseClient, accountId: string, count: boolean = false): Promise<number | Raid[] | void>  => {
+        try {
+            let response;
+
+            if (count) {
+                response = await supabase.from('raid').select('id', { count: 'exact' }).eq('accountId', accountId);
+                if (response.error) throw response.error;
+                return response.count || 0;
+            } 
+            else {
+                response = await supabase.from('raid').select('*').eq('accountId', accountId);
+                if (response.error) throw response.error;
+                return response.data as Raid[];
+            }
+
+        } 
+        
+        catch (error) {
+            console.error('Error fetching raids:', error);
+            throw error;
+        }
+    },
     
-  };
+};
 
 export interface Raid {
     id: string,

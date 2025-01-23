@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { useEffect, useRef, useMemo, useCallback, useLayoutEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate, useLoaderData, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLoaderData, NavLink } from 'react-router';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import ResizeObserver from 'resize-observer-polyfill';
 import _, { forIn, map, transform } from 'lodash';
@@ -1034,9 +1034,9 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir, co
                     <div className='flex gap-2'>
                         <button onClick={() => setShowLayer(true)} className='py-1 px-4 bg-eft text-sm text-black hover:opacity-75'>Layers</button>
                     </div>
-                    <Link to={`/raid/${raidId}`} className="py-1 px-4 bg-eft text-sm text-black hover:opacity-75">
+                    <NavLink to={`/raid/${raidId}`} className="py-1 px-4 bg-eft text-sm text-black hover:opacity-75">
                         Close
-                    </Link>
+                    </NavLink>
                 </div>
                 <nav className={`flex top ${showLayer && 'open'}`}>
                     {showLayer && (
@@ -1070,9 +1070,9 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir, co
                             )
                         )}
                     </div>
-                    <Link to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto hidden lg:block">
+                    <NavLink to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto hidden lg:block">
                         Close
-                    </Link>
+                    </NavLink>
                 </nav>
                 <aside className="sidebar border border-eft mr-3 p-3 overflow-x-auto">
                     <div className="playerfeed text-eft">

@@ -7,6 +7,7 @@ import { raid } from "./controller/raid";
 import { supabaseConnect } from "./controller/supabase";
 import { RaidShareDatafile, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
 import { generateInterpolatedFramesBezier } from "./utils/interpolation";
+import { MEMBERSHIP_UPLOAD_LIMITS } from "./CONSTANTS";
 
 const gunzipAsync = promisify(gunzip);
 
@@ -76,7 +77,6 @@ export default {
 						  }
 
 						  const payloadValidationErrors = validateRaidSharePayload(payload);
-						  console.log(payloadValidationErrors)
 						  if (payloadValidationErrors.length > 0) return new Response("Invalid payload", { status: 400 });
 
 						  const accountDetails = await account.getAccountByUploadToken(supabase, payload.uploadToken);
@@ -237,6 +237,29 @@ export default {
 					}
 
 					return new Response(JSON.stringify(data), {
+						headers
+					});
+				},
+			},
+			{
+				method: 'POST',
+				human: '/api/v1/verify-token',
+				pattern: /^\/api\/v1\/verify-token/,
+				handler: async () => {
+
+					const payload = await request.json() as { uploadToken: string };
+					const data = await account.getAccountByUploadToken(supabase, payload.uploadToken);
+
+					if (data === undefined) return new Response(null , { status: 404 });
+
+					const raids = await raid.getUsersRaids(supabase, data.id, true) as number;
+					const limit = MEMBERSHIP_UPLOAD_LIMITS[data.membership];
+					const response_payload = {
+						raids,
+						limit
+					};
+
+					return new Response(JSON.stringify(response_payload), {
 						headers
 					});
 				},

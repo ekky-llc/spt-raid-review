@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router";
 import { TrackingRaidData } from "../../types/api_types";
 import { bodypart, intl, msToHMS } from "../../helpers";
 import { useEffect, useState } from "react";

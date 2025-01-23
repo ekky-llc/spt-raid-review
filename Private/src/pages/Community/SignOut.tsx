@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRaidReviewCommunityStore } from '../../store/community';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import GlobalSpinner from '../../component/GlobalSpinner';
 
 const SignOut: React.FC = () => {
   const navigate = useNavigate();
@@ -8,10 +9,13 @@ const SignOut: React.FC = () => {
 
   useEffect(() => {
     raidReviewStore.signOut();
-    return navigate('/');
+    setTimeout(() => {
+      navigate('/')
+    }, 1000)
+    return;
   }, []);
 
-  return <div>Loading...</div>;
+  return <GlobalSpinner message="Signing Out" />;
 };
 
 export default SignOut;

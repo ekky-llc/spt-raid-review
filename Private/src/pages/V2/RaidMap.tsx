@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, useLoaderData, useOutletContext } from "react-router-dom";
+import { LoaderFunctionArgs, useLoaderData, useOutletContext } from "react-router";
 import _ from "lodash";
 
 import api from "../../api/api";

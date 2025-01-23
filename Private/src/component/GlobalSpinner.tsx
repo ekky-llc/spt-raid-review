@@ -3,9 +3,10 @@ import './GlobalSpinner.css';
 
 interface GlobalSpinnerProps {
     message?: string; // Optional prop
+    dots?: boolean
   }
 
-const GlobalSpinner: FC<GlobalSpinnerProps> = ({ message }) => {
+const GlobalSpinner: FC<GlobalSpinnerProps> = ({ message, dots = true }) => {
 
     useEffect(() => {
         const body = document.querySelector('body');
@@ -23,7 +24,7 @@ const GlobalSpinner: FC<GlobalSpinnerProps> = ({ message }) => {
     return (
         <div className='global-spinner-container'>
             <div>
-                { message ? message : 'Loading'}<span className="dot">.</span><span className="dot">.</span><span className="dot">.</span>
+                { message ? message : 'Loading'}{dots ? (<><span className="dot">.</span><span className="dot">.</span><span className="dot">.</span></>) : ''}
             </div>
         </div>
     );

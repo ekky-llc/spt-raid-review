@@ -23,6 +23,7 @@ import { sendStatistics } from '../Controllers/Telemetry/RaidStatistics'
 import { Logger } from '../Utils/logger'
 import { compressData, decompressData } from '../Utils/compression'
 import { importRaidData } from '../Controllers/Persistance/importRaid'
+import { persist } from '../Controllers/Persistance/persistanceHandlers'
 
 const app: Express = express()
 const port = config.web_client_port || 7829
@@ -258,10 +259,47 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
 
     });
 
-    app.post('/api/raids/:raidId/share', async (req: Request, res: Response) => {
+    app.get(`/api/raids/:raidId/check`, async (req: Request, res: Response) => {
+        let { raidId } = req.params;
         try {
-            let { raidId } = req.params;
-            const payload = req.body;
+            const response = await fetch(`${config.public_hub_base_url}/api/v1/raid/${raidId}`);
+            if (!response.ok) throw new Error(`Raid does not exist.`);
+            const data = await response.json();
+            persist.updateRaidPublicStatus(db, raidId, true, logger);
+            return res.json(data);
+        }
+
+        catch(error) {
+            persist.updateRaidPublicStatus(db, raidId, false, logger);
+            return res.status(204).send(false);
+        }
+    });
+
+    app.post(`/api/hub/verify-token`, async (req: Request, res: Response) => {
+        const { uploadToken } = req.body as { uploadToken: string };
+        try {
+            const response = await fetch(`${config.public_hub_base_url}/api/v1/verify-token`, {
+                method: "POST",
+                body: JSON.stringify({ uploadToken }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) throw new Error(`Token does not exist, or is not valid.`);
+            const data = await response.json();
+            return res.json(data);
+        }
+
+        catch(error) {
+            return res.status(404).send(false);
+        }
+    });
+
+    app.post('/api/raids/:raidId/share', async (req: Request, res: Response) => {
+        let { raidId } = req.params;
+        const payload = req.body;
+
+        try {
     
             const raid = await getRaidData(db, logger, raidId);
             if (!raid) throw new Error(`Raid could not be found`);
@@ -292,6 +330,8 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             const uploadResponse = await fetch(`${config.public_hub_base_url}/api/v1/raid/receive`, { method: 'POST', body: formData });
             if (!uploadResponse.ok) throw new Error(`Upload failed: ${uploadResponse.statusText}`);
             const responseJson = await uploadResponse.json();
+
+            await persist.updateRaidPublicStatus(db, raidId, true, logger);
             
             return res.json(responseJson);
         } catch (error) {
@@ -301,8 +341,8 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     });
 
     app.get('/api/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
+        
         let { raidId } = req.params;
-    
         try {
             const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             let positionalData = JSON.parse(positionalDataRaw)
@@ -325,8 +365,8 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             });
     
             const aggregatedPoints = Array.from(pointMap.values());
-
             return res.json(aggregatedPoints);
+
         } catch (error) {
             console.error('Error processing heatmap data:', error);
             return res.status(500).json({ error: 'Internal server error' });

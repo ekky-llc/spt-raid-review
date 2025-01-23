@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigation, useLoaderData } from "react-router-dom";
+import { NavLink, Outlet, useNavigation, useLoaderData } from "react-router";
 import GlobalSpinner from "../../component/GlobalSpinner";
 import './Layout.css'
 import api from "../../api/api";
@@ -33,10 +33,10 @@ export default function Home() {
                 </div>
                 <ul className="text-black w-full flex justify-between">
                     <li className="text-base h-full hover:bg-black/20">
-                        <Link className="h-full w-full grid place-items-center px-4 underline" to="/">Recent</Link>
+                        <NavLink className="h-full w-full grid place-items-center px-4 underline" to="/">Recent</NavLink>
                     </li>
                     <li className="text-base h-full hover:bg-black/20">
-                        <Link className="h-full w-full grid place-items-center px-4 underline" to="/settings">Settings</Link>
+                        <NavLink className="h-full w-full grid place-items-center px-4 underline" to="/settings">Settings</NavLink>
                     </li>
                 </ul>
             </nav>

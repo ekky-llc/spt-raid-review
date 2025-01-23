@@ -3,7 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 import './Raids.css'
 import './RaidCharts.css'
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext } from 'react-router';
 import { TrackingPlayerStatus, TrackingRaidData } from '../../types/api_types';
 import _ from 'lodash';
 import { msToHMS } from '../../helpers';

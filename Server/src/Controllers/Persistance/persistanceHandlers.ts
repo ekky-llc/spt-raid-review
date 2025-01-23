@@ -32,6 +32,15 @@ const persist = {
         ]).catch((e: Error) => logger.error(`[SQL_ERR:END_RAID]`, e));
     },
 
+    updateRaidPublicStatus: async function (db, raidId, publicStatus, logger) {
+        const raid_update_sql = "UPDATE raid SET public = ? WHERE raidId = ?";
+        db.run(raid_update_sql, [
+            raidId, 
+            publicStatus
+        ])
+        .catch((e: Error) => logger.error(`[SQL_ERR:UPDATE_RAID_PUBLIC_STATUS]`, e));
+    },
+
     updatePlayer: async function (db, raidId, payload_object, logger) {
         const player_update_sql = "UPDATE player SET mod_SAIN_brain = ?, mod_SAIN_difficulty = ?, type = ? WHERE raidId = ? AND profileId = ?";
         db.run(player_update_sql, [

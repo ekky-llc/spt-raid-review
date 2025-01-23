@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRaidReviewCommunityStore } from '../../store/community';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { community_api } from '../../api/community_api';
 import { DiscordAccount, RaidReviewAccount } from '../../types/api_types';
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouteObject, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouteObject, RouterProvider } from "react-router";
 import "./index.css";
 
 import Layout, { loader as LayoutLoader } from './pages/V2/Layout';
@@ -21,11 +21,14 @@ import SignOut from "./pages/Community/SignOut";
 import RaidListings, { loader as RaidListingsLoader } from "./pages/Community/RaidListings";
 import RaidShare, { loader as RaidShareLoader } from "./pages/V2/RaidShare";
 
+import { ErrorPage } from './pages/Shared/ErrorPage'
+
 const v2_routes = [
   {
     path : "/",
     element: <Layout />,
     loader: LayoutLoader,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/",
@@ -84,6 +87,7 @@ const community_routes = [
   {
     path: '/',
     element: <CommunityHome />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',

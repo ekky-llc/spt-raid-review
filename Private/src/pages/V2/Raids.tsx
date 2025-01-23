@@ -1,5 +1,5 @@
 
-import { Link, useLoaderData, useNavigate } from 'react-router-dom';
+import { NavLink, useLoaderData, useNavigate } from 'react-router';
 
 import { TrackingRaidData } from '../../types/api_types';
 import { ISptProfile } from '../../../../Server/types/models/eft/profile/ISptProfile';
@@ -28,7 +28,7 @@ export default function Raids() {
         <>
             <div className='flex justify-between my-2'>
                 <div className="flex gap-2">
-                    <Link className='py-1 px-4 bg-eft text-black hover:opacity-75' to={`/import`}>Import</Link>
+                    <NavLink className='py-1 px-4 bg-eft text-black hover:opacity-75' to={`/import`}>Import</NavLink>
                 </div>
                 <div className="flex gap-2">
                     <button onClick={refreshData} className='py-1 px-4 bg-eft text-black hover:opacity-75'>Refresh</button>
@@ -85,7 +85,7 @@ export default function Raids() {
                                     ) : ''}
                                 </td>
                                 <td className="text-left p-2 underline">
-                                    <Link to={`/raid/${r.raidId}`}>View</Link>
+                                    <NavLink to={`/raid/${r.raidId}`}>View</NavLink>
                                 </td>
                             </tr>
                         )) : <tr>

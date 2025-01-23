@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
+import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router";
 import api from "../../api/api";
 
 import { useState } from "react";
