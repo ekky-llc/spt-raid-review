@@ -18,6 +18,10 @@ export function validateRaidSharePayload(payload: RaidUploadPayload): string[] {
       errors.push('isPublic should be a string with a value of "true" or "false".');
     }
   
+    if (!payload.overwriteOldest || (payload.overwriteOldest !== true && payload.overwriteOldest !== false)) {
+      errors.push('isPublic should be a string with a value of "true" or "false".');
+    }
+
     if (!payload.raidId || typeof payload.raidId !== 'string') {
       errors.push('Raid ID is required and should be a string.');
     }
@@ -43,6 +47,7 @@ export interface RaidUploadPayload {
   description: string
   uploadToken: string
   isPublic: boolean
+  overwriteOldest: boolean
   raidId: string
   location: string
   timeInRaid: string

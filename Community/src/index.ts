@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { account } from "./controller/account";
 import { raid } from "./controller/raid";
 import { supabaseConnect } from "./controller/supabase";
-import { RaidShareDatafile, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
+import { RaidShareDatafile, RaidUploadPayload, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
 import { generateInterpolatedFramesBezier } from "./utils/interpolation";
 import { MEMBERSHIP_UPLOAD_LIMITS } from "./CONSTANTS";
 
@@ -71,7 +71,7 @@ export default {
 
 						  let payload;
 						  try {
-							  payload = JSON.parse(payloadJson);
+							  payload = JSON.parse(payloadJson) as RaidUploadPayload;
 						  } catch (err) {
 							  return new Response("Invalid JSON in payload", { status: 400 });
 						  }
@@ -82,8 +82,24 @@ export default {
 						  const accountDetails = await account.getAccountByUploadToken(supabase, payload.uploadToken);
 						  if (!accountDetails) return new Response("Invalid token or banned", { status: 400 });
 
-						  const raids = await raid.getUsersRaids(supabase, accountDetails.id, true) as number;
-						  const limit = MEMBERSHIP_UPLOAD_LIMITS[accountDetails.membership];
+						  let raids = await raid.getUsersRaids(supabase, accountDetails.id, true) as number;
+						  let limit = MEMBERSHIP_UPLOAD_LIMITS[accountDetails.membership];
+
+						  // Check if the user has opted to overwrite the oldest raids (i.e. delete the oldest raids to make room for the new one)
+						  if (payload.overwriteOldest) {
+							const numberOfRaidsToDelete = (raids - limit) + 1;
+							const raidDataToDelete = await raid.deleteOldestRaids(supabase, accountDetails.id, numberOfRaidsToDelete);
+							if (raidDataToDelete) {
+								for (let i = 0; i < raidDataToDelete.length; i++) {
+									const raid = raidDataToDelete[i];
+									await env.RAID_REVIEW.delete(raid.storageKey);
+								}
+							}
+
+							// Update the count of raids after deletion
+							raids = raids - numberOfRaidsToDelete;
+						  }
+
 						  if (raids >= limit) return new Response("Upload limit reached", { status: 429 });
 	  
 						  const compressedBuffer = await file.arrayBuffer();

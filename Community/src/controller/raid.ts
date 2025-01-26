@@ -100,6 +100,31 @@ export const raid = {
         }
     },
     
+    deleteOldestRaids: async (supabase: SupabaseClient, accountdId: string, numberOfRaidsToDelete: number): Promise<Raid[] | void> => {
+        
+        try {
+            const { data, error } = await supabase.from('raid').select('*').eq('accountId', accountdId).order('created_at', { ascending: true }).range(0, numberOfRaidsToDelete) as { data: Raid[], error: any };
+
+            if (error) {
+                console.error('Error fetching raids:', error.message);
+                throw error;
+            }
+
+            if (data && data.length > 0) {
+                await supabase.from('raid').delete().in('id', data.map((raid) => raid.id));
+                return data;
+            }
+
+            return [];
+        } 
+        
+        catch (error) {
+            console.error('Unexpected error:', error);
+            throw error;
+        }
+
+    }
+
 };
 
 export interface Raid {
