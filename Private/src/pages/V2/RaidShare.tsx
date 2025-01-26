@@ -102,7 +102,7 @@ export default function RaidShare() {
             if (validationResponse && typeof validationResponse === 'object') {
                 setShowProgress(false);
                 const raidsRemaining = validationResponse.limit - validationResponse.raids;
-                if (raidsRemaining <= 0 && validationResponse.raids < validationResponse.limit) {
+                if (raidsRemaining <= 0 || validationResponse.raids < validationResponse.limit) {
                     setTokenValidity(TOKEN_VALIDITY_MAPPING.VALID_LIMIT_REACHED as number);
 
                     const message = `🟡 Valid Token, but you're out of raids, please delete on or select auto-delete | Upload Count: ${validationResponse.raids}/${validationResponse.limit}`;

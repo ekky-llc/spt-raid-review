@@ -14,12 +14,12 @@ export function validateRaidSharePayload(payload: RaidUploadPayload): string[] {
       errors.push('Upload token is required and should be a string.');
     }
   
-    if (!payload.isPublic || (payload.isPublic !== true && payload.isPublic !== false)) {
-      errors.push('isPublic should be a string with a value of "true" or "false".');
+    if (typeof payload.isPublic !== 'boolean') {
+      errors.push('isPublic should be a boolean with a value of "true" or "false".');
     }
   
-    if (!payload.overwriteOldest || (payload.overwriteOldest !== true && payload.overwriteOldest !== false)) {
-      errors.push('isPublic should be a string with a value of "true" or "false".');
+    if (typeof payload.overwriteOldest !== 'boolean') {
+      errors.push('overwriteOldest should be a boolean with a value of "true" or "false".');
     }
 
     if (!payload.raidId || typeof payload.raidId !== 'string') {
@@ -270,21 +270,11 @@ export interface RaidShareDatafile {
     }>
   }
   positions: {
-    [key: string]: Array<{
-      sessionId: string
-      profileId: string
-      time: number
-      x: number
-      y: number
-      z: number
-      dir: number
-      health: number
-      maxHealth: number
-    }>
+    [key: string]: Array<positionalData>
   }
 }
 
-export interface positonalData {
+export interface positionalData {
     sessionId: string
     profileId: string
     time: number

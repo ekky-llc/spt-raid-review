@@ -1,11 +1,11 @@
 import { gunzip } from "zlib";
 import { promisify } from "util";
-import _ from 'lodash';
+import _, { head } from 'lodash';
 
 import { account } from "./controller/account";
 import { raid } from "./controller/raid";
 import { supabaseConnect } from "./controller/supabase";
-import { RaidShareDatafile, RaidUploadPayload, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
+import { positionalData, RaidShareDatafile, RaidUploadPayload, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
 import { generateInterpolatedFramesBezier } from "./utils/interpolation";
 import { MEMBERSHIP_UPLOAD_LIMITS } from "./CONSTANTS";
 
@@ -115,10 +115,8 @@ export default {
 						  const dataValidationErrors = validateRaidShareDatafile(decompressedData);
 						  if (dataValidationErrors.length > 0) return new Response("Invalid payload", { status: 400 });
 
-						  const r2Key = `raids/${payload.uploadToken}/${file.name.replace('.raidreview', '.json')}`;
-						  await env.RAID_REVIEW.put(r2Key, decompressedBuffer, {
-						       httpMetadata: { contentType: "application/json" },
-						  }); 
+						  const r2Key = `raids/${payload.uploadToken}/${file.name}`;
+						  await env.RAID_REVIEW.put(r2Key, compressedBuffer); 
 
 						  await raid.saveRaid(supabase, payload, accountDetails?.discordUsername, accountDetails?.id, r2Key);
 						  
@@ -151,11 +149,18 @@ export default {
 							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
 							return new Response(null , { status: 204 });
 						}
+						const uncompressed = await gunzipAsync(Buffer.from(await raidDataR2Response.arrayBuffer()));
 
-						const raidDataBundle = await raidDataR2Response?.json() as RaidShareDatafile
+						const raidDataBundle = await JSON.parse(uncompressed.toString()) as RaidShareDatafile
 						const raidData = raidDataBundle.raid;
 						
-						return new Response(JSON.stringify(raidData), { status: 200, headers });
+						return new Response(JSON.stringify(raidData), { 
+							status: 200,  
+							headers: {
+								...headers,
+								"Cache-Control": "public, max-age=3600"
+							}
+						});
 					}
 
 					catch (error) {
@@ -180,13 +185,20 @@ export default {
 							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
 							return new Response(null , { status: 204 });
 						}
+						const uncompressed = await gunzipAsync(Buffer.from(await raidDataR2Response.arrayBuffer()));
 
-						const raidDataBundle = await raidDataR2Response?.json() as RaidShareDatafile
+						const raidDataBundle = await JSON.parse(uncompressed.toString()) as RaidShareDatafile
 						const raidData = raidDataBundle.positions;
 
 						const interpolated = generateInterpolatedFramesBezier(raidData, 5, 24)
 						
-						return new Response(JSON.stringify(interpolated), { status: 200, headers });
+						return new Response(JSON.stringify(interpolated), { 
+							status: 200,  
+							headers: {
+								...headers,
+								"Cache-Control": "public, max-age=3600"
+							}
+						});
 					}
 
 					catch (error) {
@@ -211,13 +223,14 @@ export default {
 							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
 							return new Response(null , { status: 204 });
 						}
+						const uncompressed = await gunzipAsync(Buffer.from(await raidDataR2Response.arrayBuffer()));
 
-						const raidDataBundle = await raidDataR2Response?.json() as RaidShareDatafile
+						const raidDataBundle = await JSON.parse(uncompressed.toString()) as RaidShareDatafile
 						const raidData = raidDataBundle.positions;
 
 						const interpolated = generateInterpolatedFramesBezier(raidData, 5, 24)
 
-						const flattenedData = _.chain(interpolated).valuesIn().flatMapDeep().value();
+						const flattenedData = _.chain(interpolated).valuesIn().flatMapDeep().value() as unknown as positionalData[];
     
 						const points = flattenedData.map(entry => [entry.z, entry.x, 1]);
 						const pointMap = new Map();
@@ -234,7 +247,13 @@ export default {
 				
 						const aggregatedPoints = Array.from(pointMap.values());
 						
-						return new Response(JSON.stringify(aggregatedPoints), { status: 200, headers });
+						return new Response(JSON.stringify(aggregatedPoints), { 
+							status: 200,  
+							headers: {
+								...headers,
+								"Cache-Control": "public, max-age=3600"
+							}
+						});
 					}
 
 					catch (error) {
