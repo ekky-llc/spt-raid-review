@@ -35,8 +35,8 @@ const persist = {
     updateRaidPublicStatus: async function (db, raidId, publicStatus, logger) {
         const raid_update_sql = "UPDATE raid SET public = ? WHERE raidId = ?";
         db.run(raid_update_sql, [
-            raidId, 
-            publicStatus
+            publicStatus,
+            raidId
         ])
         .catch((e: Error) => logger.error(`[SQL_ERR:UPDATE_RAID_PUBLIC_STATUS]`, e));
     },

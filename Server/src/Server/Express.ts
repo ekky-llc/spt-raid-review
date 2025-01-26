@@ -269,7 +269,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             return res.json(data);
         }
 
-        catch(error) {
+        catch (error) {
             persist.updateRaidPublicStatus(db, raidId, false, logger);
             return res.status(204).send(false);
         }
@@ -334,7 +334,9 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             await persist.updateRaidPublicStatus(db, raidId, true, logger);
             
             return res.json(responseJson);
-        } catch (error) {
+        } 
+        
+        catch (error) {
             logger.error(error);
             return res.status(500).json({ error: error.message });
         }

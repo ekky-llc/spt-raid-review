@@ -59,9 +59,9 @@ export default function Raids() {
                                 <td className="text-left p-2">{ r.exitStatus }</td>
                                 <td className="text-left p-2">{ msToHMS(Number(r.timeInRaid)) }</td>
                                 <td className="text-left p-2">{ new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(r.time)) }</td>
-                                <td className="text-left p-2">
+                                <td className="text-left">
                                     { r.imported ? (
-                                        <div className='tooltip'>
+                                        <div className='tooltip mt-1'>
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" width={24} height={24} strokeWidth={2}>
                                                 <path d="M6 10l-2 1l8 4l8 -4l-2 -1" />
                                                 <path d="M4 15l8 4l8 -4" />
@@ -74,7 +74,7 @@ export default function Raids() {
                                         </div>
                                     ) : ''}
                                     { r.public ? (
-                                        <div className='tooltip ml-2'>
+                                        <div className='tooltip ml-2 mt-1'>
                                             <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878" />
                                             </svg>

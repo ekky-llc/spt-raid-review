@@ -141,4 +141,5 @@ export interface ShareRaidPayload {
   description: string
   uploadToken: string
   isPublic: boolean
+  overwriteOldest: boolean
 }

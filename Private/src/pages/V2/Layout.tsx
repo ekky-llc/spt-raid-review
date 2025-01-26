@@ -8,6 +8,9 @@ import { useEffect } from "react";
 
 export async function loader() {
     const config = await api.getConfig();
+
+    document.title = "[PRIVATE] Raid Review"
+
     return { config }
 }
 

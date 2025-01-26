@@ -82,6 +82,10 @@ export default {
 						  const accountDetails = await account.getAccountByUploadToken(supabase, payload.uploadToken);
 						  if (!accountDetails) return new Response("Invalid token or banned", { status: 400 });
 
+						  const raids = await raid.getUsersRaids(supabase, accountDetails.id, true) as number;
+						  const limit = MEMBERSHIP_UPLOAD_LIMITS[accountDetails.membership];
+						  if (raids >= limit) return new Response("Upload limit reached", { status: 429 });
+	  
 						  const compressedBuffer = await file.arrayBuffer();
 						  const decompressedBuffer = await gunzipAsync(Buffer.from(compressedBuffer));  
 
