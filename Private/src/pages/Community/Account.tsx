@@ -39,10 +39,13 @@ export default function Account() {
                         <h1 className='font-bold'>Upload Token</h1>
                     </div>
                     <div className='border border-eft p-2'>
-                        <div className='grid md:grid-cols-[150px_auto] grid-cols-1'>
-                            <p className='font-bold'>Upload Token</p>
-                            <p>{ raidReviewStore.raidReviewAccount?.uploadToken }</p>
+                        <div className="flex flex-col">
+                            <div>
+                                <label className="ml-1" htmlFor="upload_token">Upload Token</label>
+                            </div>
+                            <input readOnly value={raidReviewStore.raidReviewAccount?.uploadToken} className="placeholder-gray-700 bg-black px-2 py-1 border border-eft" type="text" name="upload_token" id="upload_token" placeholder="Upload Token" required />
                         </div>
+                    </div>
                     </div>
                 </div>
 

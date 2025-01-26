@@ -207,7 +207,7 @@ export default function RaidShare() {
                                     </div>
                                     <input readOnly value={`${privateRaidReviewStore?.config?.public_hub_base_url}/raid/${raidId}`} className="placeholder-gray-700 bg-black px-2 py-1 border border-eft" type="text" name="public_hub_link" id="public_hub_link" placeholder="Public Hub Link..." required />
                                 </div>
-                                <a href={`${privateRaidReviewStore?.config?.public_hub_base_url}/raid/${raidId}`} className="py-1 px-4 bg-eft h-full border border-eft w-fit text-sm text-black hover:opacity-75">
+                                <a href={`${privateRaidReviewStore?.config?.public_hub_base_url}/raid/${raidId}`} target="__blank" className="py-1 px-4 bg-eft h-full border border-eft w-fit text-sm text-black hover:opacity-75">
                                     View Listing
                                 </a>
                         </div>
