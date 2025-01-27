@@ -28,7 +28,9 @@ namespace RAID_REVIEW
         {
             try
             {
-                // If in the 'hideout', or 'ballistics tacki
+
+                if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
+
                 if (__instance.LocationId == "hideout" || !RAID_REVIEW.BallisticsTracking.Value) return;
 
                 var hitPlayerId = shotResult?.HittedBallisticCollider?.gameObject?.GetComponentInParent<Player>()?.ProfileId;

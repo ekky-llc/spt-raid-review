@@ -21,8 +21,9 @@ using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.3.1")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.4.0")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.fika.core", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
@@ -36,6 +37,8 @@ namespace RAID_REVIEW
         public static bool WebSocketConnected = false;
         public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
         public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
+        public static bool isFikaRaid = false;
+        public static bool isFikaHost = false;
         public static List<string> RAID_REVIEW__DETECTED_MODS = new List<string>();
         public static Dictionary<string, TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
@@ -63,16 +66,16 @@ namespace RAID_REVIEW
 
         // Other Mods
         public static bool MODS_SEARCHED = false;
-        public static bool SOLARINT_SAIN__DETECTED { get; set; }
+        public static bool SOLARINT_SAIN__DETECTED { get; set; } = false;
         public static object sainBotController { get; set; }
         public static bool searchingForSainComponents = false;
         public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
+        public static bool FIKA__DETECTED { get; set; } = false;
 
         void Awake()
         {
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Mod Loaded");
 
-            // Configuration Bindings
             LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the web client.");
             InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
             RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", true, "Enables notifications as recording starts and ends.");
@@ -88,7 +91,6 @@ namespace RAID_REVIEW
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
             BallisticsTracking = Config.Bind<bool>("Tracking Settings", "Ballistics Tracking", true, "Enables location tracking of ballistics.");
 
-            // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
             RAID_REVIEW_HTTP_Server = (ServerTLS.Value ? "https://" : "http://") + ServerAddress.Value + ":" + ServerHttpPort.Value;
 
@@ -108,13 +110,19 @@ namespace RAID_REVIEW
 
             LoggerInstance.Log = Logger;
 
+            FillDetectedMods();
             StartCoroutine(UpdateCoroutine());
         }
         IEnumerator UpdateCoroutine()
         {
             while (true)
             {
-                if (WebSocketConnected == false) continue;
+
+                if (WebSocketConnected == false || (FIKA__DETECTED && isFikaHost == false))
+                {
+                    yield return new WaitForSeconds(5.0f);
+                    continue;
+                }
                 
                 yield return new WaitForSeconds(1.0f / PlayerTrackingInterval);
 
@@ -262,6 +270,26 @@ namespace RAID_REVIEW
         {
             if (Chainloader.PluginInfos.ContainsKey(modName)) return true;
             return false;
+        }
+
+        /**
+         * Fills the RAID_REVIEW__DETECTED_MODS list with detected mods, using the 'Name' and 'Version' from the plugin metadata.
+         */
+        private void FillDetectedMods()
+        {
+            
+            if (Chainloader.PluginInfos.Count > 0)
+            {
+                foreach (var plugin in Chainloader.PluginInfos)
+                {
+                    if (plugin.Value.Metadata.Name != null && plugin.Value.Metadata.Version != null) {
+                        RAID_REVIEW__DETECTED_MODS.Add(plugin.Value.Metadata.Name + "|" + plugin.Value.Metadata.Version);
+                    } else {
+                        RAID_REVIEW__DETECTED_MODS.Add(plugin.Value.Metadata.Name + "|UNKNOWN");
+                    }
+                }
+            }
+
         }
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;
 

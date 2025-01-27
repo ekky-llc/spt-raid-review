@@ -23,6 +23,9 @@ namespace RAID_REVIEW
         [PatchPostfix]
         private static void PatchPostFix(ref GameWorld __instance)
         {
+
+            if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
+
             try
             {
                 if (__instance.LocationId == "hideout") return;

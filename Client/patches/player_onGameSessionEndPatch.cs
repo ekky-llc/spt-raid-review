@@ -23,6 +23,8 @@ namespace RAID_REVIEW
 
             if (locationId == "hideout") return;
 
+            if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
+
             try { 
                 Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Completed, Saving Tracking Data");
 

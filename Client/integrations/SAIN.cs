@@ -17,6 +17,9 @@ namespace RAID_REVIEW
         public static async Task CheckForSainComponents(bool endCheck = false)
         {
             if(!RAID_REVIEW.SOLARINT_SAIN__DETECTED) return;
+
+            if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
+
             try
             {
 
