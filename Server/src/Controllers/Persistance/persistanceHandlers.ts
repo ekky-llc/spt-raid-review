@@ -1,6 +1,7 @@
+import { IRaidPayload } from "@spt/raidreview/ws";
 
 const persist = {
-    startRaid: async function (db, raidId, payload_object, logger) {
+    startRaid: async function (db, raidId, payload_object: IRaidPayload, logger) {
         const start_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, type, exitName, exitStatus, detectedMods, imported) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         db.run(start_raid_sql, [
             raidId,
@@ -16,7 +17,7 @@ const persist = {
         ]).catch((e: Error) => logger.error(`[SQL_ERR:START_RAID]`, e));
     },
 
-    endRaid: async function (db, raidId, payload_object, logger) {
+    endRaid: async function (db, raidId, payload_object: IRaidPayload, logger) {
         const end_raid_sql = `INSERT INTO raid (raidId, profileId, location, time, timeInRaid, type, exitName, exitStatus, detectedMods, imported) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         db.run(end_raid_sql, [
             raidId,

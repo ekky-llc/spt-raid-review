@@ -14,6 +14,8 @@ import { ProfileHelper } from '@spt/helpers/ProfileHelper'
 import { LocaleService } from '@spt/services/LocaleService'
 
 import config from '../config.json'
+import { WebSocketConfig } from './constant'
+
 import WebServer from './Server/Express'
 import { database } from './Database/sqlite'
 import { MigratePositionsStructure } from './Controllers/PositionalData/PositionsMigration'
@@ -24,8 +26,8 @@ import CompileRaidPositionalData from './Controllers/PositionalData/CompileRaidP
 import { errorPacketHandler, messagePacketHandler } from './Controllers/PacketHandler/packetHandler'
 import { SessionManager } from './Controllers/StateManagers/sessionManager'
 import { ModDetector } from './Controllers/Integrations/modDetection'
-import { WebSocketConfig } from './constant'
 import { Logger } from './Utils/logger'
+import { IFikaRaidCreateRequestData } from '@spt/fika/fika'
 
 class Mod implements IPreSptLoadMod, IPostSptLoadMod {
     saveServer: SaveServer
@@ -82,7 +84,90 @@ class Mod implements IPreSptLoadMod, IPostSptLoadMod {
                 }
             ],
             'aki'
-        )
+        );
+
+        staticRouterModService.registerStaticRouter(
+            'GetFikaRaidInfo',
+            [
+                {
+                    url: '/raid/create',
+                    action: async (_url: string, info: IFikaRaidCreateRequestData, sessionId: string, output: string): Promise<string> => {
+
+                        let player = this.sessionManager.getProfile(sessionId);
+                        if (!player) return;
+
+                        const raidId = crypto.randomUUID();
+                        player.raidId = raidId;
+
+                        const players = new Map<string, string>();
+                        players.set(sessionId, player.profile.info.id);
+
+                        this.sessionManager.addRaid(raidId, { 
+                            players, 
+                            raidId: raidId, 
+                            timeout: 0, 
+                            isFikaRaid: true, 
+                            fikaRaidCode: info.raidCode, 
+                            fikaRaidHost: player.profile.info.id
+                        });
+
+                        this.wss.emit('FIKA_RR_RAID_CREATE', JSON.stringify({ type: 'FIKA_RR_RAID_CREATE', data: { sessionId, players: Array.from(players.values()) } }));
+
+                        return output;
+                    }
+                },
+                {
+                    url: '/raid/join',
+                    action: async (_url: string, info: IFikaRaidCreateRequestData, sessionId: string, output: string): Promise<string> => {
+                        let player = this.sessionManager.getProfile(sessionId);
+                        if (!player) return;
+
+                        const raid = this.sessionManager.getRaidByFikaRaidCode(info.raidCode);
+                        raid.players.set(sessionId, player.profile.info.id);
+                        
+                        player.raidId = raid.raidId;
+
+                        this.wss.emit('FIKA_RR_RAID_JOIN', JSON.stringify({ type: 'FIKA_RR_RAID_JOIN', data: { sessionId, players: Array.from(raid.players.values())} }));
+
+                        return output;
+                    }
+                },
+                {
+                    url: '/raid/leave',
+                    action: async (_url: string, info: IFikaRaidCreateRequestData, sessionId: string, output: string): Promise<string> => {
+                        let player = this.sessionManager.getProfile(sessionId);
+                        if (!player) return;
+
+                        player.raidId = null;
+
+                        const raid = this.sessionManager.getRaidByFikaRaidCode(info.raidCode);
+                        raid.players.delete(sessionId);
+                        if (raid.players.size === 0) {
+                            this.sessionManager.removeRaid(info.raidCode, 'raid_end');
+                            this.wss.emit('FIKA_RR_RAID_END', JSON.stringify({ type: 'FIKA_RR_RAID_END', data: { sessionId, } }));
+                        } 
+                        
+                        else {
+                            this.wss.emit('FIKA_RR_RAID_LEAVE', JSON.stringify({ type:'FIKA_RR_RAID_LEAVE', data: { sessionId, players: Array.from(raid.players.values()) } }));
+                        }
+
+                        return output;
+                    }
+                },{
+                    url: '/update/ping',
+                    action: async (url: string, _info: { serverId: string }, sessionId: string, output: string): Promise<string> => {
+                        let player = this.sessionManager.getProfile(sessionId);
+                        if (!player) return;
+
+                        this.sessionManager.pingProfile(sessionId);
+                        this.sessionManager.pingRaid(player.raidId);
+
+                        return output;
+                    }
+                }
+            ],
+            'fika'
+        );
     }
 
     public async postSptLoad(container: DependencyContainer): Promise<void> {
@@ -151,7 +236,6 @@ class Mod implements IPreSptLoadMod, IPostSptLoadMod {
             ws.on('error', errorPacketHandler)
             ws.on('message', (data: RawData) => messagePacketHandler(data, this.database, this.sessionManager, this.modDetector, this.logger, profiles, post_raid_processing))
         })
-
         this.logger.log(`Websocket Server Listening on 'ws://${config.server_base_url}:${config.web_socket_port}'.`)
 
         WebServer(this.saveServer, this.profileHelper, this.database, this.intl, this.logger)

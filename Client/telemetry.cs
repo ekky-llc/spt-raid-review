@@ -8,6 +8,7 @@ using BepInEx.Logging;
 using Comfort.Common;
 using EFT.Communications;
 using EFT.UI;
+using Newtonsoft.Json.Linq;
 
 namespace RAID_REVIEW
 {
@@ -34,6 +35,65 @@ namespace RAID_REVIEW
 
             ws.OnMessage += (sender, e) =>
             {
+
+                var root_payload = JObject.Parse(e.Data);
+                var payload = root_payload["data"];
+                switch (root_payload["type"].ToString())
+                {
+                    case "FIKA_RR_RAID_CREATE":
+                        if (payload["sessionId"].ToString() == RAID_REVIEW.sessionId) {
+                            RAID_REVIEW.isFikaHost = true;
+                            RAID_REVIEW.isFikaRaid = true;
+                            NotificationManagerClass.DisplayMessageNotification("Raid Review: You are FIKA Host | Telemetry Enabled", ENotificationDurationType.Long);
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Created");
+                        } 
+                        
+                        else {
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Created by another player");
+                        }
+                        break;
+
+                    case "FIKA_RR_RAID_JOIN":
+                        if (payload["sessionId"].ToString() == RAID_REVIEW.sessionId && !RAID_REVIEW.isFikaHost) {
+                            RAID_REVIEW.isFikaHost = false;
+                            RAID_REVIEW.isFikaRaid = true;
+                            NotificationManagerClass.DisplayMessageNotification("Raid Review: You are in FIKA Raid", ENotificationDurationType.Long);
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Joined");
+                        } 
+                        
+                        else {
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Joined by another player");
+                        }
+                        break;
+
+                    case "FIKA_RR_RAID_LEAVE":
+                        if (payload["sessionId"].ToString() == RAID_REVIEW.sessionId && !RAID_REVIEW.isFikaHost && RAID_REVIEW.isFikaRaid) {
+                            RAID_REVIEW.isFikaHost = false;
+                            RAID_REVIEW.isFikaRaid = false;
+                            NotificationManagerClass.DisplayMessageNotification("Raid Review: You are no longer FIKA Host", ENotificationDurationType.Long);
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Left");
+                        }
+
+                        else {
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Left by another player");
+                        }
+                        break;
+
+                    case "FIKA_RR_RAID_END":
+                        if (payload["sessionId"].ToString() == RAID_REVIEW.sessionId && RAID_REVIEW.isFikaHost && RAID_REVIEW.isFikaRaid) {
+                            RAID_REVIEW.isFikaHost = false;
+                            RAID_REVIEW.isFikaRaid = false;
+                            NotificationManagerClass.DisplayMessageNotification("Raid Review: You are no longer FIKA Host", ENotificationDurationType.Long);
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Ended");
+                        }
+
+                        else {
+                            Logger.LogInfo("[RAID-REVIEW] FIKA Raid Ended by another player");
+                        }
+
+                        break;
+                }
+
                 Logger.LogInfo("[RAID-REVIEW] Received message: " + e.Data);
             };
 

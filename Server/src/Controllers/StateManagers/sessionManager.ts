@@ -8,6 +8,9 @@ export interface SessionManagerRaid {
     raidId: string
     players: Map<string, string>
     timeout: number
+    isFikaRaid: boolean
+    fikaRaidCode?: string
+    fikaRaidHost?: string
 }
 
 export type SessionManagerPlayerMap = Map<string, ISptProfile>
@@ -149,6 +152,12 @@ export class SessionManager {
 
     getRaid(raidId: string): SessionManagerRaid {
         return this.raids.get(raidId)
+    }
+
+    getRaidByFikaRaidCode(fikaRaidCode: string): SessionManagerRaid {
+        const raids = Array.from(this.raids.values())
+        const match = raids.find(raid => raid.fikaRaidCode === fikaRaidCode);
+        return match;
     }
 
     pingRaid(raidId: string): void {

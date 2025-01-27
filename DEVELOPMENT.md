@@ -6,7 +6,7 @@ This guide will help you get started if you want to contribute to the project or
 
 - Visual Studio 2022
 - Visual Studio Code
-- NodeJS v18.17.0
+- NodeJS v20.15.1
 - Escape From Tarkov
 - SPT Installation
 

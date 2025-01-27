@@ -18,7 +18,7 @@ export default function Account() {
         <>
             <h1 className='mt-4 font-bold mb-1'>My Account</h1>
             <div className='border border-eft text-eft p-4 grid gap-4'>
-                {raidReviewStore.discordAccount !== null && (
+                { raidReviewStore.discordAccount !== null && (
                     <div>
                         <div className='bg-[#9a8866] text-black px-2'>
                             <h1 className='font-bold'>Discord Details</h1>
@@ -45,7 +45,6 @@ export default function Account() {
                             </div>
                             <input readOnly value={raidReviewStore.raidReviewAccount?.uploadToken} className="placeholder-gray-700 bg-black px-2 py-1 border border-eft" type="text" name="upload_token" id="upload_token" placeholder="Upload Token" required />
                         </div>
-                    </div>
                     </div>
                 </div>
 

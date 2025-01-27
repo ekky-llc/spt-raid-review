@@ -87,7 +87,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         // Create Player Map, and register raid
                         const players = new Map<string, string>();
                         players.set(payload_object.sessionId, sessionManagerProfile.profile.info.id);
-                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });  
+                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0, isFikaRaid: true });  
                     }
 
                     // SPT Raid Start Handler
@@ -104,7 +104,7 @@ async function messagePacketHandler(rawData: RawData, db: Database<sqlite3.Datab
                         // Create Player Map, and register raid
                         const players = new Map<string, string>();
                         players.set(payload_object.sessionId, sessionManagerProfile.profile.info.id);
-                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0 });    
+                        sessionManager.addRaid(raidId, { raidId, players, timeout: 0, isFikaRaid: false });    
                     }
                     
                     logger.debug(`[START:RAIDS] ` +  JSON.stringify(Array.from(sessionManager.getRaids().entries())));
