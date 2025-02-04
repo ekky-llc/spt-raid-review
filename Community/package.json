@@ -20,6 +20,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.47.16",
     "bezier-js": "^6.1.4",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "stripe": "^17.6.0"
   }
 }

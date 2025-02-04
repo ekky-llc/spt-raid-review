@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import stripe from 'stripe';
 
 export const account = {
     getAccount: async function(supabase: SupabaseClient, discordId: string): Promise<Account | undefined | void> {
@@ -75,6 +76,18 @@ export const account = {
             throw err;
         }
     },
+
+    updateSubscriptionStatus: async function(supabase: SupabaseClient, stripeSubscription: stripe.Subscription): Promise<void> {
+
+        const { data: [ customer ] } = await supabase.from('account').select('*').eq('id', stripeSubscription.metadata.accountId) as { data: Account[], error: any };
+        if (stripeSubscription.status === 'active') {
+            await supabase.from('account').update({ membership: 2, stripe_customer_id: stripeSubscription.customer, stripe_subscrption_id: stripeSubscription.id }).eq('id', customer.id);
+        } 
+        
+        else {
+            await supabase.from('account').update({ membership: 1 }).eq('id', customer.id);
+        }
+    }
 };
 
 export interface DiscordAccount {
@@ -113,5 +126,7 @@ export interface Account {
     isActive: boolean, 
     isBanned: boolean, 
     membership: number,
+    stripe_customer_id: string,
+    stripe_subscription_id: string,
     created_at: Date
 }

@@ -3,5 +3,8 @@
 interface Env {
     SUPABASE_URL: string;
     SUPABASE_KEY: string;
-    RAID_REVIEW: R2Bucket
+    STRIPE_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+    ENVIRONMENT: string;
+    RAID_REVIEW: R2Bucket;
 }

@@ -1,6 +1,7 @@
 import { gunzip } from "zlib";
 import { promisify } from "util";
-import _, { head } from 'lodash';
+import * as _ from 'lodash';
+import stripe from 'stripe'
 
 import { account } from "./controller/account";
 import { raid } from "./controller/raid";
@@ -13,6 +14,9 @@ const gunzipAsync = promisify(gunzip);
 
 export default {
 	async fetch(request, env: Env, ctx): Promise<Response> {
+
+		const ROOT_DOMAIN = env.ENVIRONMENT === 'development' ? 'http://localhost:5173' : 'https://raid-review.online';
+		const stripeClient = new stripe(env.STRIPE_KEY);
 		const url = new URL(request.url);
 		const path = url.pathname;
 
@@ -322,6 +326,102 @@ export default {
 					return new Response(JSON.stringify(data), {
 						headers
 					});
+				},
+			},
+
+			// Membership Endpoints
+			{
+				method: 'POST',
+				human: '/api/v1/membership/create-checkout-session',
+				pattern: /^\/api\/v1\/membership\/create-checkout-session/,
+				handler: async (params) => {
+
+					const formData = await request.formData();
+					const account_id = formData.get('account_id') as string;
+					const lookup_key = formData.get('lookup_key') as string;
+					if (!lookup_key || !account_id) {
+						return Response.redirect(`${ROOT_DOMAIN}/my-account`, 303)
+					}
+
+					const prices = await stripeClient.prices.list({
+						lookup_keys: [ lookup_key ],
+						expand: [ 'data.product' ],
+					});
+
+					const session = await stripeClient.checkout.sessions.create({
+						billing_address_collection: 'auto',
+						line_items: [
+							{
+								price: prices.data[0].id,
+								quantity: 1,
+							},
+						],
+						metadata: {
+							account_id
+						},
+						mode: 'subscription',
+						success_url: `${ROOT_DOMAIN}/my-account/upgrade?success=true&session_id={CHECKOUT_SESSION_ID}`,
+						cancel_url: `${ROOT_DOMAIN}/my-account/upgrade?canceled=true`,
+					});
+
+					return Response.redirect(session.url as string, 303);
+				},
+			},
+			{
+				method: 'POST',
+				human: '/api/v1/membership/create-portal-session',
+				pattern: /^\/api\/v1\/membership\/create-portal-session/,
+				handler: async (params) => {
+					const formData = await request.formData();
+					const discord_id = formData.get('discord_id');
+					const accountData = await account.getAccount(supabase, discord_id as string);
+
+					if (!discord_id || !accountData) {
+						return Response.redirect(`${ROOT_DOMAIN}/my-account`, 303)
+					}
+
+					const portalSession = await stripeClient.billingPortal.sessions.create({
+						customer: accountData?.stripe_customer_id as string,
+						return_url: 'https://yourwebsite.com/account',
+					});
+
+					return Response.redirect(portalSession.url as string, 303);
+				},
+			},
+			{
+				method: 'POST',
+				human: '/api/v1/membership/webhook',
+				pattern: /^\/api\/v1\/membership\/webhook/,
+				handler: async (params) => {
+
+					const sig = request.headers.get("stripe-signature") as string;
+
+					let event;
+					try {
+						event = await stripeClient.webhooks.constructEventAsync(
+							await request.text(),
+							sig,
+							env.STRIPE_WEBHOOK_SECRET
+						) as stripe.Event;
+					} 
+					
+					catch (err: any) {
+						console.error(`Webhook signature verification failed.`, err.message);
+						return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+					}
+
+					switch (event.type) {
+						case 'customer.subscription.created':
+						case 'customer.subscription.updated':
+						case 'customer.subscription.deleted':
+							const subscription = event.data.object;
+							await account.updateSubscriptionStatus(supabase, subscription);
+							break;
+						default:
+							console.warn(`Unhandled event type ${event.type}`);
+					}
+
+					return new Response(JSON.stringify({ received: true }), { status: 200 });
 				},
 			}
 		];

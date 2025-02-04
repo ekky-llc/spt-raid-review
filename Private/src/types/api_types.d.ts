@@ -133,6 +133,9 @@ export interface RaidReviewAccount {
     uploadToken: string
     isActive: boolean
     isBanned: boolean
+    membership: number
+    stripe_customer_id: string
+    stripe_subscrption_id: string
     created_at: string
 }
 

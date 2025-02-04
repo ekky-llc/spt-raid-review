@@ -3,6 +3,9 @@ import { useRaidReviewCommunityStore } from '../../store/community'
 import './Account.css'
 import { useNavigate } from 'react-router'
 
+const isDev = window.location.hostname.includes('localhost');
+const rootDomain = isDev ? 'http://localhost:8787' : 'https://raid-review.online';
+
 export default function Account() {
     const navigator  = useNavigate();
 
@@ -47,6 +50,44 @@ export default function Account() {
                         </div>
                     </div>
                 </div>
+
+                { raidReviewStore.raidReviewAccount !== null && (
+                    <div>
+                        <div className='bg-[#9a8866] text-black px-2'>
+                            <h1 className='font-bold'>Membership</h1>
+                        </div>
+
+                        { raidReviewStore.raidReviewAccount.membership === 1 ? (
+                            <div className='border border-eft p-2'>
+                                <div className="flex flex-col">
+                                    <form action={`${rootDomain}/api/v1/membership/create-checkout-session?accountId=${encodeURIComponent(raidReviewStore?.raidReviewAccount?.id as string)}`} method="POST">
+                                        <input type="hidden" name="lookup_key" value="Raid_Review_Premium-c45b658" />
+                                        <button id="checkout-and-portal-button" className="py-2 px-4 bg-eft text-black hover:opacity-75" type="submit">
+                                            Upgrade for $1/Month
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className='border border-eft p-2'>
+                                <div className="flex flex-col">
+                                    <form action={`${rootDomain}/api/v1/membership/create-portal-session`} method="POST">
+                                        <input
+                                            type="hidden"
+                                            id="discord_id"
+                                            name="discord_id"
+                                            value={raidReviewStore.raidReviewAccount.discordId}
+                                        />
+                                        <button id="checkout-and-portal-button" className="py-2 px-4 bg-eft text-black hover:opacity-75" type="submit">
+                                            Manage Subscription
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+                )}
 
                 <div>
                     <div className='bg-[#9a8866] text-black px-2'>
