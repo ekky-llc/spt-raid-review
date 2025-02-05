@@ -54,24 +54,47 @@ export default function Account() {
                 { raidReviewStore.raidReviewAccount !== null && (
                     <div>
                         <div className='bg-[#9a8866] text-black px-2'>
-                            <h1 className='font-bold'>Membership</h1>
+                            <h1 className='font-bold'>Upgrade/Membership</h1>
                         </div>
 
                         { raidReviewStore.raidReviewAccount.membership === 1 ? (
                             <div className='border border-eft p-2'>
                                 <div className="flex flex-col">
+                                    <p className='mb-4'>Want to upload more raids?</p>
                                     <form action={`${rootDomain}/api/v1/membership/create-checkout-session`} method="POST">
                                         <input type="hidden" name="account_id" value={raidReviewStore?.raidReviewAccount?.id} />
                                         <input type="hidden" name="lookup_key" value="Raid_Review_Premium-c45b658" />
-                                        <button id="checkout-and-portal-button" className="py-2 px-4 bg-eft text-black hover:opacity-75" type="submit">
+                                        <button id="checkout-and-portal-button" className="ml-4 py-2 px-12 bg-eft text-black hover:opacity-75" type="submit">
                                             Upgrade for $1/Month
                                         </button>
                                     </form>
+                                    <div>
+                                        <p className='mt-4'>By upgrading you will increase your upload limit from 1 to 30 Raids (or rather increase your storage limit from ~50MB to ~1GB).</p>
+                                        <p className="mt-2">This is how I'd allocate your $1 per month:</p>
+                                        <ul className='ml-8 mt-2 bg-eft text-black p-2 px-4 w-fit'>
+                                            <li className="grid grid-cols-[125px_75px_auto]">
+                                                <strong>Raid Data</strong> $0.20 <span>Cost to store your raid data</span>
+                                            </li>
+                                            <li className="grid grid-cols-[125px_75px_auto]">
+                                                <strong>Asset Data</strong> $0.20 <span>Storage of Map Assets</span>
+                                            </li>
+                                            <li className="grid grid-cols-[125px_75px_auto]">
+                                                <strong>Processing</strong> $0.40 <span>Server rental for producing replays/heatmaps</span>
+                                            </li>
+                                            <li className="grid grid-cols-[125px_75px_auto]">
+                                                <strong>Development</strong> $0.20 <span>Features/bug fixes</span>
+                                            </li>
+                                        </ul>
+                                        <p className="mt-2">I hope that this breakdown explains that I'm not trying to "profit" from this project, and just trying to cover costs.</p>
+                                                                            
+                                    </div>
                                 </div>
                             </div>
                         ) : (
                             <div className='border border-eft p-2'>
                                 <div className="flex flex-col">
+                                    <p>🤝🏾 Thank you for supporting the project, even if it's just a little bit, and hey, you get a little more storage at the same time!</p>
+                                    <p className='mt-4'>You can view or cancel your subscription by clicking the button below!</p>
                                     <form action={`${rootDomain}/api/v1/membership/create-portal-session`} method="POST">
                                         <input
                                             type="hidden"

@@ -79,18 +79,28 @@ export const account = {
 
     updateSubscriptionStatus: async function(supabase: SupabaseClient, stripeEvent: string, stripePayload: stripe.Subscription | stripe.Invoice): Promise<void> {
 
-        if (stripeEvent === 'invoice.payment_failed') {
-            await supabase.from('account').update({ membership: 1 }).eq('stripe_customer_id', stripePayload.customer);
-            return;
-        }
+        try {
 
-        const { data: [ customer ] } = await supabase.from('account').select('*').eq('id', stripePayload?.metadata?.accountId) as { data: Account[], error: any };
-        if (stripePayload.status === 'active') {
-            await supabase.from('account').update({ membership: 2, stripe_customer_id: stripePayload.customer, stripe_subscrption_id: stripePayload.id }).eq('id', customer.id);
+            console.log(`INFO --- Processing information for 'STRIPE_CUSTOMER_ID:${stripePayload.customer}|RAID_REVIEW_ID:${stripePayload?.metadata?.account_id}'.`)
+            if (stripeEvent === 'invoice.payment_failed') {
+                console.log(`INFO --- Updating Membership to '1' due to 'invoice.failed_payment'.`)
+                await supabase.from('account').update({ membership: 1 }).eq('stripe_customer_id', stripePayload.customer).select();
+                return;
+            }
+            
+            if (stripePayload.status === 'active') {
+                console.log(`INFO --- Updating Membership to '2' due to 'customer.subscrption.created' OR 'customer.subscrption.updated'.`)
+                await supabase.from('account').update({ membership: 2, stripe_customer_id: stripePayload.customer, stripe_subscription_id: stripePayload.id }).eq('id', stripePayload?.metadata?.account_id);
+            } 
+            
+            else {
+                console.log(`INFO --- Updating Membership to '1' due to 'customer.subscrption.deleted'.`)
+                await supabase.from('account').update({ membership: 1 }).eq('id', stripePayload?.metadata?.account_id).select();
+            }
         } 
         
-        else {
-            await supabase.from('account').update({ membership: 1 }).eq('id', customer.id);
+        catch (error) {
+            console.log(`ERROR - There was an error updating the membership for 'STRIPE_CUSTOMER_ID:${stripePayload.customer}|RAID_REVIEW_ID:${stripePayload?.metadata?.account_id}'.`)
         }
     }
 };
