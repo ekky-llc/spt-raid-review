@@ -1,7 +1,7 @@
 import { DiscordAccount, RaidReviewAccount, TrackingRaidData } from "../types/api_types";
 
 let isDev = window.location.host.includes("517");
-let hostname = isDev ? 'http://127.0.0.1:8787' : '';
+let hostname = isDev ? '' : '';
 
 const community_api = {
 
@@ -113,11 +113,19 @@ const community_api = {
         }
     },
 
+    logout: async function() : Promise<void>  {
+        try {
+            await fetch(`${hostname}/api/v1/auth/logout`);
+        } 
+        
+        catch (error) {
+            console.error(error);
+        }
+    },
+
     verify: async function() : Promise<null | { discordAccount: DiscordAccount, raidReviewAccount: RaidReviewAccount }>  {
         try {
-            const response = await fetch(`${hostname}/api/v1/auth/verify`,{
-                method: 'POST'
-            });
+            const response = await fetch(`${hostname}/api/v1/auth/verify`);
             const data = response.json();
 
             if (response.status === 204) {

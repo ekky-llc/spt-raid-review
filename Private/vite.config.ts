@@ -13,6 +13,14 @@ export default defineConfig(() => {
         : '../Server/src/Server/public',
       emptyOutDir: true,
     },
+    server: isCommunity && {
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8787',
+          changeOrigin: true
+        }
+      }
+    },
     define: {
       'import.meta.env.VITE_COMMUNITY': JSON.stringify(isCommunity),
     },

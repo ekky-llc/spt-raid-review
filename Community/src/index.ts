@@ -269,9 +269,9 @@ export default {
 
 			// Auth Endpoints
 			{
-				method: 'GET',
+				method: 'POST',
 				human: '/api/v1/auth/login',
-				pattern: /^\/api\/v1\/auth\/login/,
+				pattern: /^\/api\/v1\/auth\/login$/,
 				handler: async (params) => {
 
 					const payload = await request.json() as { accessToken: string };
@@ -301,8 +301,8 @@ export default {
 						throw `'Error fetching raid review account: Invalid id, or account does not exist.'`;
 					}
 
-					const newCookie = `$session_token=${payload.accessToken}; path=/; secure; HttpOnly; SameSite=Strict`
-					const response = new Response(JSON.stringify({ discordAccount: userData, raidreviewAccount: raidReviewAccount }), {
+					const newCookie = `session_token=${payload.accessToken}; path=/; ${env.ENVIRONMENT !== 'development' && 'secure; HttpOnly;'} SameSite=Strict;`
+					const response = new Response(JSON.stringify({ discordAccount: userData, raidReviewAccount: raidReviewAccount }), {
 						headers
 					});
 					response.headers.set("Set-Cookie", newCookie)
@@ -313,7 +313,7 @@ export default {
 			{
 				method: 'GET',
 				human: '/api/v1/auth/verify',
-				pattern: /^\/api\/v1\/auth\/verify/,
+				pattern: /^\/api\/v1\/auth\/verify$/,
 				handler: async (params) => {
 
 					const cookieString = request.headers.get("Cookie") as string;
@@ -337,7 +337,7 @@ export default {
 						throw `'Error fetching raid review account: Invalid id, or account does not exist.'`;
 					}
 
-					return new Response(JSON.stringify({ discordAccount: userData, raidreviewAccount: raidReviewAccount }), {
+					return new Response(JSON.stringify({ discordAccount: userData, raidReviewAccount: raidReviewAccount }), {
 						headers
 					});
 				}
@@ -345,13 +345,13 @@ export default {
 			{
 				method: 'GET',
 				human: '/api/v1/auth/logout',
-				pattern: /^\/api\/v1\/auth\/logout/,
+				pattern: /^\/api\/v1\/auth\/logout$/,
 				handler: async (params) => {
 
 					const response = new Response(JSON.stringify({ message: 'OK' }), {
 						headers
 					});
-					response.headers.set("Set-Cookie", "session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict");
+					response.headers.set("Set-Cookie", `session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; ${env.ENVIRONMENT !== 'development' && 'secure; HttpOnly;'} SameSite=Strict`);
 
 					return response;
 				}

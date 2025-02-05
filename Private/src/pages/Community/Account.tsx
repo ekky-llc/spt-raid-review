@@ -12,7 +12,7 @@ export default function Account() {
     const raidReviewStore = useRaidReviewCommunityStore(s => s)
 
     useEffect(() => {
-        if (raidReviewStore.discordToken === null) {
+        if (raidReviewStore.discordAccount === null && raidReviewStore.raidReviewAccount === null) {
             navigator('/')
         }
     }, [])

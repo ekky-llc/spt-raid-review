@@ -4,25 +4,40 @@ import GlobalSpinner from "../../component/GlobalSpinner";
 
 import './Layout.css'
 import { useRaidReviewCommunityStore } from "../../store/community";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { community_api } from "../../api/community_api";
 
 export default function CommunityHome() {
     const navigation = useNavigation();
     const raidReviewStore = useRaidReviewCommunityStore(s => s);    
 
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
         document.title = `Raid Review Community Hub`;
         
-        (async () => {
-            const data = await community_api.verify();
-            if (data) {
-                raidReviewStore.discordAccount = data.discordAccount;
-                raidReviewStore.raidReviewAccount = data.raidReviewAccount;
-            }
-        })
+        if (raidReviewStore.discordAccount || raidReviewStore.raidReviewAccount) return;
 
-    },[])
+        (async () => {
+            try {
+                
+                const data = await community_api.verify();
+                if (data) {
+                    raidReviewStore.setDiscordAccount(data.discordAccount);
+                    raidReviewStore.setRaidReviewAccount(data.raidReviewAccount)
+                }
+            } 
+            
+            catch (error) {
+                console.error(error)
+            }
+
+            finally {
+                setIsLoading(false);
+            }
+        })()
+
+    }, [raidReviewStore.discordAccount, raidReviewStore.raidReviewAccount])
 
     const isDev = window.location.host.includes("localhost");
     const authLink = isDev ?
@@ -40,7 +55,8 @@ export default function CommunityHome() {
                     </NavLink>
                 </div>
                 <ul className="text-black flex md:justify-end justify-center">
-                    { raidReviewStore.discordAccount && raidReviewStore.discordToken ? ( 
+
+                    { isLoading ? '' : raidReviewStore.discordAccount && raidReviewStore.raidReviewAccount ? ( 
                         <>
                             { window.location.pathname.match(/my-account/gi) ? (
                                 <li className="text-base h-full hover:bg-black/20">
