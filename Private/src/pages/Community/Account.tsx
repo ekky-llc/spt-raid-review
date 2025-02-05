@@ -63,7 +63,7 @@ export default function Account() {
                                     <p className='mb-4'>Want to upload more raids?</p>
                                     <form action={`${rootDomain}/api/v1/membership/create-checkout-session`} method="POST">
                                         <input type="hidden" name="account_id" value={raidReviewStore?.raidReviewAccount?.id} />
-                                        <input type="hidden" name="lookup_key" value="Raid_Review_Premium-c45b658" />
+                                        <input type="hidden" name="lookup_key" value="raid_review_premium" />
                                         <button id="checkout-and-portal-button" className="ml-4 py-2 px-12 bg-eft text-black hover:opacity-75" type="submit">
                                             Upgrade for $1/Month
                                         </button>
