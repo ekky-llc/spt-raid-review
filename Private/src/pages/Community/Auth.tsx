@@ -22,12 +22,12 @@ const Auth: React.FC = () => {
 
         try {
 
-              const discordResponse = await axios.get('https://discord.com/api/v10/users/@me', {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              });
-              const discordData = discordResponse.data as DiscordAccount;
+              const discordResponse = await community_api.login(accessToken);
+              if (!discordResponse) {
+                throw Error(`Invalid access token`)
+              }
+
+              const discordData = discordResponse.discordAccount as DiscordAccount;
               raidReviewStore.setDiscordAccount(discordData);
 
               // Get the users Raid Review data

@@ -5,16 +5,26 @@ import GlobalSpinner from "../../component/GlobalSpinner";
 import './Layout.css'
 import { useRaidReviewCommunityStore } from "../../store/community";
 import { useEffect } from "react";
+import { community_api } from "../../api/community_api";
 
 export default function CommunityHome() {
     const navigation = useNavigation();
     const raidReviewStore = useRaidReviewCommunityStore(s => s);    
 
     useEffect(() => {
-        document.title = `Raid Review Community Hub`
+        document.title = `Raid Review Community Hub`;
+        
+        (async () => {
+            const data = await community_api.verify();
+            if (data) {
+                raidReviewStore.discordAccount = data.discordAccount;
+                raidReviewStore.raidReviewAccount = data.raidReviewAccount;
+            }
+        })
+
     },[])
 
-    const isDev = window.location.host.includes("517");
+    const isDev = window.location.host.includes("localhost");
     const authLink = isDev ?
     "https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&scope=identify" :
     "https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=https%3A%2F%2Fcommunity.raid-review.online%2Fauth&scope=identify";

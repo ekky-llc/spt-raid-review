@@ -60,7 +60,8 @@ export default function Account() {
                         { raidReviewStore.raidReviewAccount.membership === 1 ? (
                             <div className='border border-eft p-2'>
                                 <div className="flex flex-col">
-                                    <form action={`${rootDomain}/api/v1/membership/create-checkout-session?accountId=${encodeURIComponent(raidReviewStore?.raidReviewAccount?.id as string)}`} method="POST">
+                                    <form action={`${rootDomain}/api/v1/membership/create-checkout-session`} method="POST">
+                                        <input type="hidden" name="account_id" value={raidReviewStore?.raidReviewAccount?.id} />
                                         <input type="hidden" name="lookup_key" value="Raid_Review_Premium-c45b658" />
                                         <button id="checkout-and-portal-button" className="py-2 px-4 bg-eft text-black hover:opacity-75" type="submit">
                                             Upgrade for $1/Month

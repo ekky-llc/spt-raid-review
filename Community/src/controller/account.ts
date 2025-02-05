@@ -77,11 +77,16 @@ export const account = {
         }
     },
 
-    updateSubscriptionStatus: async function(supabase: SupabaseClient, stripeSubscription: stripe.Subscription): Promise<void> {
+    updateSubscriptionStatus: async function(supabase: SupabaseClient, stripeEvent: string, stripePayload: stripe.Subscription | stripe.Invoice): Promise<void> {
 
-        const { data: [ customer ] } = await supabase.from('account').select('*').eq('id', stripeSubscription.metadata.accountId) as { data: Account[], error: any };
-        if (stripeSubscription.status === 'active') {
-            await supabase.from('account').update({ membership: 2, stripe_customer_id: stripeSubscription.customer, stripe_subscrption_id: stripeSubscription.id }).eq('id', customer.id);
+        if (stripeEvent === 'invoice.payment_failed') {
+            await supabase.from('account').update({ membership: 1 }).eq('stripe_customer_id', stripePayload.customer);
+            return;
+        }
+
+        const { data: [ customer ] } = await supabase.from('account').select('*').eq('id', stripePayload?.metadata?.accountId) as { data: Account[], error: any };
+        if (stripePayload.status === 'active') {
+            await supabase.from('account').update({ membership: 2, stripe_customer_id: stripePayload.customer, stripe_subscrption_id: stripePayload.id }).eq('id', customer.id);
         } 
         
         else {

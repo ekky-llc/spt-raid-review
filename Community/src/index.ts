@@ -3,12 +3,13 @@ import { promisify } from "util";
 import * as _ from 'lodash';
 import stripe from 'stripe'
 
-import { account } from "./controller/account";
+import { account, DiscordAccount } from "./controller/account";
 import { raid } from "./controller/raid";
 import { supabaseConnect } from "./controller/supabase";
 import { positionalData, RaidShareDatafile, RaidUploadPayload, validateRaidShareDatafile, validateRaidSharePayload } from "./utils/validate";
 import { generateInterpolatedFramesBezier } from "./utils/interpolation";
 import { MEMBERSHIP_UPLOAD_LIMITS } from "./CONSTANTS";
+import { getCookie } from "./utils/getCookie";
 
 const gunzipAsync = promisify(gunzip);
 
@@ -266,6 +267,96 @@ export default {
 				},
 			},
 
+			// Auth Endpoints
+			{
+				method: 'GET',
+				human: '/api/v1/auth/login',
+				pattern: /^\/api\/v1\/auth\/login/,
+				handler: async (params) => {
+
+					const payload = await request.json() as { accessToken: string };
+					if (!payload.accessToken) {
+						const response =  new Response(`There was a problem.`, {
+							status: 400,
+							headers
+						});
+						return response;
+					}
+
+					const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
+						headers: {
+							Authorization: `Bearer ${payload.accessToken}`,
+						},
+					});
+		
+					const userData = await userResponse.json() as DiscordAccount;
+					if (!userData) {
+						console.error('Error fetching discord account');
+						throw `'Error fetching discord account: Invalid access token, or account does not exist.'`;
+					}
+
+					const raidReviewAccount = await account.getAccount(supabase, userData.id);	
+					if (!raidReviewAccount) {
+						console.error('Error fetching discord account');
+						throw `'Error fetching raid review account: Invalid id, or account does not exist.'`;
+					}
+
+					const newCookie = `$session_token=${payload.accessToken}; path=/; secure; HttpOnly; SameSite=Strict`
+					const response = new Response(JSON.stringify({ discordAccount: userData, raidreviewAccount: raidReviewAccount }), {
+						headers
+					});
+					response.headers.set("Set-Cookie", newCookie)
+
+					return response;
+				}
+			},
+			{
+				method: 'GET',
+				human: '/api/v1/auth/verify',
+				pattern: /^\/api\/v1\/auth\/verify/,
+				handler: async (params) => {
+
+					const cookieString = request.headers.get("Cookie") as string;
+					const accessToken = getCookie(cookieString, 'session_token')
+
+					const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+					});
+		
+					const userData = await userResponse.json() as DiscordAccount;
+					if (!userData) {
+						console.error('Error fetching discord account');
+						throw `'Error fetching discord account: Invalid access token, or account does not exist.'`;
+					}
+
+					const raidReviewAccount = await account.getAccount(supabase, userData.id);	
+					if (!raidReviewAccount) {
+						console.error('Error fetching discord account');
+						throw `'Error fetching raid review account: Invalid id, or account does not exist.'`;
+					}
+
+					return new Response(JSON.stringify({ discordAccount: userData, raidreviewAccount: raidReviewAccount }), {
+						headers
+					});
+				}
+			},
+			{
+				method: 'GET',
+				human: '/api/v1/auth/logout',
+				pattern: /^\/api\/v1\/auth\/logout/,
+				handler: async (params) => {
+
+					const response = new Response(JSON.stringify({ message: 'OK' }), {
+						headers
+					});
+					response.headers.set("Set-Cookie", "session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; HttpOnly; SameSite=Strict");
+
+					return response;
+				}
+			},
+
 			// Account Endpoints
 			{
 				method: 'GET',
@@ -340,7 +431,7 @@ export default {
 					const account_id = formData.get('account_id') as string;
 					const lookup_key = formData.get('lookup_key') as string;
 					if (!lookup_key || !account_id) {
-						return Response.redirect(`${ROOT_DOMAIN}/my-account`, 303)
+						return Response.redirect(`${ROOT_DOMAIN}/my-account?error=missing_data`, 303)
 					}
 
 					const prices = await stripeClient.prices.list({
@@ -356,8 +447,10 @@ export default {
 								quantity: 1,
 							},
 						],
-						metadata: {
-							account_id
+						subscription_data: {
+							metadata: {
+								account_id
+							}
 						},
 						mode: 'subscription',
 						success_url: `${ROOT_DOMAIN}/my-account/upgrade?success=true&session_id={CHECKOUT_SESSION_ID}`,
@@ -382,7 +475,7 @@ export default {
 
 					const portalSession = await stripeClient.billingPortal.sessions.create({
 						customer: accountData?.stripe_customer_id as string,
-						return_url: 'https://yourwebsite.com/account',
+						return_url: `${ROOT_DOMAIN}/my-account`,
 					});
 
 					return Response.redirect(portalSession.url as string, 303);
@@ -414,8 +507,9 @@ export default {
 						case 'customer.subscription.created':
 						case 'customer.subscription.updated':
 						case 'customer.subscription.deleted':
+						case 'invoice.payment_failed':
 							const subscription = event.data.object;
-							await account.updateSubscriptionStatus(supabase, subscription);
+							await account.updateSubscriptionStatus(supabase, event.type, subscription);
 							break;
 						default:
 							console.warn(`Unhandled event type ${event.type}`);

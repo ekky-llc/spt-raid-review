@@ -90,6 +90,49 @@ const community_api = {
         }
     },
 
+    login: async function(accessToken: string) : Promise<null | { discordAccount: DiscordAccount, raidReviewAccount: RaidReviewAccount }>  {
+        try {
+            const response = await fetch(`${hostname}/api/v1/auth/login`,{
+                method: 'POST',
+                body: JSON.stringify({
+                    accessToken
+                })
+            });
+            const data = response.json();
+
+            if (response.status === 204) {
+                return null;
+            }
+
+            return data;
+        } 
+        
+        catch (error) {
+            console.error(error);
+            return null;
+        }
+    },
+
+    verify: async function() : Promise<null | { discordAccount: DiscordAccount, raidReviewAccount: RaidReviewAccount }>  {
+        try {
+            const response = await fetch(`${hostname}/api/v1/auth/verify`,{
+                method: 'POST'
+            });
+            const data = response.json();
+
+            if (response.status === 204) {
+                return null;
+            }
+
+            return data;
+        } 
+        
+        catch (error) {
+            console.error(error);
+            return null;
+        }
+    },
+
     registerAccount: async function(accessToken: string) : Promise<null | RaidReviewAccount> {
         try {
             const response = await fetch(`${hostname}/api/v1/account/register`,{
