@@ -16,7 +16,7 @@ const gunzipAsync = promisify(gunzip);
 export default {
 	async fetch(request, env: Env, ctx): Promise<Response> {
 
-		const ROOT_DOMAIN = env.ENVIRONMENT === 'development' ? 'http://localhost:5173' : 'https://raid-review.online';
+		const ROOT_DOMAIN = env.ENVIRONMENT === 'development' ? 'http://localhost:5173' : 'https://community.raid-review.online';
 		const stripeClient = new stripe(env.STRIPE_KEY);
 		const url = new URL(request.url);
 		const path = url.pathname;
@@ -378,7 +378,7 @@ export default {
 			{
 				method: 'POST',
 				human: '/api/v1/verify-token',
-				pattern: /^\/api\/v1\/verify-token/,
+				pattern: /^\/api\/v1\/verify-token$/,
 				handler: async () => {
 
 					const payload = await request.json() as { uploadToken: string };
@@ -401,7 +401,7 @@ export default {
 			{
 				method: 'POST',
 				human: '/api/v1/account/register',
-				pattern: /^\/api\/v1\/account\/register/, 
+				pattern: /^\/api\/v1\/account\/register$/, 
 				handler: async (params) => {
 
 					const payload = await request.json() as { accessToken: string };
@@ -424,7 +424,7 @@ export default {
 			{
 				method: 'POST',
 				human: '/api/v1/membership/create-checkout-session',
-				pattern: /^\/api\/v1\/membership\/create-checkout-session/,
+				pattern: /^\/api\/v1\/membership\/create-checkout-session$/,
 				handler: async (params) => {
 
 					const formData = await request.formData();
@@ -463,7 +463,7 @@ export default {
 			{
 				method: 'POST',
 				human: '/api/v1/membership/create-portal-session',
-				pattern: /^\/api\/v1\/membership\/create-portal-session/,
+				pattern: /^\/api\/v1\/membership\/create-portal-session$/,
 				handler: async (params) => {
 					const formData = await request.formData();
 					const discord_id = formData.get('discord_id');
@@ -484,7 +484,7 @@ export default {
 			{
 				method: 'POST',
 				human: '/api/v1/membership/webhook',
-				pattern: /^\/api\/v1\/membership\/webhook/,
+				pattern: /^\/api\/v1\/membership\/webhook$/,
 				handler: async (params) => {
 
 					const sig = request.headers.get("stripe-signature") as string;
