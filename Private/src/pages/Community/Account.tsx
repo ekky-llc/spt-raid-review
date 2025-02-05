@@ -4,7 +4,7 @@ import './Account.css'
 import { useNavigate } from 'react-router'
 
 const isDev = window.location.hostname.includes('localhost');
-const rootDomain = isDev ? 'http://localhost:8787' : 'https://raid-review.online';
+const rootDomain = isDev ? '' : 'https://community.raid-review.online';
 
 export default function Account() {
     const navigator  = useNavigate();
