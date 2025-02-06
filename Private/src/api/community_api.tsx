@@ -3,6 +3,8 @@ import { DiscordAccount, RaidReviewAccount, TrackingRaidData } from "../types/ap
 let isDev = window.location.host.includes("517");
 let hostname = isDev ? '' : '';
 
+import en_data from '../assets/en.json'
+
 const community_api = {
 
     getRaids: async function(days: number = 7) {
@@ -69,7 +71,7 @@ const community_api = {
     },
 
     getIntl: async function() {
-        return {};
+        return en_data;
     },
 
     getAccount: async function(discordAccount: DiscordAccount) : Promise<null | RaidReviewAccount>  {

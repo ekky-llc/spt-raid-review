@@ -1,6 +1,5 @@
 import { ISptProfile } from '../../../Server/types/models/eft/profile/ISptProfile';
 import { TrackingRaidData, TrackingCoreDataRaids, ShareRaidPayload } from '../types/api_types';
-import en_data from '../assets/en.json'
 
 let isDev = window.location.host.includes("517");
 let hostname = isDev ? 'http://127.0.0.1:7829' : '';
@@ -10,7 +9,7 @@ const api = {
         let intl = {} as { [key: string] : string };
         try {
             const response = await fetch(hostname + '/api/intl');
-            const data = en_data as { [key: string] : string };
+            const data = await response.json() as { [key: string] : string };
             return data;
         } 
         
