@@ -4,7 +4,7 @@ import GlobalSpinner from "../../component/GlobalSpinner";
 
 import './Layout.css'
 import { useRaidReviewCommunityStore } from "../../store/community";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { community_api } from "../../api/community_api";
 
 export default function CommunityHome() {
