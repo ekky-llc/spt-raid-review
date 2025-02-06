@@ -11,29 +11,27 @@ export default function CommunityHome() {
     const navigation = useNavigation();
     const raidReviewStore = useRaidReviewCommunityStore(s => s);    
 
-    const [isLoading, setIsLoading] = useState(true);
-
     useEffect(() => {
         document.title = `Raid Review Community Hub`;
         
-        if (raidReviewStore.discordAccount || raidReviewStore.raidReviewAccount) return;
+        if (raidReviewStore.discordAccount || raidReviewStore.raidReviewAccount) {
+            raidReviewStore.setIsLoading(false);
+            return;
+        };
 
         (async () => {
             try {
-                
+                raidReviewStore.setIsLoading(true);
                 const data = await community_api.verify();
                 if (data) {
                     raidReviewStore.setDiscordAccount(data.discordAccount);
-                    raidReviewStore.setRaidReviewAccount(data.raidReviewAccount)
+                    raidReviewStore.setRaidReviewAccount(data.raidReviewAccount);
                 }
             } 
             
             catch (error) {
-                console.error(error)
-            }
-
-            finally {
-                setIsLoading(false);
+                console.error(error);
+                raidReviewStore.setIsLoading(false);
             }
         })()
 
@@ -45,8 +43,9 @@ export default function CommunityHome() {
     "https://discord.com/oauth2/authorize?client_id=1199563113993867305&response_type=token&redirect_uri=https%3A%2F%2Fcommunity.raid-review.online%2Fauth&scope=identify";
 
     return (
+        <>
+        { navigation.state === "loading" || raidReviewStore.isLoading && <GlobalSpinner /> }
         <main className="text-eft font-mono relative mb-4 px-4 lg:p-0 lg:w-[1280px] px-2">
-            { navigation.state === "loading" && <GlobalSpinner /> }
 
             <nav className="bg-eft border border-eft border-t-0 grid md:grid-cols-[auto_1fr] grid-cols-1">
                 <div className="lg:w-fit w-full">
@@ -56,7 +55,7 @@ export default function CommunityHome() {
                 </div>
                 <ul className="text-black flex md:justify-end justify-center">
 
-                    { isLoading ? '' : raidReviewStore.discordAccount && raidReviewStore.raidReviewAccount ? ( 
+                    { raidReviewStore.isLoading ? '' : raidReviewStore.discordAccount && raidReviewStore.raidReviewAccount ? ( 
                         <>
                             { window.location.pathname.match(/my-account/gi) ? (
                                 <li className="text-base h-full hover:bg-black/20">
@@ -93,5 +92,6 @@ export default function CommunityHome() {
                 Need help? Found a bug?<br />Join the <a target="_blank" className="underline" href="https://discord.gg/5AyDs66h8S">Discord</a>.
             </div>
         </main>
+        </>
     )
 }

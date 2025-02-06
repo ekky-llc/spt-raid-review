@@ -22,7 +22,7 @@ const GlobalSpinner: FC<GlobalSpinnerProps> = ({ message, dots = true }) => {
     }, []);
 
     return (
-        <div className='global-spinner-container'>
+        <div className='global-spinner-container text-eft'>
             <div>
                 { message ? message : 'Loading'}{dots ? (<><span className="dot">.</span><span className="dot">.</span><span className="dot">.</span></>) : ''}
             </div>

@@ -12,10 +12,14 @@ export default function Account() {
     const raidReviewStore = useRaidReviewCommunityStore(s => s)
 
     useEffect(() => {
-        if (raidReviewStore.discordAccount === null && raidReviewStore.raidReviewAccount === null) {
-            navigator('/')
+   
+        if (!raidReviewStore.isLoading && 
+            raidReviewStore.discordAccount === null && 
+            raidReviewStore.raidReviewAccount === null) {
+            navigator('/');
         }
-    }, [])
+
+    }, [raidReviewStore.isLoading, raidReviewStore.discordAccount, raidReviewStore.raidReviewAccount]);
 
     return (
         <>
@@ -64,14 +68,14 @@ export default function Account() {
                                     <form action={`${rootDomain}/api/v1/membership/create-checkout-session`} method="POST">
                                         <input type="hidden" name="account_id" value={raidReviewStore?.raidReviewAccount?.id} />
                                         <input type="hidden" name="lookup_key" value="raid_review_premium" />
-                                        <button id="checkout-and-portal-button" className="ml-4 py-2 px-12 bg-eft text-black hover:opacity-75" type="submit">
+                                        <button id="checkout-and-portal-button" className="ml-8 py-2 px-12 bg-eft text-black hover:opacity-75" type="submit">
                                             Upgrade for $1/Month
                                         </button>
                                     </form>
                                     <div>
                                         <p className='mt-4'>By upgrading you will increase your upload limit from 1 to 30 Raids (or rather increase your storage limit from ~50MB to ~1GB).</p>
                                         <p className="mt-2">This is how I'd allocate your $1 per month:</p>
-                                        <ul className='ml-8 mt-2 bg-eft text-black p-2 px-4 w-fit'>
+                                        <ul className='ml-8 mt-2 border border-eft text-eft p-2 px-4 w-fit'>
                                             <li className="grid grid-cols-[125px_75px_auto]">
                                                 <strong>Raid Data</strong> $0.20 <span>Cost to store your raid data</span>
                                             </li>

@@ -46,7 +46,7 @@ const RaidListings: FC = () => {
                 <ul className='grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4'>
                     {raids.map((raid, index) => (
                         <li key={index} className='border border-eft min-h-[350px] relative'>
-                            <img src={`/public/images/${raid.location}.png`} />
+                            <img src={`/images/${raid.location.toLowerCase()}.png`} />
                             <div className='bg-eft text-black font-bold px-2 py-1'>
                                 { raid.title }
                             </div>
