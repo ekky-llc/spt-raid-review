@@ -507,6 +507,7 @@ export default {
 						case 'customer.subscription.created':
 						case 'customer.subscription.updated':
 						case 'customer.subscription.deleted':
+						case 'invoice.payment_succeeded':
 						case 'invoice.payment_failed':
 							const subscription = event.data.object;
 							await account.updateSubscriptionStatus(supabase, event.type, subscription);

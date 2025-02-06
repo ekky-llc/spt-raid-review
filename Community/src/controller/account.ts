@@ -88,7 +88,7 @@ export const account = {
                 return;
             }
             
-            if (stripePayload.status === 'active') {
+            if (stripePayload.status === 'active' || stripeEvent === 'invoice.payment_succeeded') {
                 console.log(`INFO --- Updating Membership to '2' due to 'customer.subscrption.created' OR 'customer.subscrption.updated'.`)
                 await supabase.from('account').update({ membership: 2, stripe_customer_id: stripePayload.customer, stripe_subscription_id: stripePayload.id }).eq('id', stripePayload?.metadata?.account_id);
             } 
