@@ -98,7 +98,7 @@ export default function Account() {
                             <div className='border border-eft p-2'>
                                 <div className="flex flex-col">
                                     <p>🤝🏾 Thank you for supporting the project, even if it's just a little bit, and hey, you get a little more storage at the same time!</p>
-                                    <p className='mt-4'>You can view or cancel your subscription by clicking the button below!</p>
+                                    <p className='mt-2'>You can view or cancel your subscription by clicking the button below!</p>
                                     <form action={`${rootDomain}/api/v1/membership/create-portal-session`} method="POST">
                                         <input
                                             type="hidden"
@@ -106,7 +106,7 @@ export default function Account() {
                                             name="discord_id"
                                             value={raidReviewStore.raidReviewAccount.discordId}
                                         />
-                                        <button id="checkout-and-portal-button" className="py-2 px-4 bg-eft text-black hover:opacity-75" type="submit">
+                                        <button id="checkout-and-portal-button" className="py-2 px-4 mt-4 bg-eft text-black hover:opacity-75" type="submit">
                                             Manage Subscription
                                         </button>
                                     </form>

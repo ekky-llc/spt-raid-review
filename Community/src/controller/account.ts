@@ -93,7 +93,7 @@ export const account = {
                 await supabase.from('account').update({ membership: 2, stripe_customer_id: stripePayload.customer, stripe_subscription_id: stripePayload.id }).eq('id', stripePayload?.metadata?.account_id);
             } 
             
-            else {
+            if (stripePayload.status === 'canceled' || stripePayload.status === 'past_due') {
                 console.log(`INFO --- Updating Membership to '1' due to 'customer.subscrption.deleted'.`)
                 await supabase.from('account').update({ membership: 1 }).eq('id', stripePayload?.metadata?.account_id).select();
             }
