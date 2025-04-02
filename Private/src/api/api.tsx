@@ -236,6 +236,32 @@ const api = {
         }
     },
 
+    mergeRaids : async function( payload : { parentRaidId: string, childRaidIds: string[] }) : Promise<boolean> {
+        try {
+            const response = await fetch(hostname + `/api/raids/merge`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (response.ok) {
+                return true;
+            } 
+            
+            else {
+                throw Error(`There was an issue merging the raids.`)
+            }
+        } 
+        
+        catch (error) {
+            console.error(error)
+            return false;
+        }
+    },
+
     getRaidPositionalData : async function(raidId: string) : Promise<any> {
         let positions = [] as any;
         try {

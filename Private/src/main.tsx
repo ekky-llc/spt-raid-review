@@ -20,6 +20,7 @@ import Auth from "./pages/Community/Auth";
 import SignOut from "./pages/Community/SignOut";
 import RaidListings, { loader as RaidListingsLoader } from "./pages/Community/RaidListings";
 import RaidShare, { loader as RaidShareLoader } from "./pages/V2/RaidShare";
+import RaidMerge, { loader as RaidMergeLoader } from "./pages/V2/RaidMerge";
 
 import { ErrorPage } from './pages/Shared/ErrorPage';
 import { RedirectedErrorPage } from './pages/Shared/RedirectedErrorPage';
@@ -45,6 +46,12 @@ const v2_routes = [
       {
         path: "/import",
         element: <RaidImport />,
+        errorElement: <RedirectedErrorPage />,
+      },
+      {
+        path: '/merge',
+        element: <RaidMerge />,
+        loader: RaidMergeLoader,
         errorElement: <RedirectedErrorPage />,
       },
       {
