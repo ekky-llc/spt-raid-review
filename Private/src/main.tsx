@@ -21,97 +21,111 @@ import SignOut from "./pages/Community/SignOut";
 import RaidListings, { loader as RaidListingsLoader } from "./pages/Community/RaidListings";
 import RaidShare, { loader as RaidShareLoader } from "./pages/V2/RaidShare";
 
-import { ErrorPage } from './pages/Shared/ErrorPage'
+import { ErrorPage } from './pages/Shared/ErrorPage';
+import { RedirectedErrorPage } from './pages/Shared/RedirectedErrorPage';
 
 const v2_routes = [
   {
-    path : "/",
+    path: "/",
     element: <Layout />,
     loader: LayoutLoader,
-    errorElement: <ErrorPage />,
     children: [
       {
         path: "/",
         element: <Raids />,
-        loader: RaidsLoader
+        loader: RaidsLoader,
+        errorElement: <RedirectedErrorPage />,
       },
       {
         path: "/settings",
         element: <Settings />,
-        loader: SettingsLoader
+        loader: SettingsLoader,
+        errorElement: <RedirectedErrorPage />,
       },
       {
         path: "/import",
-        element: <RaidImport />
+        element: <RaidImport />,
+        errorElement: <RedirectedErrorPage />,
       },
       {
         path: "/raid/:raidId",
         element: <Raid />,
         loader: RaidLoader,
-        children : [
-          { 
+        children: [
+          {
             path: "/raid/:raidId",
-            element: <RaidOverview />
+            element: <RaidOverview />,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/charts",
-            element: <RaidCharts />
+            element: <RaidCharts />,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/timeline",
-            element: <RaidTimeline />
+            element: <RaidTimeline />,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/map",
             element: <RaidMap />,
             loader: RaidMapLoader
           },
-          { 
+          {
             path: "/raid/:raidId/share",
             element: <RaidShare />,
-            loader: RaidShareLoader
+            loader: RaidShareLoader,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/settings",
             element: <RaidSettings />,
-            loader: RaidSettingsLoader
+            loader: RaidSettingsLoader,
+            errorElement: <RedirectedErrorPage />,
           }
         ]
       }
     ]
   },
-  
-] as RouteObject[]
+  {
+    path: "/error",
+    element: <ErrorPage />
+  }
+] as RouteObject[];
 
 const community_routes = [
   {
     path: '/',
     element: <CommunityHome />,
-    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',
         element: <RaidListings />,
-        loader: RaidListingsLoader
+        loader: RaidListingsLoader,
+        errorElement: <RedirectedErrorPage />,
       },
       {
         path: '/raid/:raidId',
         element: <Raid />,
         loader: CommunityRaidLoader,
         children: [
-          { 
+          {
             path: "/raid/:raidId",
-            element: <RaidOverview />
+            element: <RaidOverview />,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/charts",
-            element: <RaidCharts />
+            element: <RaidCharts />,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/timeline",
-            element: <RaidTimeline />
+            element: <RaidTimeline />,
+            errorElement: <RedirectedErrorPage />,
           },
-          { 
+          {
             path: "/raid/:raidId/map",
             element: <RaidMap />,
             loader: CommunityRaidMapLoader
@@ -120,20 +134,26 @@ const community_routes = [
       },
       {
         path: '/my-account',
-        element: <Account />
+        element: <Account />,
+        errorElement: <RedirectedErrorPage />,
       },
       {
         path: '/auth',
-        element: <Auth />
+        element: <Auth />,
+        errorElement: <RedirectedErrorPage />,
       },
       {
         path: '/sign-out',
-        element: <SignOut />
+        element: <SignOut />,
+        errorElement: <RedirectedErrorPage />,
       }
     ]
+  },
+  {
+    path: "/error",
+    element: <ErrorPage />
   }
-]as RouteObject[]
-
+] as RouteObject[];
 
 const routeToUse = import.meta.env.VITE_COMMUNITY ? community_routes : v2_routes;
 const router = createBrowserRouter(routeToUse);
@@ -148,6 +168,6 @@ ReactDOM.createRoot(document.getElementById("root") as Element).render(
 // - https://github.com/recharts/recharts/issues/3615
 const error = console.error;
 console.error = (...args: any) => {
-if (/defaultProps/.test(args[0])) return;
-    error(...args);
+  if (/defaultProps/.test(args[0])) return;
+  error(...args);
 };

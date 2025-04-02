@@ -26,6 +26,10 @@ export default function CommunityHome() {
                 if (data) {
                     raidReviewStore.setDiscordAccount(data.discordAccount);
                     raidReviewStore.setRaidReviewAccount(data.raidReviewAccount);
+                } 
+                
+                else {
+                    raidReviewStore.setIsLoading(false);
                 }
             } 
             
@@ -49,7 +53,7 @@ export default function CommunityHome() {
 
             <nav className="bg-eft border border-eft border-t-0 grid md:grid-cols-[auto_1fr] grid-cols-1">
                 <div className="lg:w-fit w-full">
-                    <NavLink to="https://raid-review.online">
+                    <NavLink to="/">
                     <h1 className="font-bold md:text-2xl text-xl md:w-fit w-full bg-black py-2 px-4 md:text-left text-center">RAID REVIEW COMMUNITY HUB</h1>
                     </NavLink>
                 </div>

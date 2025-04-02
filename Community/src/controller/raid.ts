@@ -2,19 +2,30 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { account } from './account';
 
 export const raid = {
+
     getRaids: async (supabase: SupabaseClient, days: number = 7): Promise<Raid[] | void>  => {
         try {
             const now = new Date();
             const pastDate = new Date();
-            pastDate.setDate(now.getDate() - days);
-      
-            const { data, error } = await supabase.from('raid').select('*').gte('created_at', pastDate.toISOString()).order('hits', { ascending: false }) as { data: Raid[], error: any};;
-      
+            pastDate.setUTCDate(now.getUTCDate() - days);
+
+            let query = supabase.from('raid').select('*').order('hits', { ascending: false });
+
+            console.log(days)
+
+            if (days !== 99999) {
+                query = query.gte('created_at', pastDate.toISOString());
+            }
+
+            const { data, error } = await query as { data: Raid[], error: any };
+
+            console.log(data)
+
             if (error) {
               console.error('Error fetching raids:', error.message);
               throw error;
             }
-      
+
             return data;
         } 
         
@@ -28,12 +39,12 @@ export const raid = {
         try {
       
             const { data, error } = await supabase.from('raid').select('*').eq('raidId', raidId) as { data: Raid[], error: any};
-      
+
             if (error) {
               console.error('Error fetching raids:', error.message);
               throw error;
             }
-      
+
             return data[0];
         } 
         
@@ -67,7 +78,7 @@ export const raid = {
               console.error('Error fetching raids:', error.message);
               throw error;
             }
-      
+
             return data[0];
        } 
       

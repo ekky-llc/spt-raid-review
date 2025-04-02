@@ -443,6 +443,26 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         }
     })
 
+    app.post('/api/raids/merge', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
+    
+        try {
+            const { parentRaidId, childRaidIds } = req.body as { parentRaidId: string, childRaidIds: string[] };
+
+            for (let i = 0; i < childRaidIds.length; i++) {
+                const childRaidId = childRaidIds[i];
+                await persist.mergeRaid(db, logger, parentRaidId, childRaidId);
+            }
+
+            logger.log(`Merging raids: ${childRaidIds.join(',')} into raid: ${parentRaidId}`);
+
+            res.status(200).json({ message: 'Raids merged successfully' });
+        } catch (error) {
+            logger.log(error)
+            res.status(500).json(null)
+        }
+        
+    })
+
     app.get('*', (req: Request, res: Response) => {
         return res.sendFile(path.join(__dirname, '/public/index.html'))
     })

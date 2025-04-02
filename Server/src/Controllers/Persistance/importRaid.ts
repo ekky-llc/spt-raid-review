@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { ACTIVE_POSITIONAL_DATA_STRUCTURE } from '../PositionalData/CompileRaidPositionalData';
 import { writeFileSync } from 'fs';
 import { persist } from './persistanceHandlers';
+import { IRaidPayload } from '@spt/raidreview/ws';
 
 export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Statement>, logger : Logger, payload: RaidImportPayload) {
 
@@ -23,7 +24,7 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         delete raid.raidId;
         delete raid.created_at;
                raid.imported = 1;
-        const raidPayload = { ...raid }
+        const raidPayload = { ...raid } as unknown as IRaidPayload;
         await persist.endRaid(db, raidId, raidPayload, logger);
 
         // Write Players

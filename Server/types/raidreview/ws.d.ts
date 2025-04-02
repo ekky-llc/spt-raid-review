@@ -1,5 +1,5 @@
 export interface IRaidPayload {
-    sessionId: string;
+    sessionId?: string;
     profileId: string;
     location: string;
     detectedMods: string;

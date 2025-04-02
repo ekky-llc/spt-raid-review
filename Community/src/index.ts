@@ -49,7 +49,10 @@ export default {
 				human: '/api/v1/raid/all',
 				pattern: /^\/api\/v1\/raid\/all/, 
 				handler: async () => {
-					const data = await raid.getRaids(supabase, 7);
+
+					const daysFromQueryString = url.searchParams.get('days');
+					const days = daysFromQueryString ? Number(daysFromQueryString) : 7;
+					const data = await raid.getRaids(supabase, days);
 					return new Response(JSON.stringify(data), {
 						headers
 					});
@@ -327,14 +330,14 @@ export default {
 		
 					const userData = await userResponse.json() as DiscordAccount;
 					if (!userData) {
-						console.error('Error fetching discord account');
-						throw `'Error fetching discord account: Invalid access token, or account does not exist.'`;
+						console.error('Error fetching discord account: Invalid access token, or account does not exist.');
+						return new Response(null , { status: 204 });
 					}
 
 					const raidReviewAccount = await account.getAccount(supabase, userData.id);	
 					if (!raidReviewAccount) {
-						console.error('Error fetching discord account');
-						throw `'Error fetching raid review account: Invalid id, or account does not exist.'`;
+						console.error('Error fetching raid review account: Invalid id, or account does not exist.');
+						return new Response(null , { status: 204 });
 					}
 
 					return new Response(JSON.stringify({ discordAccount: userData, raidReviewAccount: raidReviewAccount }), {

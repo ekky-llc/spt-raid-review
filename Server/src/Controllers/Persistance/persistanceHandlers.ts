@@ -135,8 +135,14 @@ const persist = {
             payload_object.added
         ])
         .catch((e: Error) => logger.error(`[SQL_ERR:ADD_LOOTING]`, e));
+    },
+
+    mergeRaid: async function (db, raidId, parentRaidId, logger) {
+        const merge_sql = `UPDATE raid SET parentRaidId = ? WHERE raidId = ?`;
+        db.run(merge_sql, [parentRaidId, raidId])
+        .catch((e: Error) => logger.error(`[SQL_ERR:MERGE_RAID]`, e));
     }
-};
+}
 
 export {
     persist

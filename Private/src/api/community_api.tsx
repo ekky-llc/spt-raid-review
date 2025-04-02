@@ -128,11 +128,9 @@ const community_api = {
     verify: async function() : Promise<null | { discordAccount: DiscordAccount, raidReviewAccount: RaidReviewAccount }>  {
         try {
             const response = await fetch(`${hostname}/api/v1/auth/verify`);
-            const data = response.json();
+            if (response.status === 204) return null;
 
-            if (response.status === 204) {
-                return null;
-            }
+            const data = response.json();
 
             return data;
         } 
