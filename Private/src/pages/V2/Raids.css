@@ -2,6 +2,10 @@ tbody tr:nth-child(even) {
     background-color: #9a88661c;
 }
 
+.merge-container tbody tr:nth-child(even) {
+    background-color: inherit;
+}
+
 #raid-table tbody tr td:nth-of-type(2) {
     width: 100px;
 }

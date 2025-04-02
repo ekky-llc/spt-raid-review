@@ -37,6 +37,12 @@ export default function RaidMerge() {
         );
     };
 
+    const isWithinFiveMinutes = (time1: string | undefined = undefined, time2: string) => {
+        if (!time1) return false;
+        const diff = Math.abs(new Date(time1).getTime() - new Date(time2).getTime());
+        return diff <= 5 * 60 * 1000; // 5 minutes in milliseconds
+    };
+
     // Handle the merge operation
     const handleMerge = async () => {
         if (!parentRaidId) {
@@ -93,8 +99,10 @@ export default function RaidMerge() {
                         </div>
                     )}
                     
-                    <div className="mb-6 mt-4">
-                        <h3 className="text-xl mb-2">1. Select Parent Raid:</h3>
+                    <div className="mb-6 mt-4 border border-eft">
+                        <div className="bg-eft text-black px-2">
+                            <strong>Select Parent Raid</strong> 
+                        </div>
                         <select 
                             value={parentRaidId} 
                             onChange={(e) => {
@@ -103,7 +111,7 @@ export default function RaidMerge() {
                                     prev.filter(id => id !== e.target.value)
                                 );
                             }}
-                            className="w-full p-2 bg-gray-800 border border-eft"
+                            className="w-full p-2 bg-gray-800 border border-eft m-2"
                         >
                             <option value="">-- Select a raid --</option>
                             {raids.map(raid => (
@@ -114,13 +122,16 @@ export default function RaidMerge() {
                         </select>
                     </div>
                     
-                    <div className="mb-6">
-                        <h3 className="text-xl mb-2">2. Select Child Raids to Merge:</h3>
-                        <div className="max-w-screen overflow-auto">
+                    <div className="mb-6 border border-eft">
+                        <div className="bg-eft text-black px-2">
+                            <strong>Select Raids to Merge into Parent Raid</strong> 
+                        </div>
+                        <div className="max-w-screen overflow-auto m-2">
                             <table className="mt-2 w-full border border-eft">
                                 <thead>
                                     <tr className="bg-eft text-black">
                                         <th className="text-left px-2">Select</th>
+                                        <th className="text-left px-2">Similar</th>
                                         <th className="text-left px-2">Profile</th>
                                         <th className="text-left px-2">Type</th>
                                         <th className="text-left px-2">Map</th>
@@ -129,28 +140,36 @@ export default function RaidMerge() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {raids.length > 0 ? raids.map(raid => (
-                                        <tr 
-                                            key={raid.raidId} 
-                                            className={`cursor-pointer hover:bg-gray-800 ${raid.raidId === parentRaidId ? "opacity-50 bg-gray-700" : ""}`}
-                                            onClick={() => raid.raidId !== parentRaidId && toggleChildRaidSelection(raid.raidId)}
-                                        >
-                                            <td className="text-left p-2">
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={selectedChildRaids.includes(raid.raidId)}
-                                                    onChange={() => toggleChildRaidSelection(raid.raidId)}
-                                                    disabled={raid.raidId === parentRaidId}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                />
-                                            </td>
-                                            <td className="text-left p-2 capitalize">{profiles[raid.profileId]?.info.username}</td>
-                                            <td className="text-left p-2">{raid.type}</td>
-                                            <td className="text-left p-2">{raid.location}</td>
-                                            <td className="text-left p-2">{raid.exitStatus}</td>
-                                            <td className="text-left p-2">{new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(raid.time))}</td>
-                                        </tr>
-                                    )) : (
+                                    {raids.length > 0 ? raids.map((raid, index) => {
+
+                                        const parentRaid = parentRaidId ? raids.find(r => r.raidId === parentRaidId) : null;
+                                        const closeRaids = parentRaid && raid.raidId !== parentRaidId && isWithinFiveMinutes(raid.time, parentRaid.time) ? [parentRaid] : [];
+                                        const isCloseToAnotherRaid = closeRaids.length > 0;
+
+                                        return (
+                                            <tr 
+                                                key={raid.raidId} 
+                                                className={`cursor-pointer hover:opacity-75 ${raid.raidId === parentRaidId ? "opacity-50 bg-gray-700 line-through" : ""}`}
+                                                onClick={() => raid.raidId !== parentRaidId && toggleChildRaidSelection(raid.raidId)}
+                                            >
+                                                <td className="text-left p-2">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={selectedChildRaids.includes(raid.raidId)}
+                                                        onChange={() => toggleChildRaidSelection(raid.raidId)}
+                                                        disabled={raid.raidId === parentRaidId}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </td>
+                                                <td className="text-left p-2 capitalize">{isCloseToAnotherRaid ? 'Likely' : ''}</td>
+                                                <td className="text-left p-2 capitalize">{profiles[raid.profileId]?.info.username}</td>
+                                                <td className="text-left p-2">{raid.type}</td>
+                                                <td className="text-left p-2">{raid.location}</td>
+                                                <td className="text-left p-2">{raid.exitStatus}</td>
+                                                <td className="text-left p-2">{new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(raid.time))}</td>
+                                            </tr>
+                                        );
+                                    }) : (
                                         <tr>
                                             <td colSpan={6} className="text-center p-2">No raids available</td>
                                         </tr>
