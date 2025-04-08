@@ -2,10 +2,9 @@ import { ApplicationContext } from "@spt/context/ApplicationContext";
 import { WeightedRandomHelper } from "@spt/helpers/WeightedRandomHelper";
 import { ILocationBase } from "@spt/models/eft/common/ILocationBase";
 import { IGetRaidTimeRequest } from "@spt/models/eft/game/IGetRaidTimeRequest";
-import { ExtractChange, IGetRaidTimeResponse } from "@spt/models/eft/game/IGetRaidTimeResponse";
 import { ILocationConfig, ILootMultiplier, IScavRaidTimeLocationSettings } from "@spt/models/spt/config/ILocationConfig";
-import { IRaidChanges } from "@spt/models/spt/location/IRaidChanges";
-import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { ExtractChange, IRaidChanges } from "@spt/models/spt/location/IRaidChanges";
+import type { ILogger } from "@spt/models/spt/utils/ILogger";
 import { ConfigServer } from "@spt/servers/ConfigServer";
 import { DatabaseService } from "@spt/services/DatabaseService";
 import { RandomUtil } from "@spt/utils/RandomUtil";
@@ -43,7 +42,7 @@ export declare class RaidTimeAdjustmentService {
      * @param request Raid adjustment request
      * @returns Response to send to client
      */
-    getRaidAdjustments(sessionId: string, request: IGetRaidTimeRequest): IGetRaidTimeResponse;
+    getRaidAdjustments(sessionId: string, request: IGetRaidTimeRequest): IRaidChanges;
     /**
      * Get raid start time settings for specific map
      * @param location Map Location e.g. bigmap
