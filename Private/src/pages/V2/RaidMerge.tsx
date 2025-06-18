@@ -140,7 +140,7 @@ export default function RaidMerge() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {raids.length > 0 ? raids.map((raid, index) => {
+                                    {raids.length > 0 ? raids.map((raid, _index) => {
 
                                         const parentRaid = parentRaidId ? raids.find(r => r.raidId === parentRaidId) : null;
                                         const closeRaids = parentRaid && raid.raidId !== parentRaidId && isWithinFiveMinutes(raid.time, parentRaid.time) ? [parentRaid] : [];

@@ -10,7 +10,7 @@
 		<AssemblyVersion>0.4.0</AssemblyVersion>
 		<Copyright>2024 © Ekky</Copyright>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<OutputPath>D:\Games\SPT_3.10\BepInEx\plugins\</OutputPath>
+		<OutputPath>D:\Games\SPT_3.11\BepInEx\plugins\</OutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
