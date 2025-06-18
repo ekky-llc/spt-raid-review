@@ -2,16 +2,16 @@
 
 An experimental way for the SPT Community to review raid data such as kills and looting, with the ability for positional replay after Escaping.
 
-![test](/Examples/preview_0.0.1.png)
+[![Preview]()](https://spt-raid-review.pages.dev/m2-res_1080p.mp4)
 
 ### Installation
 Download your compatible version from the 'Releases' tab, and see the instructions for that version in the description of the release.
 
 ### Contributions / Development
-Please see [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can help contribute to this project.
-Please see [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
-Please see [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) for information regarding using this mod on a remote host, or with Fika.
-Please see [TELEMETRY.md](TELEMETRY.md) for information regarding statistics collection.
+- [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can help contribute to this project.
+- [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
+- [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) for information regarding using this mod on a remote host, or with Fika.
+- [TELEMETRY.md](TELEMETRY.md) for information regarding statistics collection.
 
 ### Features
 - Review information for raids such as kills, looting, players, bots, and positional information.
