@@ -3,7 +3,7 @@ import { DiscordAccount, RaidReviewAccount, TrackingRaidData } from "../types/ap
 let isDev = window.location.host.includes("517");
 let hostname = isDev ? '' : '';
 
-import en_data from '../assets/en.json'
+import en_data from '../assets/intl/en.json'
 
 const community_api = {
 

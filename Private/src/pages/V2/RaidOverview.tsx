@@ -10,7 +10,7 @@ import BotMapping from '../../assets/botMapping.json'
 import { useEffect, useState } from "react";
 import _ from "lodash";
 import { LOCATIONS } from "../../helpers/locations";
-import cyr_to_en from '../../assets/cyr_to_en.json';
+import cyr_to_en from '../../assets/intl/cyr_to_en.json';
 import { transliterateCyrillicToLatin } from "../../helpers/transliterateCyrillicToLatin";
 
 export default function RaidOverview() {

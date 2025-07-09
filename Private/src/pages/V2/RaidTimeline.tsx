@@ -4,7 +4,7 @@ import { bodypart, intl, msToHMS } from "../../helpers";
 import { useEffect, useState } from "react";
 import _ from "lodash";
 
-import cyr_to_en from '../../assets/cyr_to_en.json';
+import cyr_to_en from '../../assets/intl/cyr_to_en.json';
 import { transliterateCyrillicToLatin } from "../../helpers/transliterateCyrillicToLatin";
 
 export default function RaidTimeline() {

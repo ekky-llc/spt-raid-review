@@ -4,7 +4,7 @@ import _ from "lodash";
 import api from "../../api/api";
 import MapComponent from '../../component/MapComponent'
 import { TrackingPositionalData, TrackingRaidData } from "../../types/api_types";
-import cyr_to_en from '../../assets/cyr_to_en.json';
+import cyr_to_en from '../../assets/intl/cyr_to_en.json';
 
 import "./RaidMap.css";
 import { community_api } from "../../api/community_api";
