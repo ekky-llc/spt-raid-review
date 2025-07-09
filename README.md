@@ -1,46 +1,47 @@
 # SPT Raid Review
 
-An experimental way for the SPT Community to review raid data such as kills and looting, with the ability for positional replay after Escaping.
+An experimental tool for the SPT community to review raid data—kills, looting, and positional movement—with the ability to replay events after escaping.
 
-[![Preview]()](https://spt-raid-review.pages.dev/m2-res_1080p.mp4)
+[▶️ Watch Preview](https://spt-raid-review.pages.dev/m2-res_1080p.mp4)
 
-### Installation
-Download your compatible version from the 'Releases' tab, and see the instructions for that version in the description of the release.
+---
 
-### Contributions / Development
-- [CONTRIBUTING.MD](CONTRIBUTING.md) for information on how you can help contribute to this project.
-- [DEVELOPMENT.md](DEVELOPMENT.md) for information on how you can get started, and setup to develop this project.
-- [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) for information regarding using this mod on a remote host, or with Fika.
-- [TELEMETRY.md](TELEMETRY.md) for information regarding statistics collection.
+### 🔧 Installation
 
-### Features
-- Review information for raids such as kills, looting, players, bots, and positional information.
-- Basic toggle filters/grouping features to view raid information after the fact.
-- Replay and visualize positional movement and events that occurred throughout a raid.
-- Follow a specific/player by clicking on them.
-- Click on an 'event' in the timeline.
-- Focus/highlight a player by hovering over name in the Legend panel.
-- Toggle various visulisations to hide and show markers on the map.
-- Toggle map layers to see different levels of a map.
+Download a compatible version from the **[Releases]([https://github.com/your-repo/releases](https://github.com/ekky-llc/spt-raid-review/releases)** tab. Instructions for each version are included in the corresponding release description.
 
-### Roadmap
-- `[Feature]` Share a raid, nuff' said.
-- `[Feature]` Favourite/highlights feature, similar to "twitch clips" for referencing back to specifc moments.
-- `[Feature]` Ballistics/rounds fired stats, visualize this in a focused "firefight" replay.
-- `[Feature]` Profile visulisation over a period of time, see profile stat increases with interactive graphs.
-- `[UI]` Improve logos and icons for the playback system.
-- `[Code]` Code clean-up, tons of unused stuff and double ups of functions.
+---
 
-If you have an idea, or wish to contribute feel free to raise an issue or make a pull request!
+### 🛠 Contributions & Development
 
+- [CONTRIBUTING.md](CONTRIBUTING.md) – how to contribute.
+- [DEVELOPMENT.md](DEVELOPMENT.md) – getting started with development.
+- [REMOTE_HOST_AND_FIKA.md](REMOTE_HOST_AND_FIKA.md) – using the mod on a remote host or with Fika.
+- [TELEMETRY.md](TELEMETRY.md) – information on statistics collection.
 
-### Credits / Thank Yous
-- The entire SPT team for an amazing framework, and documentation.
-- SPT Discord, specfically people active in the 'mod-development' and 'dev-community' channels.
-- The folks over at 'tarkov.dev' for having an Open Sourced MIT Licensed repo that I could fork the interactive map from, litterally saved me weeks of work.
-- You for downloading the mod, and taking the time to install it.
-- Chazu, Olli, Stk2008 and anyone else that has helped me fix bugs!
+---
 
-### Support
+### 🚀 Features
+
+- View raid data: kills, looting, players, bots, and positional info.
+- Toggle filters and grouping options to refine the review.
+- Replay raid events with positional tracking.
+- Click to follow specific players or events in the timeline.
+- Highlight players by hovering over names in the legend.
+- Toggle visual markers and map layers for better clarity.
+- 
+---
+
+### 🙌 Credits / Thanks
+
+- The SPT team for the framework and docs.
+- The SPT Discord—especially the `#mod-development` and `#dev-community` folks.
+- The team behind [tarkov.dev](https://tarkov.dev) for open-sourcing the interactive map.
+- You, for downloading and trying the mod.
+- Chazu, Olli, Stk2008, and others who helped squash bugs.
+
+---
+
+### ☕ Support
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I8Z8R08)
