@@ -86,10 +86,10 @@ export default function RaidMerge() {
                     <div className='flex justify-between my-2'>
                         <h2 className="text-2xl">Merge Raids</h2>
                         <button 
-                            onClick={() => navigator('/raids')} 
-                            className="py-1 px-4 bg-gray-700 hover:bg-gray-600"
+                            onClick={() => navigator('/')} 
+                            className="py-1 px-4 bg-eft text-black hover:opacity-75"
                         >
-                            Back to Raids
+                            Home
                         </button>
                     </div>
                     
@@ -111,9 +111,9 @@ export default function RaidMerge() {
                                     prev.filter(id => id !== e.target.value)
                                 );
                             }}
-                            className="w-full p-2 bg-gray-800 border border-eft m-2"
+                            className="w-full p-2 bg-gray-800 border border-eft"
                         >
-                            <option value="">-- Select a raid --</option>
+                            <option value="">Select a raid...</option>
                             {raids.map(raid => (
                                 <option key={raid.raidId} value={raid.raidId}>
                                     {profiles[raid.profileId]?.info.username} - {raid.location} - {new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(raid.time))}
@@ -171,7 +171,7 @@ export default function RaidMerge() {
                                         );
                                     }) : (
                                         <tr>
-                                            <td colSpan={6} className="text-center p-2">No raids available</td>
+                                            <td colSpan={8} className="text-center py-8">No raids available</td>
                                         </tr>
                                     )}
                                 </tbody>
