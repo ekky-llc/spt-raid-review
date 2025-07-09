@@ -8,7 +8,7 @@ An experimental tool for the SPT community to review raid data—kills, looting,
 
 ### 🔧 Installation
 
-Download a compatible version from the **[Releases]([https://github.com/your-repo/releases](https://github.com/ekky-llc/spt-raid-review/releases)** tab. Instructions for each version are included in the corresponding release description.
+Download a compatible version from the **[releases](https://github.com/ekky-llc/spt-raid-review/releases)** tab. Instructions for each version are included in the corresponding release description.
 
 ---
 
