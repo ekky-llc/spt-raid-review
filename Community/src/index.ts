@@ -59,6 +59,24 @@ export default {
 				},
 			},
 			{
+				method: 'GET',
+				human: '/api/v1/raid/:discordId',
+				pattern: /^\/api\/v1\/raid\/(?<discordId>[^/]+)$/,
+				handler: async (params) => {
+
+					const data = await account.getAccount(supabase, params.discordId);
+					if (data === undefined) {
+						const response =  new Response(null , { status: 204 });
+						return response;
+					}
+
+					const raids = await raid.getUsersRaids(supabase, data.id);
+					return new Response(JSON.stringify(raids), {
+						headers
+					});
+				},
+			},
+			{
 				method: 'POST',
 				human: '/api/v1/raid/receive',
 				pattern: /^\/api\/v1\/raid\/receive/, 
@@ -317,7 +335,7 @@ export default {
 				method: 'GET',
 				human: '/api/v1/auth/verify',
 				pattern: /^\/api\/v1\/auth\/verify$/,
-				handler: async (params) => {
+				handler: async () => {
 
 					const cookieString = request.headers.get("Cookie") as string;
 					const accessToken = getCookie(cookieString, 'session_token')
