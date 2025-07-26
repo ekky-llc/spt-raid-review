@@ -20,7 +20,7 @@ namespace RAID_REVIEW
         {
             if (__instance.Location == "hideout") return;
 
-            if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
+            
 
             try
             {

@@ -17,14 +17,12 @@ namespace RAID_REVIEW
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(GameWorld).GetMethod("OnGameStarted", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            return typeof(GameWorld).GetMethod("OnGameStarted", BindingFlags.Instance | BindingFlags.Public);
         }
 
         [PatchPostfix]
         private static void PatchPostFix(ref GameWorld __instance)
         {
-
-            if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
 
             try
             {
@@ -38,32 +36,31 @@ namespace RAID_REVIEW
                 RAID_REVIEW.stopwatch.Reset();
                 RAID_REVIEW.stopwatch.Start();
 
-                RAID_REVIEW.trackingRaid = new TrackingRaid
-                {
-                    sessionId = RAID_REVIEW.sessionId,
-                    profileId = RAID_REVIEW.sessionId,
-                    time = DateTime.Now,
-                    detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "",
-                    location = RAID_REVIEW.gameWorld.LocationId,
-                    type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC",
-                    timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0
-                };
+                RAID_REVIEW.gameWorld = __instance;
+                RAID_REVIEW.trackingRaid = new TrackingRaid();
+
+                RAID_REVIEW.trackingRaid.sessionId = RAID_REVIEW.sessionId;
+                RAID_REVIEW.trackingRaid.profileId = RAID_REVIEW.myPlayer.ProfileId;
+                RAID_REVIEW.trackingRaid.time = DateTime.Now;
+                RAID_REVIEW.trackingRaid.detectedMods = RAID_REVIEW.RAID_REVIEW__DETECTED_MODS.Count > 0 ? string.Join(",", RAID_REVIEW.RAID_REVIEW__DETECTED_MODS) : "";
+                RAID_REVIEW.trackingRaid.location = __instance.LocationId;
+                RAID_REVIEW.trackingRaid.type = RAID_REVIEW.myPlayer.Side == EPlayerSide.Savage ? "SCAV" : "PMC";
+                RAID_REVIEW.trackingRaid.timeInRaid = RAID_REVIEW.stopwatch.IsRunning ? RAID_REVIEW.stopwatch.ElapsedMilliseconds : 0;
 
                 Telemetry.Send("START", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
+                TrackingPlayer newTrackingPlayer = new TrackingPlayer();
 
-                var newTrackingPlayer = new TrackingPlayer
-                {
-                    sessionId = RAID_REVIEW.sessionId,
-                    profileId = RAID_REVIEW.myPlayer.ProfileId,
-                    name = RAID_REVIEW.myPlayer.Profile.Nickname,
-                    level = RAID_REVIEW.myPlayer.Profile.Info.Level,
-                    team = RAID_REVIEW.myPlayer.Side,
-                    group = 0,
-                    spawnTime = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
-                    type = "HUMAN",
-                    mod_SAIN_brain = "PLAYER",
-                    mod_SAIN_difficulty = ""
-                };
+                newTrackingPlayer.sessionId = RAID_REVIEW.sessionId;
+                newTrackingPlayer.profileId = RAID_REVIEW.myPlayer.ProfileId;
+                newTrackingPlayer.name = RAID_REVIEW.myPlayer.Profile.Nickname;
+                newTrackingPlayer.level = RAID_REVIEW.myPlayer.Profile.Info.Level;
+                newTrackingPlayer.team = RAID_REVIEW.myPlayer.Side;
+                newTrackingPlayer.group = 0;
+                newTrackingPlayer.spawnTime = RAID_REVIEW.stopwatch.ElapsedMilliseconds;
+                newTrackingPlayer.type = "HUMAN";
+                newTrackingPlayer.mod_SAIN_brain = "PLAYER";
+                newTrackingPlayer.mod_SAIN_difficulty = ""; 
+
                 RAID_REVIEW.trackingPlayers[newTrackingPlayer.profileId] = newTrackingPlayer;
 
                 Telemetry.Send("PLAYER", JsonConvert.SerializeObject(newTrackingPlayer));
@@ -78,6 +75,7 @@ namespace RAID_REVIEW
 
                 if (RAID_REVIEW.SOLARINT_SAIN__DETECTED)
                 {
+                    Logger.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Detected, Starting check for SAIN Components");
                     RAID_REVIEW.searchingForSainComponents = true;
                     _ = SAIN_Integration.CheckForSainComponents(false);
                 }

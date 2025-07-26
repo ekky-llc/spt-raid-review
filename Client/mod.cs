@@ -37,8 +37,6 @@ namespace RAID_REVIEW
         public static bool WebSocketConnected = false;
         public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
         public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
-        public static bool isFikaRaid = false;
-        public static bool isFikaHost = false;
         public static List<string> RAID_REVIEW__DETECTED_MODS = new List<string>();
         public static Dictionary<string, TrackingPlayer> trackingPlayers = new Dictionary<string, TrackingPlayer>();
         public static TrackingRaid trackingRaid = new TrackingRaid();
@@ -67,7 +65,7 @@ namespace RAID_REVIEW
         // Other Mods
         public static bool MODS_SEARCHED = false;
         public static bool SOLARINT_SAIN__DETECTED { get; set; } = false;
-        public static object sainBotController { get; set; }
+        public static object sainManagerComponent { get; set; }
         public static bool searchingForSainComponents = false;
         public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
         public static bool FIKA__DETECTED { get; set; } = false;
@@ -118,7 +116,7 @@ namespace RAID_REVIEW
             while (true)
             {
 
-                if (WebSocketConnected == false || (FIKA__DETECTED && isFikaHost == false))
+                if (WebSocketConnected == false)
                 {
                     yield return new WaitForSeconds(5.0f);
                     continue;
@@ -140,7 +138,18 @@ namespace RAID_REVIEW
                         continue;
 
                     gameWorld = Singleton<GameWorld>.Instance;
+                    if (gameWorld == null)
+                    {
+                        Logger.LogWarning("RAID_REVIEW :::: WARN :::: GameWorld is null, skipping this iteration.");
+                        continue;
+                    }
+
                     myPlayer = gameWorld?.MainPlayer;
+                    if (myPlayer == null)
+                    {
+                        Logger.LogWarning("RAID_REVIEW :::: WARN :::: MyPlayer is null, skipping this iteration.");
+                        continue;
+                    }
 
                     // IF IN MENU, RETURN
                     if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
@@ -211,7 +220,7 @@ namespace RAID_REVIEW
 
                                 if (player == null || gameWorld == null)
                                 {
-                                    Logger.LogWarning("Player or gameWorld is null, skipping this iteration.");
+                                    Logger.LogWarning("RAID_REVIEW :::: WARN :::: Player or gameWorld is null, skipping this iteration.");
                                     continue;
 
                                 }
@@ -220,7 +229,7 @@ namespace RAID_REVIEW
 
                                 if (playerPosition == null)
                                 {
-                                    Logger.LogWarning("Player position is null, skipping this iteration.");
+                                    Logger.LogWarning("RAID_REVIEW :::: WARN :::: Player position is null, skipping this iteration.");
                                     continue;
 
                                 }
@@ -229,7 +238,7 @@ namespace RAID_REVIEW
 
                                 if (playerFacing == null)
                                 {
-                                    Logger.LogWarning("Player look direction is null, skipping this iteration.");
+                                    Logger.LogWarning("RAID_REVIEW :::: WARN :::: Player look direction is null, skipping this iteration.");
                                     continue;
 
                                 }
@@ -245,9 +254,14 @@ namespace RAID_REVIEW
                                 float dir = angle;
 
                                 // Health Data
-                                ValueStruct commonHealth = player.HealthController.GetBodyPartHealth(EBodyPart.Common, true);
-                                float currentHealth = commonHealth.Current;
-                                float currentHealthMaximum = commonHealth.Current;
+                                float currentHealth = 0f;
+                                float currentHealthMaximum = 0f;
+                                // if (player.ActiveHealthController != null)
+                                // {
+                                //     var commonHealth = player.ActiveHealthController.GetBodyPartHealth(EBodyPart.Common);
+                                //     currentHealth = commonHealth.Current;
+                                //     currentHealthMaximum = commonHealth.Maximum;
+                                // }
 
                                 var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir, currentHealth, currentHealthMaximum);
                                 Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));

@@ -29,7 +29,7 @@ namespace RAID_REVIEW
             try
             {
 
-                if (RAID_REVIEW.FIKA__DETECTED && RAID_REVIEW.isFikaHost == false) return;
+                
 
                 if (__instance.LocationId == "hideout" || !RAID_REVIEW.BallisticsTracking.Value) return;
 
