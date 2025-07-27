@@ -102,15 +102,15 @@ export default function RaidShare() {
             if (validationResponse && typeof validationResponse === 'object') {
                 setShowProgress(false);
                 const raidsRemaining = validationResponse.limit - validationResponse.raids;
-                if (raidsRemaining <= 0 || validationResponse.raids < validationResponse.limit) {
+                if (raidsRemaining === 0) {
                     setTokenValidity(TOKEN_VALIDITY_MAPPING.VALID_LIMIT_REACHED as number);
 
                     const message = `🟡 Valid Token, but you're out of raids, please delete on or select auto-delete | Upload Count: ${validationResponse.raids}/${validationResponse.limit}`;
                     setLoadingMessage(message);
                     setValidationMessage(message);
                 } 
-                
-                else if (validationResponse.raids > validationResponse.limit) {
+
+                if (raidsRemaining < 0) {
                     setTokenValidity(TOKEN_VALIDITY_MAPPING.BROKE_LIMITS as number);
 
                     const message = `💀 Congrats, the police are coming. Go and delete some raids from the hub. | Upload Count: ${validationResponse.raids}/${validationResponse.limit}`;

@@ -1,0 +1,17 @@
+name = "community"
+main = "src/index.ts"
+compatibility_date = "2025-01-09"
+compatibility_flags = ["nodejs_compat_v2"]
+
+[observability]
+enabled = true
+
+[[r2_buckets]]
+binding = "RAID_REVIEW"
+bucket_name = "raid-review"
+
+[env.dev]
+
+[[env.dev.r2_buckets]]
+binding = "RAID_REVIEW"
+bucket_name = "raid-review"

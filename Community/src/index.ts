@@ -21,6 +21,7 @@ export default {
 		const url = new URL(request.url);
 		const path = url.pathname;
 
+
 		// Cors
 		if (request.method === 'OPTIONS') {
 			return new Response(null, {
@@ -60,11 +61,28 @@ export default {
 			},
 			{
 				method: 'GET',
-				human: '/api/v1/raid/:discordId',
-				pattern: /^\/api\/v1\/raid\/(?<discordId>[^/]+)$/,
+				human: '/api/v1/me/raids',
+				pattern: /^\/api\/v1\/me\/raids$/,
 				handler: async (params) => {
 
-					const data = await account.getAccount(supabase, params.discordId);
+					const cookieString = request.headers.get("Cookie") as string;
+					const accessToken = getCookie(cookieString, 'session_token')
+
+					const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+					})
+
+					if (!userResponse.ok) {
+						const response =  new Response(null , { status: 204 });
+						return response;
+					}
+
+					const userData = await userResponse.json() as DiscordAccount;
+					const discordId = userData.id;
+
+					const data = await account.getAccount(supabase, discordId);
 					if (data === undefined) {
 						const response =  new Response(null , { status: 204 });
 						return response;
@@ -76,6 +94,7 @@ export default {
 					});
 				},
 			},
+
 			{
 				method: 'POST',
 				human: '/api/v1/raid/receive',
@@ -165,15 +184,20 @@ export default {
 				handler: async (params) => {
 					try {
 						const raidMetadata = await raid.getRaid(supabase, params.raidId);
+
+						console.log(raidMetadata)
 						if (!raidMetadata) {
-							console.log(`Could not locate Metadata for RaidID: '${params.raidId}'.`)
-							return new Response(null , { status: 204 })
+							const errorMessage = `Could not locate Metadata for RaidID: '${params.raidId}'.`;
+							console.log(errorMessage)
+							return new Response(JSON.stringify({ error: errorMessage }), { status: 204 })
 						};
 
 						const raidDataR2Response = await env.RAID_REVIEW.get(raidMetadata.storageKey);
+						console.log(raidDataR2Response)
 						if (!raidDataR2Response) {
-							console.log(`Could not locate R2 Data for RaidID: '${params.raidId}'.`)
-							return new Response(null , { status: 204 });
+							const errorMessage = `Could not locate R2 Data for RaidID: '${params.raidId}'.`;
+							console.log(errorMessage)
+							return new Response(JSON.stringify({ error: errorMessage }), { status: 204 });
 						}
 						const uncompressed = await gunzipAsync(Buffer.from(await raidDataR2Response.arrayBuffer()));
 
@@ -309,17 +333,27 @@ export default {
 							Authorization: `Bearer ${payload.accessToken}`,
 						},
 					});
+
+					console.log(userResponse)
 		
 					const userData = await userResponse.json() as DiscordAccount;
-					if (!userData) {
+
+					console.log(userData)
+					if (userResponse.status !== 200 || !userData.id) {
 						console.error('Error fetching discord account');
 						throw `'Error fetching discord account: Invalid access token, or account does not exist.'`;
 					}
 
 					const raidReviewAccount = await account.getAccount(supabase, userData.id);	
 					if (!raidReviewAccount) {
-						console.error('Error fetching discord account');
-						throw `'Error fetching raid review account: Invalid id, or account does not exist.'`;
+						
+						console.error('Error fetching raid review account: Invalid id, or account does not exist, sending registration response.');
+						const response = new Response(JSON.stringify({ registerRequired: true }), {
+							status: 401,
+							headers
+						});
+
+						return response;
 					}
 
 					const newCookie = `session_token=${payload.accessToken}; path=/; ${env.ENVIRONMENT !== 'development' && 'secure; HttpOnly;'} SameSite=Strict;`

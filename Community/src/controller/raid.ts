@@ -10,16 +10,11 @@ export const raid = {
             pastDate.setUTCDate(now.getUTCDate() - days);
 
             let query = supabase.from('raid').select('*').order('hits', { ascending: false });
-
-            console.log(days)
-
             if (days !== 99999) {
                 query = query.gte('created_at', pastDate.toISOString());
             }
 
             const { data, error } = await query as { data: Raid[], error: any };
-
-            console.log(data)
 
             if (error) {
               console.error('Error fetching raids:', error.message);

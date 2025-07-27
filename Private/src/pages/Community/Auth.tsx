@@ -21,27 +21,26 @@ const Auth: React.FC = () => {
 
         try {
 
-              const discordResponse = await community_api.login(accessToken);
-              if (!discordResponse) {
-                throw Error(`Invalid access token`)
+              let discordResponse = await community_api.login(accessToken);
+              let userAccountData = null as null | RaidReviewAccount;
+
+              if (discordResponse === null) {
+                  userAccountData = await community_api.registerAccount(accessToken) as RaidReviewAccount;
+                  discordResponse = await community_api.login(accessToken);
+
+                  if (discordResponse === null) {
+                      return navigate('/?loginError=true');
+                  }
               }
 
               const discordData = discordResponse.discordAccount as DiscordAccount;
               raidReviewStore.setDiscordAccount(discordData);
 
               // Get the users Raid Review data
-              let userAccountData = null as null | RaidReviewAccount;
               const userResponse = await community_api.getAccount(discordData) as null | RaidReviewAccount;
               if (userResponse !== null) {
                 userAccountData = userResponse;
               } 
-              
-
-              // Register User, if not found
-              else {
-                const registerResponse = await community_api.registerAccount(accessToken) as RaidReviewAccount;
-                userAccountData = registerResponse;
-              }
 
               if (userAccountData !== null) {
                 raidReviewStore.setRaidReviewAccount(userAccountData)
