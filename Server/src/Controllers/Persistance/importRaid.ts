@@ -15,6 +15,7 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         const { raid: raidData, positions } = payload;
 
         // Write positions
+        logger.log(`--> Writing positions to the file system...`);
         writeFileSync(`${__dirname}/../../../data/positions/${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`, JSON.stringify(positions), 'utf-8');
         
         const { kills, looting, player_status: player_statuses, ballistic, players, ...raid } = raidData;
@@ -24,10 +25,13 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         delete raid.raidId;
         delete raid.created_at;
                raid.imported = 1;
+
+        logger.log(`--> Writing raid data to the database...`);
         const raidPayload = { ...raid } as unknown as IRaidPayload;
         await persist.endRaid(db, raidId, raidPayload, logger);
 
         // Write Players
+        logger.log(`--> Writing ${players.length} players to the database...`);
         for (let i = 0; i < players.length; i++) {
             const player = players[i];
             delete player.id;
@@ -39,6 +43,7 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         }
 
         // Write Kills
+        logger.log(`--> Writing ${kills.length} kills to the database...`);
         for (let i = 0; i < kills.length; i++) {
             const kill = kills[i];
             delete kill.id;
@@ -50,6 +55,7 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         }
 
         // Write Ballistics
+        logger.log(`--> Writing ${ballistic.length} ballistics to the database...`);
         for (let i = 0; i < ballistic.length; i++) {
             const ball = ballistic[i];
             delete ball.id;
@@ -61,6 +67,7 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         }
         
         // Write Looting
+        logger.log(`--> Writing ${looting.length} lootings to the database...`);
         for (let i = 0; i < looting.length; i++) {
             const loot = looting[i];
             delete loot.id;
@@ -72,6 +79,7 @@ export async function importRaidData(db: Database<sqlite3.Database, sqlite3.Stat
         }
         
         // Write Player Status
+        logger.log(`--> Writing ${player_statuses.length} player statuses to the database...`);
         for (let i = 0; i < player_statuses.length; i++) {
             const player_status  = player_statuses[i];
             delete player_status.id;
