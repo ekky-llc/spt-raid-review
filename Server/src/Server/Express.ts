@@ -324,6 +324,8 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             }
             
             const formData = new FormData();
+
+            // @ts-ignore
             formData.append('file', new Blob([compressedBuffer], { type: 'application/gzip' }), `${raidId}.raidreview`);
             formData.append('payload', JSON.stringify(raidPublishPayload));
 
