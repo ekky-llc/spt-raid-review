@@ -1,25 +1,26 @@
-import { MinMax } from "@spt-aki/models/common/MinMax";
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { MinMax } from "@spt/models/common/MinMax";
+import { IBaseConfig, IRunIntervalValues } from "@spt/models/spt/config/IBaseConfig";
 export interface IRagfairConfig extends IBaseConfig {
-    kind: "aki-ragfair";
+    kind: "spt-ragfair";
     /** How many seconds should pass before expired offers and procesed + player offers checked if sold */
     runIntervalSeconds: number;
+    /** Default values used to hydrate `runIntervalSeconds` with */
+    runIntervalValues: IRunIntervalValues;
     /** Player listing settings */
-    sell: Sell;
-    /** Trader ids + should their assorts be listed on flea*/
+    sell: ISell;
+    /** Trader ids + should their assorts be listed on flea */
     traders: Record<string, boolean>;
-    dynamic: Dynamic;
+    dynamic: IDynamic;
+    tieredFlea: ITieredFlea;
 }
-export interface Sell {
+export interface ISell {
     /** Should a fee be deducted from player when liting an item for sale */
     fees: boolean;
     /** Settings to control chances of offer being sold */
     chance: Chance;
     /** Settings to control how long it takes for a player offer to sell */
-    time: Time;
-    /** Player offer reputation gain/loss settings */
-    reputation: Reputation;
-    /**Seconds from clicking remove to remove offer from market */
+    time: MinMax;
+    /** Seconds from clicking remove to remove offer from market */
     expireSeconds: number;
 }
 export interface Chance {
@@ -32,14 +33,7 @@ export interface Chance {
     /** Min possible sell chance % for a player listed offer */
     minSellChancePercent: number;
 }
-export interface Time extends MinMax {
-    base: number;
-}
-export interface Reputation {
-    gain: number;
-    loss: number;
-}
-export interface Dynamic {
+export interface IDynamic {
     purchasesAreFoundInRaid: boolean;
     /** Use the highest trader price for an offer if its greater than the price in templates/prices.json */
     useTraderPriceForOffersIfHigher: boolean;
@@ -47,7 +41,7 @@ export interface Dynamic {
     barter: IBarterDetails;
     pack: IPackDetails;
     /** Dynamic offer price below handbook adjustment values */
-    offerAdjustment: OfferAdjustment;
+    offerAdjustment: IOfferAdjustment;
     /** How many offers should expire before an offer regeneration occurs */
     expiredOfferThreshold: number;
     /** How many offers should be listed */
@@ -56,6 +50,8 @@ export interface Dynamic {
     priceRanges: IPriceRanges;
     /** Should default presets to listed only or should non-standard presets found in globals.json be listed too */
     showDefaultPresetsOnly: boolean;
+    /** Tpls that should not use the variable price system when their quality is < 100% (lower dura/uses = lower price) */
+    ignoreQualityPriceVarianceBlacklist: string[];
     endTimeSeconds: MinMax;
     /** Settings to control the durability range of item items listed on flea */
     condition: Condition;
@@ -65,6 +61,10 @@ export interface Dynamic {
     nonStackableCount: MinMax;
     /** Range of rating offers for items being listed */
     rating: MinMax;
+    /** Armor specific flea settings */
+    armor: IArmorSettings;
+    /** A multipler to apply to individual tpls price just prior to item quality adjustment */
+    itemPriceMultiplier: Record<string, number>;
     /** Percentages to sell offers in each currency */
     currencies: Record<string, number>;
     /** Item tpls that should be forced to sell as a single item */
@@ -72,9 +72,11 @@ export interface Dynamic {
     /** Should christmas/halloween items be removed from flea when not within the seasonal bounds */
     removeSeasonalItemsWhenNotInEvent: boolean;
     /** Flea blacklist settings */
-    blacklist: Blacklist;
+    blacklist: IRagfairBlacklist;
     /** Dict of price limits keyed by item type */
     unreasonableModPrices: Record<string, IUnreasonableModPrices>;
+    /** Custom rouble prices for items to override values from prices.json */
+    itemPriceOverrideRouble: Record<string, number>;
 }
 export interface IPriceRanges {
     default: MinMax;
@@ -82,8 +84,6 @@ export interface IPriceRanges {
     pack: MinMax;
 }
 export interface IBarterDetails {
-    /** Should barter offers be generated */
-    enable: boolean;
     /** Percentage change an offer is listed as a barter */
     chancePercent: number;
     /** Min number of required items for a barter requirement */
@@ -94,12 +94,12 @@ export interface IBarterDetails {
     priceRangeVariancePercent: number;
     /** Min rouble price for an offer to be considered for turning into a barter */
     minRoubleCostToBecomeBarter: number;
+    /** Should barter offers only single stack */
+    makeSingleStackOnly: boolean;
     /** Item Tpls to never be turned into a barter */
     itemTypeBlacklist: string[];
 }
 export interface IPackDetails {
-    /** Should pack offers be generated */
-    enable: boolean;
     /** Percentage change an offer is listed as a pack */
     chancePercent: number;
     /** Min number of required items for a pack */
@@ -109,7 +109,7 @@ export interface IPackDetails {
     /** item types to allow being a pack */
     itemTypeWhitelist: string[];
 }
-export interface OfferAdjustment {
+export interface IOfferAdjustment {
     /** Shuld offer price be adjusted when below handbook price */
     adjustPriceWhenBelowHandbookPrice: boolean;
     /** How big a percentage difference does price need to vary from handbook to be considered for adjustment */
@@ -119,11 +119,13 @@ export interface OfferAdjustment {
     /** What is the minimum rouble price to consider adjusting price of item */
     priceThreshholdRub: number;
 }
-export interface Condition extends MinMax {
+export interface Condition {
     /** Percentage change durability is altered */
     conditionChance: number;
+    current: MinMax;
+    max: MinMax;
 }
-export interface Blacklist {
+export interface IRagfairBlacklist {
     /** Damaged ammo packs */
     damagedAmmoPacks: boolean;
     /** Custom blacklist for item Tpls */
@@ -134,9 +136,39 @@ export interface Blacklist {
     enableQuestList: boolean;
     /** Should trader items that are blacklisted by bsg be listed on flea */
     traderItems: boolean;
+    /** Maximum level an armor plate can be found in a flea-listed armor item */
+    armorPlate: IArmorPlateBlacklistSettings;
+    /** Should specific categories be blacklisted from the flea, true = use blacklist */
+    enableCustomItemCategoryList: boolean;
+    /** Custom category blacklist for parent Ids */
+    customItemCategoryList: string[];
+}
+export interface IArmorPlateBlacklistSettings {
+    /** Max level of plates an armor can have without being removed */
+    maxProtectionLevel: number;
+    /** Item slots to NOT remove from items on flea */
+    ignoreSlots: string[];
 }
 export interface IUnreasonableModPrices {
+    /** Enable a system that adjusts very high ragfair prices to be below a max multiple of items the handbook values */
     enabled: boolean;
+    /** Multipler to start adjusting item values from, e.g. a value of 10 means any value over 10x the handbook price gets adjusted  */
     handbookPriceOverMultiplier: number;
+    /** The new multiplier for items found using above property, e.g. a value of 4 means set items price to 4x handbook price */
     newPriceHandbookMultiplier: number;
+}
+export interface IArmorSettings {
+    /** % chance / 100 that armor plates will be removed from an offer before listing */
+    removeRemovablePlateChance: number;
+    /** What slots are to be removed when removeRemovablePlateChance is true */
+    plateSlotIdToRemovePool: string[];
+}
+export interface ITieredFlea {
+    enabled: boolean;
+    /** key: tpl, value: playerlevel */
+    unlocksTpl: Record<string, number>;
+    /** key: item type id, value: playerlevel */
+    unlocksType: Record<string, number>;
+    ammoTiersEnabled: boolean;
+    ammoTplUnlocks: Record<string, number>;
 }

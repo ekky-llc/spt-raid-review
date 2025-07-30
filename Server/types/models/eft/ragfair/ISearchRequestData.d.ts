@@ -1,4 +1,4 @@
-import { RagfairSort } from "@spt-aki/models/enums/RagfairSort";
+import { RagfairSort } from "@spt/models/enums/RagfairSort";
 export interface ISearchRequestData {
     page: number;
     limit: number;
@@ -19,7 +19,7 @@ export interface ISearchRequestData {
     handbookId: string;
     linkedSearchId: string;
     neededSearchId: string;
-    buildItems: BuildItems;
+    buildItems: Record<string, number>;
     buildCount: number;
     tm: number;
     reload: number;
@@ -28,6 +28,4 @@ export declare enum OfferOwnerType {
     ANYOWNERTYPE = 0,
     TRADEROWNERTYPE = 1,
     PLAYEROWNERTYPE = 2
-}
-export interface BuildItems {
 }

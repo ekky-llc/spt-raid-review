@@ -1,14 +1,15 @@
-import { CustomizationController } from "@spt-aki/controllers/CustomizationController";
-import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
-import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
-import { ISuit } from "@spt-aki/models/eft/common/tables/ITrader";
-import { IBuyClothingRequestData } from "@spt-aki/models/eft/customization/IBuyClothingRequestData";
-import { IGetSuitsResponse } from "@spt-aki/models/eft/customization/IGetSuitsResponse";
-import { IWearClothingRequestData } from "@spt-aki/models/eft/customization/IWearClothingRequestData";
-import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
-import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
-import { SaveServer } from "@spt-aki/servers/SaveServer";
-import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
+import { CustomizationController } from "@spt/controllers/CustomizationController";
+import type { IEmptyRequestData } from "@spt/models/eft/common/IEmptyRequestData";
+import type { IPmcData } from "@spt/models/eft/common/IPmcData";
+import type { ICustomisationStorage } from "@spt/models/eft/common/tables/ICustomisationStorage";
+import type { ISuit } from "@spt/models/eft/common/tables/ITrader";
+import type { IBuyClothingRequestData } from "@spt/models/eft/customization/IBuyClothingRequestData";
+import type { ICustomizationSetRequest } from "@spt/models/eft/customization/ICustomizationSetRequest";
+import type { IHideoutCustomisation } from "@spt/models/eft/hideout/IHideoutCustomisation";
+import type { IGetBodyResponseData } from "@spt/models/eft/httpResponse/IGetBodyResponseData";
+import type { IItemEventRouterResponse } from "@spt/models/eft/itemEvent/IItemEventRouterResponse";
+import { SaveServer } from "@spt/servers/SaveServer";
+import { HttpResponseUtil } from "@spt/utils/HttpResponseUtil";
 export declare class CustomizationCallbacks {
     protected customizationController: CustomizationController;
     protected saveServer: SaveServer;
@@ -18,18 +19,20 @@ export declare class CustomizationCallbacks {
      * Handle client/trading/customization/storage
      * @returns IGetSuitsResponse
      */
-    getSuits(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IGetSuitsResponse>;
+    getCustomisationUnlocks(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ICustomisationStorage[]>;
     /**
      * Handle client/trading/customization
      * @returns ISuit[]
      */
     getTraderSuits(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ISuit[]>;
     /**
-     * Handle CustomizationWear event
-     */
-    wearClothing(pmcData: IPmcData, body: IWearClothingRequestData, sessionID: string): IItemEventRouterResponse;
-    /**
      * Handle CustomizationBuy event
      */
-    buyClothing(pmcData: IPmcData, body: IBuyClothingRequestData, sessionID: string): IItemEventRouterResponse;
+    buyCustomisation(pmcData: IPmcData, body: IBuyClothingRequestData, sessionID: string): IItemEventRouterResponse;
+    /** Handle client/hideout/customization/offer/list */
+    getHideoutCustomisation(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IHideoutCustomisation>;
+    /** Handle client/customization/storage */
+    getStorage(url: string, request: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ICustomisationStorage[]>;
+    /** Handle CustomizationSet */
+    setCustomisation(pmcData: IPmcData, request: ICustomizationSetRequest, sessionID: string): IItemEventRouterResponse;
 }

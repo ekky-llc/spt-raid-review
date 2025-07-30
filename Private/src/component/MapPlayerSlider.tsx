@@ -67,8 +67,7 @@ export function PlayerSlider({ sliderTimes, events, timeCurrentIndex, setTimeCur
 
     const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent) => {
 
-        // @ts-ignore; stupdid fucking error I cant get rid off...
-        const parentNode = sliderRef.current.parentNode as HTMLElement;
+        const parentNode = sliderRef?.current?.parentNode as HTMLElement;
         const parentRect = parentNode.getBoundingClientRect();
         const newLeft = e.clientX - parentRect.left;
         const newPercentage = Math.max(0, Math.min(newLeft / parentRect.width, 1));

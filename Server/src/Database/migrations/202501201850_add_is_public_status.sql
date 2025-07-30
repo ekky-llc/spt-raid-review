@@ -1,0 +1,1 @@
+ALTER TABLE raid ADD "public" INTEGER DEFAULT 0;

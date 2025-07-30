@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { useEffect, useRef, useMemo, useCallback, useLayoutEffect, useState } from 'react';
-import { useParams, useSearchParams, useNavigate, useLoaderData, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLoaderData, NavLink } from 'react-router';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import ResizeObserver from 'resize-observer-polyfill';
 import _, { forIn, map, transform } from 'lodash';
@@ -20,6 +20,8 @@ import BotMapping from '../assets/botMapping.json'
 import 'leaflet/dist/leaflet.css';
 import '../modules/leaflet-heat.js'
 import './Map.css'
+import { transliterateCyrillicToLatin } from '../helpers/transliterateCyrillicToLatin.js';
+import { community_api } from '../api/community_api.js';
 
 function getCRS(mapData) {
     let scaleX = 1;
@@ -81,10 +83,6 @@ function getScaledBounds(bounds, scaleFactor) {
         [centerY - newHeight / 2, centerX - newWidth / 2],
         [centerY + newHeight / 2, centerX + newWidth / 2]
     ];
-
-    // console.log("Initial Rectangle:", bounds);
-    // console.log("Scaled Rectangle:", newBounds);
-    // console.log("Center:", L.bounds(bounds).getCenter(true));
     
     return newBounds;
 }
@@ -163,10 +161,13 @@ const colors = [
     "#33FFF3", // Aqua
 ];
 
-export default function MapComponent({ raidData, raidId, positions, intl_dir }) {
+export default function MapComponent({ raidData, raidId, positions, intl_dir, communityHub }) {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const [currentMap, setCurrentMap] = useState('')
+
+    // Mobile
+    const [showLayer, setShowLayer] = useState(false);
 
     // Map
     const [mapIsReady, setMapIsReady] = useState(false);
@@ -254,6 +255,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
         const locations = {
             bigmap: 'customs',
             Sandbox: 'ground-zero',
+            Sandbox_high: 'ground-zero',
             develop: 'ground-zero',
             factory4_day: 'factory',
             factory4_night: 'factory',
@@ -286,9 +288,9 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                 newEvents.push({
                     time: kill.time,
                     profileId: kill.profileId,
-                    profileNickname: profileNickname ? intl(profileNickname.name, intl_dir) : 'Unknown',
+                    profileNickname: profileNickname ? transliterateCyrillicToLatin(intl(profileNickname.name, intl_dir)) : 'Unknown',
                     killedId: kill.killedId,
-                    killedNickname: killedNickname ? intl(killedNickname.name, intl_dir) : 'Unknown',
+                    killedNickname: killedNickname ? transliterateCyrillicToLatin(intl(killedNickname.name, intl_dir)) : 'Unknown',
                     weapon: kill.weapon,
                     distance: Number(kill.distance),
                     source: JSON.parse(kill.positionKiller),
@@ -487,7 +489,12 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         (async () => {
             if (heatmapData.length === 0) {
-                const data = await api.getRaidHeatmapData(raidId)
+                let data = null;
+                if (communityHub) {
+                    data = await community_api.getRaidHeatmapData(raidId)
+                } else {
+                    data = await api.getRaidHeatmapData(raidId)
+                }
                 if (data) {
                     setHeatmapData(data)
                 }
@@ -613,14 +620,11 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
         }
 
         if (sliderTimes.length === 0) {
-            times = _.chain(times)
-                .uniq()
-                .sort((t) => t)
-                .value()
+            times = _.chain(times).uniq().sort((t) => t).value()
             setSliderTimes(times)
             setTimeStartLimit(times[0])
             setTimeEndLimit(times[times.length - 1])
-            setTimeCurrentIndex(times.length - 1)
+            setTimeCurrentIndex(0)
         }
     }, [mapIsReady, mapViewRef, timeEndLimit, timeStartLimit, timeCurrentIndex, MAP, preserveHistory, events, hideEvents, hidePlayers, followPlayer, playerFocus])
 
@@ -777,6 +781,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         const interval = setInterval(() => {
             setTimeCurrentIndex((prevIndex) => {
+
                 // Check if we've reached the end of the sliderTimes
                 if (prevIndex >= sliderTimes.length - 1) {
                     clearInterval(interval)
@@ -803,6 +808,67 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
 
         return () => clearInterval(interval)
     }, [playing, sliderTimes, playbackSpeed, timeCurrentIndex, preserveHistory])
+
+    // Keyboard Support
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+          switch (event.key) {
+            case ' ':
+              event.preventDefault(); // Prevent page scrolling
+              setPlaying((prev) => !prev);
+              break;
+      
+            case 'ArrowUp':
+              setPlaybackSpeed((prev) => Math.min(prev * 2, 16)); // Cap at 16x
+              break;
+      
+            case 'ArrowDown':
+              setPlaybackSpeed((prev) => Math.max(prev / 2, 1)); // Min at 1x
+              break;
+      
+            case 'ArrowRight': {
+              setTimeCurrentIndex((prev) => {
+                const newIndex = Math.min(prev + playbackSpeed, sliderTimes.length - 1);
+      
+                if (!preserveHistory) {
+                  setTimeStartLimit(sliderTimes[Math.max(0, newIndex - 200)]);
+                } else {
+                  setTimeStartLimit(sliderTimes[0]);
+                }
+      
+                setTimeEndLimit(sliderTimes[newIndex]);
+                return newIndex;
+              });
+              break;
+            }
+      
+            case 'ArrowLeft': {
+              setPlaying(false); // Pause while scrubbing backwards
+              setTimeCurrentIndex((prev) => {
+                const newIndex = Math.max(prev - playbackSpeed, 0);
+      
+                if (!preserveHistory) {
+                  setTimeStartLimit(sliderTimes[Math.max(0, newIndex - 200)]);
+                } else {
+                  setTimeStartLimit(sliderTimes[0]);
+                }
+      
+                setTimeEndLimit(sliderTimes[newIndex]);
+                return newIndex;
+              });
+              break;
+            }
+      
+            default:
+              break;
+          }
+        };
+      
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+        };
+      }, [sliderTimes, playbackSpeed, preserveHistory]);         
 
     function clearMap(m, timeRange) {
         if (!m || !mapIsReady) return;
@@ -960,27 +1026,41 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
         }
     }
 
+
     return (
         <div className="map-container" key="map-wrapper">
             <div className="parent">
-                <nav className="flex top">
-                    <div>
+                <div id="mobile-nav" className='lg:hidden flex w-full mb-2 justify-between'>
+                    <div className='flex gap-2'>
+                        <button onClick={() => setShowLayer(true)} className='py-1 px-4 bg-eft text-sm text-black hover:opacity-75'>Layers</button>
+                    </div>
+                    <NavLink to={`/raid/${raidId}`} className="py-1 px-4 bg-eft text-sm text-black hover:opacity-75">
+                        Close
+                    </NavLink>
+                </div>
+                <nav className={`flex top ${showLayer && 'open'}`}>
+                    {showLayer && (
+                        <div className='p-2 border-b-2 border-eft'>
+                                <button onClick={() => setShowLayer(false)} className='py-1 px-4 bg-eft text-sm text-black hover:opacity-75 w-full'>Close</button>
+                        </div>
+                    )}
+                    <div className={showLayer ? `flex flex-col h-fit p-2` : 'flex h-[40px]'}>
                         {availableLayers.map((layer) => (
                             <button
                                 key={layer.value}
-                                className={`text-sm p-2 mr-2 py-1 text-sm ${layer.value === selectedLayer ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`}
+                                className={`text-sm p-2 mr-2 py-1 text-sm ${layer.value === selectedLayer ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto w-full`}
                                 onClick={() => setSelectedLayer(layer.value)}
                             >
                                 {layer.name}
                             </button>
                         ))}
                     </div>
-                    <div className="ml-4">
+                    <div className={`lg:flex ${showLayer ? `flex flex-col p-2 border-t-2 border-eft` : 'ml-4'}`}>
                         {availableStyles.map((style) =>
                             style.name ? (
                                 <button
                                     key={style.value}
-                                    className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto`}
+                                    className={`text-sm p-2 mr-2 py-1 text-sm ${style.value === selectedStyle ? 'bg-eft text-black' : 'cursor-pointer border border-eft text-eft'} mb-2 ml-auto w-full`}
                                     onClick={() => setSelectedStyle(style.value)}
                                 >
                                     {style.name}
@@ -990,9 +1070,9 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                             )
                         )}
                     </div>
-                    <Link to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto">
+                    <NavLink to={`/raid/${raidId}`} className="text-sm p-2 py-1 text-sm cursor-pointer border border-eft text-eft mb-2 ml-auto hidden lg:block">
                         Close
-                    </Link>
+                    </NavLink>
                 </nav>
                 <aside className="sidebar border border-eft mr-3 p-3 overflow-x-auto">
                     <div className="playerfeed text-eft">
@@ -1015,7 +1095,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', marginRight: '8px', background: getPlayerColor(player, index) }}></span>
                                             <div>
                                                 <span className="capitalize">
-                                                    {intl(player.name, intl_dir)} ({getPlayerDifficultyAndBrain(player)})
+                                                    {transliterateCyrillicToLatin(intl(player.name, intl_dir))} ({getPlayerDifficultyAndBrain(player)})
                                                 </span>
                                             </div>
                                         </div>
@@ -1086,7 +1166,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                         preserveHistory={preserveHistory}
                         playerFocus={playerFocus}
                     />
-                    <div className="text-eft mb-2 flex justify-between">
+                    <div className="times text-eft mb-2 flex justify-between">
                         <span>{msToHMS(timeEndLimit)}</span>
                         <span className={`${hideNerdStats ? 'invisible' : ''}`}>
                             {((timeCurrentIndex / sliderTimes.length) * 100).toFixed(0)}% | {24 * playbackSpeed}fps | Frame: {timeCurrentIndex} / {sliderTimes.length - 1} | Cut In/Out (ms): {timeStartLimit} / {timeEndLimit}
@@ -1100,6 +1180,7 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                         <button className={`text-sm p-2 py-1 text-sm ${!playing ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setPlaying(false)}>
                             ⏹️
                         </button>
+
                         <button className={`text-sm p-2 py-1 text-sm ${playbackSpeed === 1 ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setPlaybackSpeed(1)}>
                             1x
                         </button>
@@ -1115,7 +1196,8 @@ export default function MapComponent({ raidData, raidId, positions, intl_dir }) 
                         <button className={`text-sm p-2 py-1 mr-4 text-sm ${playbackSpeed === 16 ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setPlaybackSpeed(16)}>
                             16x
                         </button>
-                        <button className={`text-sm p-2 py-1 text-sm ${!hideSettings ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft`} onClick={() => setHideSettings(!hideSettings)}>
+
+                        <button className={`text-sm p-2 py-1 text-sm ${!hideSettings ? 'bg-eft text-black ' : 'cursor-pointer text-eft'} border border-eft md:block hidden`} onClick={() => setHideSettings(!hideSettings)}>
                             ⚙️
                         </button>
                         <div className={`border border-eft p-1 flex gap-1 ${hideSettings ? 'invisible' : ''}`}>

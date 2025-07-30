@@ -2,6 +2,10 @@ tbody tr:nth-child(even) {
     background-color: #9a88661c;
 }
 
+.merge-container tbody tr:nth-child(even) {
+    background-color: inherit;
+}
+
 #raid-table tbody tr td:nth-of-type(2) {
     width: 100px;
 }
@@ -34,4 +38,29 @@ tbody tr:nth-child(even) {
 
 .raid-timeline li {
     list-style: none;
+}
+
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+  
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    left: -100%;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }

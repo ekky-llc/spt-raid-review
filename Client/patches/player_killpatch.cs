@@ -1,9 +1,10 @@
 ﻿using EFT;
 using System.Reflection;
-using Aki.Reflection.Patching;
+using SPT.Reflection.Patching;
 using UnityEngine;
 using Newtonsoft.Json;
 using System;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
@@ -11,13 +12,15 @@ namespace RAID_REVIEW
     {
         protected override MethodBase GetTargetMethod()
         {
-            return typeof(Player).GetMethod("OnBeenKilledByAggressor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            return typeof(Player).GetMethod("OnBeenKilledByAggressor", BindingFlags.Instance | BindingFlags.Public);
         }
 
         [PatchPostfix]
-        private static void PatchPostFix(ref Player __instance, IPlayer aggressor, DamageInfo damageInfo, EBodyPart bodyPart, EDamageType lethalDamageType)
+        private static void PatchPostFix(ref Player __instance, IPlayer aggressor, DamageInfoStruct damageInfo, EBodyPart bodyPart, EDamageType lethalDamageType)
         {
             if (__instance.Location == "hideout") return;
+
+            
 
             try
             {
@@ -33,11 +36,12 @@ namespace RAID_REVIEW
                         weapon = damageInfo.Weapon == null ? "?" : damageInfo.Weapon.Name,
                         bodyPart = bodyPart.ToString(),
                         type = lethalDamageType.ToString(),
-                        positionKiller = aggressor.Position.ToJson(),
-                        positionKilled = __instance.Position.ToJson(),
+                        positionKiller = JsonConvert.SerializeObject(aggressor.Position),
+                        positionKilled = JsonConvert.SerializeObject(__instance.Position),
                     };
 
                     Telemetry.Send("KILL", JsonConvert.SerializeObject(newKill));
+
                 }
             }
 

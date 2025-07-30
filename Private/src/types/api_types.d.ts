@@ -35,6 +35,8 @@ export interface TrackingRaidData {
   exitName: string
   exitStatus: string
   type: string
+  imported: boolean
+  public: boolean
   player_status?: TrackingPlayerStatus[]
   players?: TrackingRaidDataPlayers[]
   kills?: TrackingRaidDataKills[]
@@ -57,7 +59,7 @@ export interface TrackingRaidDataPlayers {
 
 export interface TrackingRaidDataKills {
     time: number
-    killerId: string
+    profileId: string
     killedId: string
     weapon: string
     distance: string
@@ -77,7 +79,7 @@ export interface TrackingRaidDataLoot {
 
 export interface TrackingPlayerStatus {
   raidId: string
-  playerId: string
+  profileId: string
   time: number
   status: string
 }
@@ -95,4 +97,52 @@ export interface TrackingBallistic {
 
 export interface RaidReviewServerSettings {
   telemetry_enabled: string,
+}
+
+export interface DiscordAccount {
+    id: string
+    username: string
+    avatar: string
+    discriminator: string
+    public_flags: number
+    flags: number
+    banner: any
+    accent_color: number
+    global_name: string
+    avatar_decoration_data: any
+    banner_color: string
+    clan: any
+    primary_guild: any
+    mfa_enabled: boolean
+    locale: string
+    premium_type: number
+    email: string
+    verified: boolean
+    phone: string
+    nsfw_allowed: boolean
+    analytics_token: string
+    linked_users: Array<any>
+    purchased_flags: number
+    bio: string
+    authenticator_types: Array<number>
+}
+
+export interface RaidReviewAccount {
+    id: string
+    discordId: string
+    uploadToken: string
+    isActive: boolean
+    isBanned: boolean
+    membership: number
+    stripe_customer_id: string
+    stripe_subscrption_id: string
+    created_at: string
+}
+
+export interface ShareRaidPayload {
+  title: string
+  description: string
+  uploadToken: string
+  isPublic: boolean
+  overwriteOldest: boolean
 }

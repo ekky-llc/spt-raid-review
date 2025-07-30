@@ -1,14 +1,14 @@
-import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { VFS } from "@spt-aki/utils/VFS";
+import { ConfigTypes } from "@spt/models/enums/ConfigTypes";
+import type { ILogger } from "@spt/models/spt/utils/ILogger";
+import { FileSystemSync } from "@spt/utils/FileSystemSync";
+import { JsonUtil } from "@spt/utils/JsonUtil";
 export declare class ConfigServer {
     protected logger: ILogger;
-    protected vfs: VFS;
+    protected fileSystemSync: FileSystemSync;
     protected jsonUtil: JsonUtil;
     protected configs: Record<string, any>;
     protected readonly acceptableFileExtensions: string[];
-    constructor(logger: ILogger, vfs: VFS, jsonUtil: JsonUtil);
+    constructor(logger: ILogger, fileSystemSync: FileSystemSync, jsonUtil: JsonUtil);
     getConfig<T>(configType: ConfigTypes): T;
     getConfigByString<T>(configType: string): T;
     initialize(): void;

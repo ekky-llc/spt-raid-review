@@ -1,4 +1,4 @@
-using Aki.Reflection.Patching;
+using SPT.Reflection.Patching;
 using Comfort.Common;
 using EFT;
 using EFT.Ballistics;
@@ -28,7 +28,9 @@ namespace RAID_REVIEW
         {
             try
             {
-                // If in the 'hideout', or 'ballistics tacki
+
+                
+
                 if (__instance.LocationId == "hideout" || !RAID_REVIEW.BallisticsTracking.Value) return;
 
                 var hitPlayerId = shotResult?.HittedBallisticCollider?.gameObject?.GetComponentInParent<Player>()?.ProfileId;
@@ -40,11 +42,12 @@ namespace RAID_REVIEW
                     ammoId = shotResult.Ammo.Id,
                     time = RAID_REVIEW.stopwatch.ElapsedMilliseconds,
                     hitPlayerId = hitPlayerId ?? null,
-                    source = shotResult.MasterOrigin.ToJson(),
-                    target = shotResult.HitPoint.ToJson()
+                    source = JsonConvert.SerializeObject(shotResult.MasterOrigin),
+                    target = JsonConvert.SerializeObject(shotResult.HitPoint)
                 };
 
                 Telemetry.Send("BALLISTIC", JsonConvert.SerializeObject(newTackingBallistic));
+
                 return;
             }
 

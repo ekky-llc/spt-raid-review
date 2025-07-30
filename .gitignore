@@ -12,3 +12,4 @@ Server/tmp
 Tools/**/config.js
 Tools/**/cloudflareDump/data/**
 .vite
+.dev.vars

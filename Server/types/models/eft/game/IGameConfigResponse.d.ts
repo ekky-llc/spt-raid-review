@@ -5,15 +5,22 @@ export interface IGameConfigResponse {
     ndaFree: boolean;
     taxonomy: number;
     activeProfileId: string;
-    backend: Backend;
+    backend: IBackend;
     useProtobuf: boolean;
     utc_time: number;
     /** Total in game time */
     totalInGame: number;
     reportAvailable: boolean;
     twitchEventMember: boolean;
+    sessionMode: string;
+    purchasedGames: IPurchasedGames;
+    isGameSynced: boolean;
 }
-export interface Backend {
+export interface IPurchasedGames {
+    eft: boolean;
+    arena: boolean;
+}
+export interface IBackend {
     Lobby: string;
     Trading: string;
     Messaging: string;

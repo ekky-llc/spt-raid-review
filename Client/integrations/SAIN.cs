@@ -1,4 +1,4 @@
-using Aki.Reflection.Patching;
+using SPT.Reflection.Patching;
 using Comfort.Common;
 using EFT;
 using EFT.Communications;
@@ -17,16 +17,17 @@ namespace RAID_REVIEW
         public static async Task CheckForSainComponents(bool endCheck = false)
         {
             if(!RAID_REVIEW.SOLARINT_SAIN__DETECTED) return;
+
             try
             {
 
-                Type sainBotControllerType = Type.GetType("SAIN.Components.SAINBotController, SAIN");
+                Type sainManagerComponentType = Type.GetType("SAIN.Components.BotManagerComponent, SAIN");
                 Type botComponentType = Type.GetType("SAIN.Components.BotComponent, SAIN");
                 Type ePersonalityType = Type.GetType("SAIN.EPersonality, SAIN");
 
-                if (sainBotControllerType == null)
+                if (sainManagerComponentType == null)
                 {
-                    LoggerInstance.Log.LogError("RAID_REVIEW :::: INFO :::: SAINBotController type not found.");
+                    LoggerInstance.Log.LogError("RAID_REVIEW :::: INFO :::: sainManagerComponentType type not found.");
                     return;
                 }
 
@@ -41,19 +42,19 @@ namespace RAID_REVIEW
                     if (!endCheck) await Task.Delay(5000); 
                     else RAID_REVIEW.searchingForSainComponents = false;
 
-                    if (RAID_REVIEW.sainBotController == null)
+                    if (RAID_REVIEW.sainManagerComponent == null)
                     {
-                        LoggerInstance.Log.LogInfo("RAID_REVIEW :::: INFO :::: Looking For SAIN Bot Controller");
+                        LoggerInstance.Log.LogInfo("RAID_REVIEW :::: INFO :::: Looking For SAIN Manager Component");
                         if (RAID_REVIEW.gameWorld != null)
                         {
-                            // Use reflection to get the SAINBotController component
+                            // Use reflection to get the SAINManagerComponent component
                             MethodInfo getComponentMethod = RAID_REVIEW.gameWorld.GetType().GetMethod("GetComponent", new Type[] { typeof(Type) });
-                            RAID_REVIEW.sainBotController = getComponentMethod?.Invoke(RAID_REVIEW.gameWorld, new object[] { sainBotControllerType });
+                            RAID_REVIEW.sainManagerComponent = getComponentMethod?.Invoke(RAID_REVIEW.gameWorld, new object[] { sainManagerComponentType });
 
-                            if (RAID_REVIEW.sainBotController != null)
-                                LoggerInstance.Log.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Found");
+                            if (RAID_REVIEW.sainManagerComponent != null)
+                                LoggerInstance.Log.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Manager Component Found");
                             else
-                                LoggerInstance.Log.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Bot Controller Not Found");
+                                LoggerInstance.Log.LogInfo("RAID_REVIEW :::: INFO :::: SAIN Manager Component Not Found");
                         }
                         else
                         {
@@ -63,8 +64,8 @@ namespace RAID_REVIEW
                     else
                     {
                         // Get the Bots property using reflection
-                        PropertyInfo botsProperty = sainBotControllerType.GetProperty("Bots");
-                        var bots = botsProperty?.GetValue(RAID_REVIEW.sainBotController);
+                        PropertyInfo botsProperty = sainManagerComponentType.GetProperty("Bots");
+                        var bots = botsProperty?.GetValue(RAID_REVIEW.sainManagerComponent);
 
                         // Get the Values property of the Bots dictionary
                         var botValues = (IEnumerable)bots?.GetType().GetProperty("Values").GetValue(bots);
@@ -116,7 +117,7 @@ namespace RAID_REVIEW
                                 RAID_REVIEW.trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
                                 RAID_REVIEW.updatedBots[trackingPlayer.profileId] = trackingPlayer;
                                 LoggerInstance.Log.LogInfo($"RAID_REVIEW :::: INFO :::: Updating player {trackingPlayer.name} with brain {trackingPlayer.mod_SAIN_brain}, type {trackingPlayer.type}, difficulty {trackingPlayer.mod_SAIN_difficulty}");
-                                _ = Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
+                                Telemetry.Send("PLAYER_UPDATE", JsonConvert.SerializeObject(trackingPlayer));
                             }
                         }
                     }
@@ -124,7 +125,7 @@ namespace RAID_REVIEW
 
                 RAID_REVIEW.searchingForSainComponents = false;
                 RAID_REVIEW.updatedBots.Clear();
-                RAID_REVIEW.sainBotController = null;
+                RAID_REVIEW.sainManagerComponent = null;
                 return;
 
             }

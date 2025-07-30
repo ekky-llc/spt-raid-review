@@ -1,7 +1,12 @@
-import { useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import './GlobalSpinner.css';
 
-const GlobalSpinner = () => {
+interface GlobalSpinnerProps {
+    message?: string; // Optional prop
+    dots?: boolean
+  }
+
+const GlobalSpinner: FC<GlobalSpinnerProps> = ({ message, dots = true }) => {
 
     useEffect(() => {
         const body = document.querySelector('body');
@@ -17,9 +22,9 @@ const GlobalSpinner = () => {
     }, []);
 
     return (
-        <div className='global-spinner-container'>
+        <div className='global-spinner-container text-eft'>
             <div>
-                Loading<span className="dot">.</span><span className="dot">.</span><span className="dot">.</span>
+                { message ? message : 'Loading'}{dots ? (<><span className="dot">.</span><span className="dot">.</span><span className="dot">.</span></>) : ''}
             </div>
         </div>
     );

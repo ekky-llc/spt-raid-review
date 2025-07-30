@@ -21,19 +21,19 @@ using EFT.HealthSystem;
 
 namespace RAID_REVIEW
 {
-    [BepInPlugin("ekky.raidreview", "Raid Review", "0.1.1")]
+    [BepInPlugin("ekky.raidreview", "Raid Review", "0.4.0")]
     [BepInDependency("me.sol.sain", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.fika.core", BepInDependency.DependencyFlags.SoftDependency)]
     public class RAID_REVIEW : BaseUnityPlugin
     {
         // Framerate
-        public static float updateInterval = 0.0f;
-        public static float lastUpdateTime = 0.0f;
         public static float PlayerTrackingInterval = 5f;
 
-        // RAID_REVIEW
+        // Raid Review
         public static string sessionId = null;
         public static bool inRaid = false;
         public static bool tracking = false;
+        public static int WebSocketFailureCount = 0;
         public static bool WebSocketConnected = false;
         public static string RAID_REVIEW_WS_Server = "ws://127.0.0.1:7828";
         public static string RAID_REVIEW_HTTP_Server = "http://127.0.0.1:7829";
@@ -46,10 +46,8 @@ namespace RAID_REVIEW
         public static GameWorld gameWorld;
         public static RaidSettings raid;
         public static Player myPlayer;
-        public static IEnumerable<Player> allPlayers;
 
         // BepInEx
-        public static string PluginFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static ConfigEntry<KeyboardShortcut> LaunchWebpageKey;
         public static ConfigEntry<bool> PlayerTracking;
         public static ConfigEntry<bool> InsertMenuItem;
@@ -66,16 +64,16 @@ namespace RAID_REVIEW
 
         // Other Mods
         public static bool MODS_SEARCHED = false;
-        public static bool SOLARINT_SAIN__DETECTED { get; set; }
-        public static object sainBotController { get; set; }
+        public static bool SOLARINT_SAIN__DETECTED { get; set; } = false;
+        public static object sainManagerComponent { get; set; }
         public static bool searchingForSainComponents = false;
         public static Dictionary<string, TrackingPlayer> updatedBots = new Dictionary<string, TrackingPlayer>();
+        public static bool FIKA__DETECTED { get; set; } = false;
 
         void Awake()
         {
             Logger.LogInfo("RAID_REVIEW :::: INFO :::: Mod Loaded");
 
-            // Configuration Bindings
             LaunchWebpageKey = Config.Bind("Main", "Open Webpage Keybind", new KeyboardShortcut(KeyCode.F5), "Keybind to open the web client.");
             InsertMenuItem = Config.Bind<bool>("Main", "Insert Menu Item", false, "Enables menu item to open the web client.");
             RecordingNotification = Config.Bind<bool>("Main", "Recording Notification", true, "Enables notifications as recording starts and ends.");
@@ -91,7 +89,6 @@ namespace RAID_REVIEW
             LootTracking = Config.Bind<bool>("Tracking Settings", "Loot Tracking", true, "Enables location tracking of lootings.");
             BallisticsTracking = Config.Bind<bool>("Tracking Settings", "Ballistics Tracking", true, "Enables location tracking of ballistics.");
 
-            // HTTP/Websocket Endpoint Builders
             RAID_REVIEW_WS_Server = "ws://" + ServerAddress.Value + ":" + ServerWsPort.Value;
             RAID_REVIEW_HTTP_Server = (ServerTLS.Value ? "https://" : "http://") + ServerAddress.Value + ":" + ServerHttpPort.Value;
 
@@ -111,12 +108,20 @@ namespace RAID_REVIEW
 
             LoggerInstance.Log = Logger;
 
+            FillDetectedMods();
             StartCoroutine(UpdateCoroutine());
         }
         IEnumerator UpdateCoroutine()
         {
             while (true)
             {
+
+                if (WebSocketConnected == false)
+                {
+                    yield return new WaitForSeconds(5.0f);
+                    continue;
+                }
+                
                 yield return new WaitForSeconds(1.0f / PlayerTrackingInterval);
 
                 try
@@ -133,7 +138,18 @@ namespace RAID_REVIEW
                         continue;
 
                     gameWorld = Singleton<GameWorld>.Instance;
+                    if (gameWorld == null)
+                    {
+                        Logger.LogWarning("RAID_REVIEW :::: WARN :::: GameWorld is null, skipping this iteration.");
+                        continue;
+                    }
+
                     myPlayer = gameWorld?.MainPlayer;
+                    if (myPlayer == null)
+                    {
+                        Logger.LogWarning("RAID_REVIEW :::: WARN :::: MyPlayer is null, skipping this iteration.");
+                        continue;
+                    }
 
                     // IF IN MENU, RETURN
                     if (gameWorld == null || myPlayer == null || gameWorld.LocationId == "hideout")
@@ -191,7 +207,7 @@ namespace RAID_REVIEW
                             }
 
                             trackingPlayers[trackingPlayer.profileId] = trackingPlayer;
-                            _ = Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
+                            Telemetry.Send("PLAYER", JsonConvert.SerializeObject(trackingPlayer));
 
                         }
 
@@ -204,7 +220,7 @@ namespace RAID_REVIEW
 
                                 if (player == null || gameWorld == null)
                                 {
-                                    Logger.LogWarning("Player or gameWorld is null, skipping this iteration.");
+                                    Logger.LogWarning("RAID_REVIEW :::: WARN :::: Player or gameWorld is null, skipping this iteration.");
                                     continue;
 
                                 }
@@ -213,7 +229,7 @@ namespace RAID_REVIEW
 
                                 if (playerPosition == null)
                                 {
-                                    Logger.LogWarning("Player position is null, skipping this iteration.");
+                                    Logger.LogWarning("RAID_REVIEW :::: WARN :::: Player position is null, skipping this iteration.");
                                     continue;
 
                                 }
@@ -222,7 +238,7 @@ namespace RAID_REVIEW
 
                                 if (playerFacing == null)
                                 {
-                                    Logger.LogWarning("Player look direction is null, skipping this iteration.");
+                                    Logger.LogWarning("RAID_REVIEW :::: WARN :::: Player look direction is null, skipping this iteration.");
                                     continue;
 
                                 }
@@ -238,12 +254,17 @@ namespace RAID_REVIEW
                                 float dir = angle;
 
                                 // Health Data
-                                ValueStruct commonHealth = player.HealthController.GetBodyPartHealth(EBodyPart.Common, true);
-                                float currentHealth = commonHealth.Current;
-                                float currentHealthMaximum = commonHealth.Current;
+                                float currentHealth = 0f;
+                                float currentHealthMaximum = 0f;
+                                // if (player.ActiveHealthController != null)
+                                // {
+                                //     var commonHealth = player.ActiveHealthController.GetBodyPartHealth(EBodyPart.Common);
+                                //     currentHealth = commonHealth.Current;
+                                //     currentHealthMaximum = commonHealth.Maximum;
+                                // }
 
                                 var trackingPlayerData = new TrackingPlayerData(sessionId, player.ProfileId, captureTime, playerPosition.x, playerPosition.y, playerPosition.z, dir, currentHealth, currentHealthMaximum);
-                                _ = Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
+                                Telemetry.Send("POSITION", JsonConvert.SerializeObject(trackingPlayerData));
                             }
 
                         }
@@ -263,6 +284,26 @@ namespace RAID_REVIEW
         {
             if (Chainloader.PluginInfos.ContainsKey(modName)) return true;
             return false;
+        }
+
+        /**
+         * Fills the RAID_REVIEW__DETECTED_MODS list with detected mods, using the 'Name' and 'Version' from the plugin metadata.
+         */
+        private void FillDetectedMods()
+        {
+            
+            if (Chainloader.PluginInfos.Count > 0)
+            {
+                foreach (var plugin in Chainloader.PluginInfos)
+                {
+                    if (plugin.Value.Metadata.Name != null && plugin.Value.Metadata.Version != null) {
+                        RAID_REVIEW__DETECTED_MODS.Add(plugin.Value.Metadata.Name + "|" + plugin.Value.Metadata.Version);
+                    } else {
+                        RAID_REVIEW__DETECTED_MODS.Add(plugin.Value.Metadata.Name + "|UNKNOWN");
+                    }
+                }
+            }
+
         }
         public static bool MapLoaded() => Singleton<GameWorld>.Instantiated;
 

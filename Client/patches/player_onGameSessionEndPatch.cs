@@ -1,4 +1,4 @@
-﻿using Aki.Reflection.Patching;
+﻿using SPT.Reflection.Patching;
 using EFT;
 using EFT.Communications;
 using Newtonsoft.Json;
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace RAID_REVIEW
 {
@@ -21,6 +22,8 @@ namespace RAID_REVIEW
         {
 
             if (locationId == "hideout") return;
+
+            
 
             try { 
                 Logger.LogInfo("RAID_REVIEW :::: INFO :::: RAID Completed, Saving Tracking Data");
@@ -38,9 +41,10 @@ namespace RAID_REVIEW
 
                 BotChecker.BotCheckLoop(true);
                 if (RAID_REVIEW.SOLARINT_SAIN__DETECTED) _ = SAIN_Integration.CheckForSainComponents(true);
+
                 Telemetry.Send("PLAYER_CHECK", JsonConvert.SerializeObject(RAID_REVIEW.trackingPlayers.Values));
                 Telemetry.Send("END", JsonConvert.SerializeObject(RAID_REVIEW.trackingRaid));
-
+                
                 if (RAID_REVIEW.RecordingNotification.Value && RAID_REVIEW.WebSocketConnected) {
                     NotificationManagerClass.DisplayMessageNotification("Raid Review Recording Completed", ENotificationDurationType.Long);
                 }
@@ -48,7 +52,7 @@ namespace RAID_REVIEW
 
             catch (Exception ex)
             {
-                Logger.LogError($"{ex.Message}");
+                Logger.LogError($"RAID REVIEW :::: ERROR :::: OnGameSessionEnd Patch Exception {ex.Message}");
             }
 
             finally 

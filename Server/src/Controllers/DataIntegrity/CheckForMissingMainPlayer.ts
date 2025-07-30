@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import sqlite3 from 'sqlite3';
 import { Database } from "sqlite"
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile';
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile';
 import { Logger } from '../../Utils/logger';
 
-async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger, profiles: Record<string, IAkiProfile>) {
+async function CheckForMissingMainPlayer(db: Database<sqlite3.Database, sqlite3.Statement>, logger: Logger, profiles: Record<string, ISptProfile>) {
 
     logger.log(`Starting 'Missing main player' check.`);
 

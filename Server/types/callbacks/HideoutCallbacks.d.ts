@@ -1,22 +1,26 @@
-import { HideoutController } from "@spt-aki/controllers/HideoutController";
-import { OnUpdate } from "@spt-aki/di/OnUpdate";
-import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
-import { IHandleQTEEventRequestData } from "@spt-aki/models/eft/hideout/IHandleQTEEventRequestData";
-import { IHideoutCancelProductionRequestData } from "@spt-aki/models/eft/hideout/IHideoutCancelProductionRequestData";
-import { IHideoutContinuousProductionStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutContinuousProductionStartRequestData";
-import { IHideoutImproveAreaRequestData } from "@spt-aki/models/eft/hideout/IHideoutImproveAreaRequestData";
-import { IHideoutPutItemInRequestData } from "@spt-aki/models/eft/hideout/IHideoutPutItemInRequestData";
-import { IHideoutScavCaseStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutScavCaseStartRequestData";
-import { IHideoutSingleProductionStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutSingleProductionStartRequestData";
-import { IHideoutTakeItemOutRequestData } from "@spt-aki/models/eft/hideout/IHideoutTakeItemOutRequestData";
-import { IHideoutTakeProductionRequestData } from "@spt-aki/models/eft/hideout/IHideoutTakeProductionRequestData";
-import { IHideoutToggleAreaRequestData } from "@spt-aki/models/eft/hideout/IHideoutToggleAreaRequestData";
-import { IHideoutUpgradeCompleteRequestData } from "@spt-aki/models/eft/hideout/IHideoutUpgradeCompleteRequestData";
-import { IHideoutUpgradeRequestData } from "@spt-aki/models/eft/hideout/IHideoutUpgradeRequestData";
-import { IRecordShootingRangePoints } from "@spt-aki/models/eft/hideout/IRecordShootingRangePoints";
-import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
-import { IHideoutConfig } from "@spt-aki/models/spt/config/IHideoutConfig";
-import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { HideoutController } from "@spt/controllers/HideoutController";
+import type { OnUpdate } from "@spt/di/OnUpdate";
+import type { IPmcData } from "@spt/models/eft/common/IPmcData";
+import type { IHandleQTEEventRequestData } from "@spt/models/eft/hideout/IHandleQTEEventRequestData";
+import type { IHideoutCancelProductionRequestData } from "@spt/models/eft/hideout/IHideoutCancelProductionRequestData";
+import type { IHideoutCircleOfCultistProductionStartRequestData } from "@spt/models/eft/hideout/IHideoutCircleOfCultistProductionStartRequestData";
+import type { IHideoutContinuousProductionStartRequestData } from "@spt/models/eft/hideout/IHideoutContinuousProductionStartRequestData";
+import type { IHideoutCustomizationApplyRequestData } from "@spt/models/eft/hideout/IHideoutCustomizationApplyRequestData";
+import { IHideoutCustomizationSetMannequinPoseRequest } from "@spt/models/eft/hideout/IHideoutCustomizationSetMannequinPoseRequest";
+import type { IHideoutDeleteProductionRequestData } from "@spt/models/eft/hideout/IHideoutDeleteProductionRequestData";
+import type { IHideoutImproveAreaRequestData } from "@spt/models/eft/hideout/IHideoutImproveAreaRequestData";
+import type { IHideoutPutItemInRequestData } from "@spt/models/eft/hideout/IHideoutPutItemInRequestData";
+import type { IHideoutScavCaseStartRequestData } from "@spt/models/eft/hideout/IHideoutScavCaseStartRequestData";
+import type { IHideoutSingleProductionStartRequestData } from "@spt/models/eft/hideout/IHideoutSingleProductionStartRequestData";
+import type { IHideoutTakeItemOutRequestData } from "@spt/models/eft/hideout/IHideoutTakeItemOutRequestData";
+import type { IHideoutTakeProductionRequestData } from "@spt/models/eft/hideout/IHideoutTakeProductionRequestData";
+import type { IHideoutToggleAreaRequestData } from "@spt/models/eft/hideout/IHideoutToggleAreaRequestData";
+import type { IHideoutUpgradeCompleteRequestData } from "@spt/models/eft/hideout/IHideoutUpgradeCompleteRequestData";
+import type { IHideoutUpgradeRequestData } from "@spt/models/eft/hideout/IHideoutUpgradeRequestData";
+import type { IRecordShootingRangePoints } from "@spt/models/eft/hideout/IRecordShootingRangePoints";
+import type { IItemEventRouterResponse } from "@spt/models/eft/itemEvent/IItemEventRouterResponse";
+import { IHideoutConfig } from "@spt/models/spt/config/IHideoutConfig";
+import { ConfigServer } from "@spt/servers/ConfigServer";
 export declare class HideoutCallbacks implements OnUpdate {
     protected hideoutController: HideoutController;
     protected configServer: ConfigServer;
@@ -26,11 +30,11 @@ export declare class HideoutCallbacks implements OnUpdate {
     /**
      * Handle HideoutUpgrade event
      */
-    upgrade(pmcData: IPmcData, body: IHideoutUpgradeRequestData, sessionID: string): IItemEventRouterResponse;
+    upgrade(pmcData: IPmcData, body: IHideoutUpgradeRequestData, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Handle HideoutUpgradeComplete event
      */
-    upgradeComplete(pmcData: IPmcData, body: IHideoutUpgradeCompleteRequestData, sessionID: string): IItemEventRouterResponse;
+    upgradeComplete(pmcData: IPmcData, body: IHideoutUpgradeCompleteRequestData, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Handle HideoutPutItemsInAreaSlots
      */
@@ -62,11 +66,11 @@ export declare class HideoutCallbacks implements OnUpdate {
     /**
      * Handle HideoutQuickTimeEvent
      */
-    handleQTEEvent(pmcData: IPmcData, request: IHandleQTEEventRequestData, sessionId: string): IItemEventRouterResponse;
+    handleQTEEvent(pmcData: IPmcData, request: IHandleQTEEventRequestData, sessionId: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Handle client/game/profile/items/moving - RecordShootingRangePoints
      */
-    recordShootingRangePoints(pmcData: IPmcData, request: IRecordShootingRangePoints, sessionId: string): IItemEventRouterResponse;
+    recordShootingRangePoints(pmcData: IPmcData, request: IRecordShootingRangePoints, sessionId: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Handle client/game/profile/items/moving - RecordShootingRangePoints
      */
@@ -75,6 +79,22 @@ export declare class HideoutCallbacks implements OnUpdate {
      * Handle client/game/profile/items/moving - HideoutCancelProductionCommand
      */
     cancelProduction(pmcData: IPmcData, request: IHideoutCancelProductionRequestData, sessionId: string): IItemEventRouterResponse;
+    /**
+     * Handle client/game/profile/items/moving - HideoutCircleOfCultistProductionStart
+     */
+    circleOfCultistProductionStart(pmcData: IPmcData, request: IHideoutCircleOfCultistProductionStartRequestData, sessionId: string): IItemEventRouterResponse;
+    /**
+     * Handle client/game/profile/items/moving - HideoutDeleteProductionCommand
+     */
+    hideoutDeleteProductionCommand(pmcData: IPmcData, request: IHideoutDeleteProductionRequestData, sessionId: string): IItemEventRouterResponse;
+    /**
+     * Handle client/game/profile/items/moving - HideoutCustomizationApply
+     */
+    hideoutCustomizationApplyCommand(pmcData: IPmcData, request: IHideoutCustomizationApplyRequestData, sessionId: string): IItemEventRouterResponse;
+    /**
+     * Handle client/game/profile/items/moving - hideoutCustomizationSetMannequinPose
+     */
+    hideoutCustomizationSetMannequinPose(pmcData: IPmcData, request: IHideoutCustomizationSetMannequinPoseRequest, sessionId: string): IItemEventRouterResponse;
     onUpdate(timeSinceLastRun: number): Promise<boolean>;
     getRoute(): string;
 }

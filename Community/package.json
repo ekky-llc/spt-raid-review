@@ -1,0 +1,27 @@
+{
+  "name": "community",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy --keep-vars",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "test": "vitest",
+    "cf-typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.5.2",
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "@types/lodash": "^4.17.14",
+    "dotenv": "^17.2.1",
+    "typescript": "^5.5.2",
+    "vitest": "2.1.8",
+    "wrangler": "^4.26.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.16",
+    "bezier-js": "^6.1.4",
+    "lodash": "^4.17.21",
+    "stripe": "^17.6.0"
+  }
+}

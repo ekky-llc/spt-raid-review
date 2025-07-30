@@ -1,0 +1,1 @@
+ALTER TABLE raid ADD "parentRaidId" INTEGER DEFAULT null;

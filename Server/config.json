@@ -1,6 +1,6 @@
 {
     "do_not_delete_1": "[👇🏾 DO NOT MODIFY]",
-    "settings_schema_version": 3,
+    "settings_schema_version": 4,
     "do_not_delete_2": "[☝🏾 DO NOT MODIFY]",
 
     
@@ -12,6 +12,8 @@
     "maximumLogFiles": 10,
 
 
+    "comment__server_base_url": "[SERVER] [DEFAULT: 127.0.0.1] Changes the Server IP in the logs, this does nothing else.",
+    "server_base_url": "127.0.0.1",
     "comment__web_socket_port": "[SERVER] [DEFAULT: 7828] Changes Default Web Socket port; modify this if the port is reserved in your environment.",
     "web_socket_port": 7828,
     "comment__web_client_port": "[SERVER] [DEFAULT: 7829] Changes Default HTTP port; modify this if the port is reserved in your environment.",
@@ -31,12 +33,18 @@
     "comment__autoDeleteCronJob": "[AUTO-DELETE] [DEFAULT: false] If true, 'autoDelete' functions will run once an hour; helpful if you don't generally restart the SPT Server.",
     "autoDeleteCronJob": false,
 
-    "comment__session_manager__raid_timeout" : "[SESSION-MANAGER] [DEFAULT: 240] How many 'minutes' before a 'raid' is removed from server side tracking.",
-    "session_manager__raid_timeout" : 2,
-    "comment__session_manager__player_timeout" : "[SESSION-MANAGER] [DEFAULT: 2] How many 'minutes' before a 'player' is removed from server side tracking.",
+
+    "comment__session_manager__raid_timeout" : "[SESSION-MANAGER] [DEFAULT: 5] How many 'minutes' before a 'raid' is removed from server side tracking.",
+    "session_manager__raid_timeout" : 5,
+    "comment__session_manager__player_timeout" : "[SESSION-MANAGER] [DEFAULT: 240] How many 'minutes' before a 'player' is removed from server side tracking.",
     "session_manager__player_timeout" : 240,
+
 
     "comment__authentication": "[AUTH] [DEFAULT: false] Enable Basic Authentication; use this setting if you'd like to password-protect the web server.",
     "authentication": false,
-    "comment__authentication_extra_info": "The credentials is the username of the profile you use in SPT."
+    "comment__authentication_extra_info": "The credentials is the username of the profile you use in SPT.",
+
+
+    "comment__public_hub_base_url" : "[COMMUNITY-HUB] [DEFAULT: 'https://community.raid-review.online'] This is the 'base_url' for the public hub, only chanage this if you have decided to host your own public hub.",
+    "public_hub_base_url" : "https://community.raid-review.online"
 }

@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from 'express'
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { mkdirSync, rmSync, writeFile, writeFileSync } from 'fs'
 import path from 'path'
 import cors from 'cors'
 import _ from 'lodash'
@@ -9,10 +9,10 @@ import cookieParser from 'cookie-parser'
 import basicAuth from 'express-basic-auth'
 import compression from 'compression' 
 
-import { SaveServer } from '@spt-aki/servers/SaveServer'
-import { IAkiProfile } from '@spt-aki/models/eft/profile/IAkiProfile'
-import { ProfileHelper } from '@spt-aki/helpers/ProfileHelper'
-import { LocaleService } from '@spt-aki/services/LocaleService'
+import { SaveServer } from '@spt/servers/SaveServer'
+import { ISptProfile } from '@spt/models/eft/profile/ISptProfile'
+import { ProfileHelper } from '@spt/helpers/ProfileHelper'
+import { LocaleService } from '@spt/services/LocaleService'
 
 import config from '../../config.json'
 import { DeleteFile, ReadFile } from '../Controllers/FileSystem/DataSaver'
@@ -21,6 +21,9 @@ import { generateInterpolatedFramesBezier } from '../Utils/utils'
 import { getRaidData } from '../Controllers/Collection/GetRaidData'
 import { sendStatistics } from '../Controllers/Telemetry/RaidStatistics'
 import { Logger } from '../Utils/logger'
+import { compressData, decompressData } from '../Utils/compression'
+import { importRaidData } from '../Controllers/Persistance/importRaid'
+import { persist } from '../Controllers/Persistance/persistanceHandlers'
 
 const app: Express = express()
 const port = config.web_client_port || 7829
@@ -52,7 +55,7 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
     app.use(compression())
 
     const basicAuthUsers = {};
-    Object.values(profileServer.getProfiles()).map((p : IAkiProfile) => basicAuthUsers[p.info.username] = p.info.password);
+    Object.values(profileServer.getProfiles()).map((p : ISptProfile) => basicAuthUsers[p.info.username] = p.info.password);
 
     // Basic Auth has been implemented for people who host Fika remotely.
     // It's not the greatest level of protection, but I cannot be arsed to implement oAuth for sucha niche use case.
@@ -102,8 +105,19 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         } 
     })
 
+    app.get('/api/config', async (req: Request, res: Response) => {
+        try {
+            const { public_hub_base_url } = config;
+            res.json({
+                public_hub_base_url
+            })
+        } catch (error) {
+            res.json(null)
+        } 
+    })
+
     app.get('/api/profile/all', (req: Request, res: Response) => {
-        let profiles = saveServer.getProfiles() as Record<string, IAkiProfile>
+        let profiles = saveServer.getProfiles() as Record<string, ISptProfile>
 
         for (const profile_k in profiles) {
             let profile = profiles[profile_k]
@@ -129,6 +143,48 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         const data = await db.all(sqlRaidQuery).catch((e: Error) => logger.error(`[API:RAIDS-ALL] `, e))
 
         res.json(data)
+    })
+
+    app.post('/api/raids/import', async (req: Request, res: Response) => {
+        let fileData = Buffer.from([]);
+        const boundary = req.headers['content-type']?.split('boundary=')[1];
+        if (!boundary) {
+            return res.status(400).json({ message: 'Invalid form data' });
+        }
+    
+        req.on('data', (chunk) => {
+            fileData = Buffer.concat([fileData, chunk]);
+        });
+
+        req.on('end', async () => {
+            const fileStart = fileData.indexOf('\r\n\r\n') + 4;
+            const fileEnd = fileData.lastIndexOf(`--${boundary}--`) - 2;
+
+            const fileBuffer = fileData.slice(fileStart, fileEnd);
+            const fileHeaders = fileData.slice(0, fileStart).toString();
+    
+            const contentDisposition = fileHeaders.match(/filename="(.+?)"/);
+            if (!contentDisposition) return res.status(400).json({ message: 'No file name found' });
+    
+            const decompressed = await decompressData(fileBuffer)
+            const raidId = await importRaidData(db, logger, JSON.parse(decompressed));
+
+            const fileName = `${raidId}__import.json`;
+            const filePath = path.join(__dirname, 'uploads', fileName);
+
+            writeFile(filePath, decompressed, (err) => {
+                if (err) return res.status(500).json({ message: 'File upload failed', error: err.message });
+    
+                res.status(200).json({
+                    message: 'File uploaded and processed successfully',
+                    file: { name: `${raidId}__import.json`, path: filePath },
+                });
+            });
+        });
+    
+        req.on('error', (err) => {
+            res.status(500).json({ message: 'File upload error', error: err.message });
+        });
     })
 
     app.get('/api/raids/:raidId', async (req: Request, res: Response) => {
@@ -169,9 +225,128 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         return []
     })
 
-    app.get('/api/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
+    app.get('/api/raids/:raidId/export', async (req: Request, res: Response) => {
+
+        try {
+            let { raidId } = req.params
+
+            const raid = await getRaidData(db, logger, raidId);
+
+            if (!raid) {
+                throw Error(`Raid could not be found`);
+            }
+
+            if (raid.positionsTracked === 'RAW') {
+                CompileRaidPositionalData(raidId, logger)
+                raid.positionsTracked = 'COMPILED'
+            }
+
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
+            let positionalData = JSON.parse(positionalDataRaw);
+
+            const compressedBuffer = await compressData(JSON.stringify({ raid, positions: positionalData }));
+
+            res.setHeader('Content-Type', 'application/gzip');
+            res.setHeader('Content-Disposition', `attachment; filename=${raidId}.raidreview`);
+
+            return res.send(compressedBuffer);
+        } 
+        
+        catch (error) {
+            logger.log(error)
+            return res.json(null)
+        }
+
+    });
+
+    app.get(`/api/raids/:raidId/check`, async (req: Request, res: Response) => {
         let { raidId } = req.params;
+        try {
+            const response = await fetch(`${config.public_hub_base_url}/api/v1/raid/${raidId}`);
+            if (!response.ok) throw new Error(`Raid does not exist.`);
+            const data = await response.json();
+            persist.updateRaidPublicStatus(db, raidId, true, logger);
+            return res.json(data);
+        }
+
+        catch (error) {
+            persist.updateRaidPublicStatus(db, raidId, false, logger);
+            return res.status(204).send(false);
+        }
+    });
+
+    app.post(`/api/hub/verify-token`, async (req: Request, res: Response) => {
+        const { uploadToken } = req.body as { uploadToken: string };
+        try {
+            const response = await fetch(`${config.public_hub_base_url}/api/v1/verify-token`, {
+                method: "POST",
+                body: JSON.stringify({ uploadToken }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) throw new Error(`Token does not exist, or is not valid.`);
+            const data = await response.json();
+            return res.json(data);
+        }
+
+        catch(error) {
+            return res.status(404).send(false);
+        }
+    });
+
+    app.post('/api/raids/:raidId/share', async (req: Request, res: Response) => {
+        let { raidId } = req.params;
+        const payload = req.body;
+
+        try {
     
+            const raid = await getRaidData(db, logger, raidId);
+            if (!raid) throw new Error(`Raid could not be found`);
+    
+            if (raid.positionsTracked === 'RAW') {
+                CompileRaidPositionalData(raidId, logger);
+                raid.positionsTracked = 'COMPILED';
+            }
+    
+            const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`);
+            const positionalData = JSON.parse(positionalDataRaw);
+    
+            const compressedBuffer = await compressData( JSON.stringify({ raid, positions: positionalData }));
+
+            const raidPublishPayload = {
+                ...payload,
+                raidId: raid.raidId,
+                location: raid.location,
+                timeInRaid: raid.timeInRaid,
+                exitName: raid.exitName,
+                exitStatus: raid.exitStatus
+            }
+            
+            const formData = new FormData();
+
+            // @ts-ignore
+            formData.append('file', new Blob([compressedBuffer], { type: 'application/gzip' }), `${raidId}.raidreview`);
+            formData.append('payload', JSON.stringify(raidPublishPayload));
+
+            const uploadResponse = await fetch(`${config.public_hub_base_url}/api/v1/raid/receive`, { method: 'POST', body: formData });
+            if (!uploadResponse.ok) throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+            const responseJson = await uploadResponse.json();
+
+            await persist.updateRaidPublicStatus(db, raidId, true, logger);
+            
+            return res.json(responseJson);
+        } 
+        
+        catch (error) {
+            logger.error(error);
+            return res.status(500).json({ error: error.message });
+        }
+    });
+
+    app.get('/api/raids/:raidId/positions/heatmap', async (req: Request, res: Response) => {
+        
+        let { raidId } = req.params;
         try {
             const positionalDataRaw = ReadFile(logger, 'positions', '', '', `${raidId}_${ACTIVE_POSITIONAL_DATA_STRUCTURE}_positions.json`)
             let positionalData = JSON.parse(positionalDataRaw)
@@ -194,8 +369,8 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
             });
     
             const aggregatedPoints = Array.from(pointMap.values());
-
             return res.json(aggregatedPoints);
+
         } catch (error) {
             console.error('Error processing heatmap data:', error);
             return res.status(500).json({ error: 'Internal server error' });
@@ -270,12 +445,32 @@ function StartWebServer(saveServer: SaveServer, profileServer: ProfileHelper, db
         }
     })
 
+    app.post('/api/raids/merge', (req: Request, res: Response, next: NextFunction) => isUserAdmin(req, res, next, logger), async (req: Request, res: Response) => {
+    
+        try {
+            const { parentRaidId, childRaidIds } = req.body as { parentRaidId: string, childRaidIds: string[] };
+
+            for (let i = 0; i < childRaidIds.length; i++) {
+                const childRaidId = childRaidIds[i];
+                await persist.mergeRaid(db, logger, parentRaidId, childRaidId);
+            }
+
+            logger.log(`Merging raids: ${childRaidIds.join(',')} into raid: ${parentRaidId}`);
+
+            res.status(200).json({ message: 'Raids merged successfully' });
+        } catch (error) {
+            logger.log(error)
+            res.status(500).json(null)
+        }
+        
+    })
+
     app.get('*', (req: Request, res: Response) => {
         return res.sendFile(path.join(__dirname, '/public/index.html'))
     })
 
     app.listen(port, () => {
-        return logger.log(`Web Server is running at 'http://127.0.0.1:${port}'.`)
+        return logger.log(`Web Server is running at 'http://${config.server_base_url}:${port}'.`)
     })
 }
 

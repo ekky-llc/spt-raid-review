@@ -1,14 +1,124 @@
-import { Ixyz } from "@spt-aki/models/eft/common/Ixyz";
-import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import type { Ixy, Ixyz } from "@spt/models/eft/common/Ixyz";
+import type { IItem } from "@spt/models/eft/common/tables/IItem";
 export interface IGlobals {
-    time: number;
     config: IConfig;
+    LocationInfection: ILocationInfection;
     bot_presets: IBotPreset[];
-    AudioSettings: IAudioSettings;
     BotWeaponScatterings: IBotWeaponScattering[];
     ItemPresets: Record<string, IPreset>;
 }
+export interface IPlayerSettings {
+    BaseMaxMovementRolloff: number;
+    EnabledOcclusionDynamicRolloff: boolean;
+    IndoorRolloffMult: number;
+    MinStepSoundRolloffMult: number;
+    MinStepSoundVolumeMult: number;
+    MovementRolloffMultipliers: IMovementRolloffMultiplier[];
+    OutdoorRolloffMult: number;
+}
+export interface IMetaXRAudioPluginSettings {
+    EnabledPluginErrorChecker: boolean;
+    OutputVolumeCheckCooldown: number;
+}
+export interface IMovementRolloffMultiplier {
+    MovementState: string;
+    RolloffMultiplier: number;
+}
+export interface IRadioBroadcastSettings {
+    EnabledBroadcast: boolean;
+    RadioStations: IRadioStation[];
+}
+export interface IRadioStation {
+    Enabled: boolean;
+    Station: string;
+}
+export interface ILocationInfection {
+    Interchange: number;
+    Lighthouse: number;
+    RezervBase: number;
+    Sandbox: number;
+    Shoreline: number;
+    TarkovStreets: number;
+    Woods: number;
+    bigmap: number;
+    factory4: number;
+    laboratory: number;
+}
+export interface IArtilleryShelling {
+    ArtilleryMapsConfigs: Record<string, IArtilleryMapSettings>;
+    ProjectileExplosionParams: IProjectileExplosionParams;
+    MaxCalledShellingCount: number;
+}
+export interface IArtilleryMapSettings {
+    PlanedShellingOn: boolean;
+    InitShellingTimer: number;
+    BeforeShellingSignalTime: number;
+    ShellingCount: number;
+    ZonesInShelling: number;
+    NewZonesForEachShelling: boolean;
+    InitCalledShellingTime: number;
+    ShellingZones: IShellingZone[];
+    Brigades: IBrigade[];
+    ArtilleryShellingAirDropSettings: IArtilleryShellingAirDropSettings;
+    PauseBetweenShellings: Ixyz;
+}
+export interface IShellingZone {
+    ID: number;
+    PointsInShellings: Ixyz;
+    ShellingRounds: number;
+    ShotCount: number;
+    PauseBetweenRounds: Ixyz;
+    PauseBetweenShots: Ixyz;
+    Center: Ixyz;
+    Rotate: number;
+    GridStep: Ixyz;
+    Points: Ixyz;
+    PointRadius: number;
+    ExplosionDistanceRange: Ixyz;
+    AlarmStages: IAlarmStage[];
+    BeforeShellingSignalTime: number;
+    UsedInPlanedShelling: boolean;
+    UseInCalledShelling: boolean;
+    IsActive: boolean;
+}
+export interface IAlarmStage {
+    Value: {
+        x: number;
+        y: number;
+    };
+}
+export interface IBrigade {
+    ID: number;
+    ArtilleryGuns: IArtilleryGun[];
+}
+export interface IArtilleryGun {
+    Position: Ixyz;
+}
+export interface IArtilleryShellingAirDropSettings {
+    UseAirDrop: boolean;
+    AirDropTime: number;
+    AirDropPosition: Ixyz;
+    LootTemplateId: string;
+}
+export interface IProjectileExplosionParams {
+    Blindness: Ixyz;
+    Contusion: Ixyz;
+    ArmorDistanceDistanceDamage: Ixyz;
+    MinExplosionDistance: number;
+    MaxExplosionDistance: number;
+    FragmentsCount: number;
+    Strength: number;
+    ArmorDamage: number;
+    StaminaBurnRate: number;
+    PenetrationPower: number;
+    DirectionalDamageAngle: number;
+    DirectionalDamageMultiplier: number;
+    FragmentType: string;
+    DeadlyDistance: number;
+}
 export interface IConfig {
+    AudioSettings: IAudioSettings;
+    ArtilleryShelling: IArtilleryShelling;
     content: IContent;
     AimPunchMagnitude: number;
     WeaponSkillProgressRate: number;
@@ -19,16 +129,24 @@ export interface IConfig {
     armor: IArmor;
     SessionsToShowHotKeys: number;
     MaxBotsAliveOnMap: number;
+    MaxBotsAliveOnMapPvE: number;
+    RunddansSettings: IRunddansSettings;
     SavagePlayCooldown: number;
     SavagePlayCooldownNdaFree: number;
+    SeasonActivity: ISeasonActivity;
     MarksmanAccuracy: number;
     SavagePlayCooldownDevelop: number;
     TODSkyDate: string;
     Mastering: IMastering[];
     GlobalItemPriceModifier: number;
     TradingUnlimitedItems: boolean;
+    TradingUnsetPersonalLimitItems: boolean;
+    TransitSettings: ITransitSettings;
+    TripwiresSettings: ITripwiresSettings;
     MaxLoyaltyLevelForAll: boolean;
+    MountingSettings: IMountingSettings;
     GlobalLootChanceModifier: number;
+    GlobalLootChanceModifierPvE: number;
     GraphicSettings: IGraphicSettings;
     TimeBeforeDeploy: number;
     TimeBeforeDeployLocal: number;
@@ -39,17 +157,23 @@ export interface IConfig {
     BaseLoadTime: number;
     BaseUnloadTime: number;
     BaseCheckTime: number;
+    BluntDamageReduceFromSoftArmorMod: number;
+    BodyPartColliderSettings: IBodyPartColliderSettings;
     Customization: ICustomization;
     UncheckOnShot: boolean;
     BotsEnabled: boolean;
     BufferZone: IBufferZone;
+    Airdrop: IAirdropGlobalSettings;
     ArmorMaterials: IArmorMaterials;
+    ArenaEftTransferSettings: IArenaEftTransferSettings;
+    KarmaCalculationSettings: IKarmaCalculationSettings;
     LegsOverdamage: number;
     HandsOverdamage: number;
     StomachOverdamage: number;
     Health: IHealth;
     rating: IRating;
     tournament: ITournament;
+    QuestSettings: IQuestSettings;
     RagFair: IRagFair;
     handbook: IHandbook;
     FractureCausedByFalling: IProbability;
@@ -70,6 +194,11 @@ export interface IConfig {
     SkillPointsBeforeFatigue: number;
     SkillFatigueReset: number;
     DiscardLimitsEnabled: boolean;
+    EnvironmentSettings: IEnvironmentSetting2;
+    EventSettings: IEventSettings;
+    FavoriteItemsSettings: IFavoriteItemsSettings;
+    VaultingSettings: IVaultingSettings;
+    BTRSettings: IBTRSettings;
     EventType: string[];
     WalkSpeed: Ixyz;
     SprintSpeed: Ixyz;
@@ -92,6 +221,73 @@ export interface IConfig {
     Ballistic: IBallistic;
     RepairSettings: IRepairSettings;
 }
+export interface IRunddansSettings {
+    accessKeys: string[];
+    active: boolean;
+    activePVE: boolean;
+    applyFrozenEverySec: number;
+    consumables: string[];
+    drunkImmunitySec: number;
+    durability: Ixy;
+    fireDistanceToHeat: number;
+    grenadeDistanceToBreak: number;
+    interactionDistance: number;
+    knifeCritChanceToBreak: number;
+    locations: string[];
+    multitoolRepairSec: number;
+    nonExitsLocations: string[];
+    rainForFrozen: number;
+    repairSec: number;
+    secToBreak: Ixy;
+    sleighLocations: string[];
+}
+export interface ISeasonActivity {
+    InfectionHalloween: ISeasonActivityHalloween;
+}
+export interface ISeasonActivityHalloween {
+    DisplayUIEnabled: boolean;
+    Enabled: boolean;
+    ZombieBleedMul: number;
+}
+export interface IEnvironmentSetting2 {
+    EnvironmentUIData: IEnvironmentUIData;
+}
+export interface IEnvironmentUIData {
+    TheUnheardEditionEnvironmentUiType: string[];
+}
+export interface IBodyPartColliderSettings {
+    BackHead: IBodyPartColliderPart;
+    Ears: IBodyPartColliderPart;
+    Eyes: IBodyPartColliderPart;
+    HeadCommon: IBodyPartColliderPart;
+    Jaw: IBodyPartColliderPart;
+    LeftCalf: IBodyPartColliderPart;
+    LeftForearm: IBodyPartColliderPart;
+    LeftSideChestDown: IBodyPartColliderPart;
+    LeftSideChestUp: IBodyPartColliderPart;
+    LeftThigh: IBodyPartColliderPart;
+    LeftUpperArm: IBodyPartColliderPart;
+    NeckBack: IBodyPartColliderPart;
+    NeckFront: IBodyPartColliderPart;
+    ParietalHead: IBodyPartColliderPart;
+    Pelvis: IBodyPartColliderPart;
+    PelvisBack: IBodyPartColliderPart;
+    RibcageLow: IBodyPartColliderPart;
+    RibcageUp: IBodyPartColliderPart;
+    RightCalf: IBodyPartColliderPart;
+    RightForearm: IBodyPartColliderPart;
+    RightSideChestDown: IBodyPartColliderPart;
+    RightSideChestUp: IBodyPartColliderPart;
+    RightThigh: IBodyPartColliderPart;
+    RightUpperArm: IBodyPartColliderPart;
+    SpineDown: IBodyPartColliderPart;
+    SpineTop: IBodyPartColliderPart;
+}
+export interface IBodyPartColliderPart {
+    PenetrationChance: number;
+    PenetrationDamageMod: number;
+    PenetrationLevel: number;
+}
 export interface IWeaponFastDrawSettings {
     HandShakeCurveFrequency: number;
     HandShakeCurveIntensity: number;
@@ -101,6 +297,102 @@ export interface IWeaponFastDrawSettings {
     WeaponFastSwitchMinSpeedMult: number;
     WeaponPistolFastSwitchMaxSpeedMult: number;
     WeaponPistolFastSwitchMinSpeedMult: number;
+}
+export interface IEventSettings {
+    EventActive: boolean;
+    EventTime: number;
+    EventWeather: IEventWeather;
+    ExitTimeMultiplier: number;
+    StaminaMultiplier: number;
+    SummonFailedWeather: IEventWeather;
+    SummonSuccessWeather: IEventWeather;
+    WeatherChangeTime: number;
+}
+export interface IEventWeather {
+    Cloudness: number;
+    Hour: number;
+    Minute: number;
+    Rain: number;
+    RainRandomness: number;
+    ScaterringFogDensity: number;
+    TopWindDirection: Ixyz;
+    Wind: number;
+    WindDirection: number;
+}
+export interface ITransitSettings {
+    BearPriceMod: number;
+    ClearAllPlayerEffectsOnTransit: boolean;
+    CoefficientDiscountCharisma: number;
+    DeliveryMinPrice: number;
+    DeliveryPrice: number;
+    ModDeliveryCost: number;
+    PercentageOfMissingEnergyRestore: number;
+    PercentageOfMissingHealthRestore: number;
+    PercentageOfMissingWaterRestore: number;
+    RestoreHealthOnDestroyedParts: boolean;
+    ScavPriceMod: number;
+    UsecPriceMod: number;
+    active: boolean;
+}
+export interface ITripwiresSettings {
+    CollisionCapsuleCheckCoef: number;
+    CollisionCapsuleRadius: number;
+    DefuseTimeSeconds: number;
+    DestroyedSeconds: number;
+    GroundDotProductTolerance: number;
+    InertSeconds: number;
+    InteractionSqrDistance: number;
+    MaxHeightDifference: number;
+    MaxLength: number;
+    MaxPreviewLength: number;
+    MaxTripwireToPlayerDistance: number;
+    MinLength: number;
+    MultitoolDefuseTimeSeconds: number;
+    ShotSqrDistance: number;
+}
+export interface IMountingSettings {
+    MovementSettings: IMountingMovementSettings;
+    PointDetectionSettings: IMountingPointDetectionSettings;
+}
+export interface IMountingMovementSettings {
+    ApproachTime: number;
+    ApproachTimeDeltaAngleModifier: number;
+    ExitTime: number;
+    MaxApproachTime: number;
+    MaxPitchLimitExcess: number;
+    MaxVerticalMountAngle: number;
+    MaxYawLimitExcess: number;
+    MinApproachTime: number;
+    MountingCameraSpeed: number;
+    MountingSwayFactorModifier: number;
+    PitchLimitHorizontal: Ixyz;
+    PitchLimitHorizontalBipod: Ixyz;
+    PitchLimitVertical: Ixyz;
+    RotationSpeedClamp: number;
+    SensitivityMultiplier: number;
+}
+export interface IMountingPointDetectionSettings {
+    CheckHorizontalSecondaryOffset: number;
+    CheckWallOffset: number;
+    EdgeDetectionDistance: number;
+    GridMaxHeight: number;
+    GridMinHeight: number;
+    HorizontalGridFromTopOffset: number;
+    HorizontalGridSize: number;
+    HorizontalGridStepsAmount: number;
+    MaxFramesForRaycast: number;
+    MaxHorizontalMountAngleDotDelta: number;
+    MaxProneMountAngleDotDelta: number;
+    MaxVerticalMountAngleDotDelta: number;
+    PointHorizontalMountOffset: number;
+    PointVerticalMountOffset: number;
+    RaycastDistance: number;
+    SecondCheckVerticalDistance: number;
+    SecondCheckVerticalGridOffset: number;
+    SecondCheckVerticalGridSize: number;
+    SecondCheckVerticalGridSizeStepsAmount: number;
+    VerticalGridSize: number;
+    VerticalGridStepsAmount: number;
 }
 export interface IGraphicSettings {
     ExperimentalFogInCity: boolean;
@@ -114,7 +406,11 @@ export interface IItemsCommonSettings {
     ItemRemoveAfterInterruptionTime: number;
 }
 export interface ITradingSettings {
+    BuyRestrictionMaxBonus: Record<string, IBuyRestrictionMaxBonus>;
     BuyoutRestrictions: IBuyoutRestrictions;
+}
+export interface IBuyRestrictionMaxBonus {
+    multiplier: number;
 }
 export interface IBuyoutRestrictions {
     MinDurability: number;
@@ -132,6 +428,7 @@ export interface IExp {
     kill: IKill;
     level: ILevel;
     loot_attempts: ILootAttempt[];
+    expForLevelOneDogtag: number;
     expForLockedDoorOpen: number;
     expForLockedDoorBreach: number;
     triggerMult: number;
@@ -153,6 +450,8 @@ export interface IMatchEnd {
     survivedMult: number;
     runnerMult: number;
     killedMult: number;
+    transit_exp_reward: number;
+    transit_mult: number[][];
 }
 export interface IKill {
     combo: ICombo[];
@@ -197,108 +496,21 @@ export interface IMastering {
     Level3: number;
 }
 export interface ICustomization {
-    SavageHead: ISavageHead;
-    SavageBody: ISavageBody;
-    SavageFeet: ISavageFeet;
+    SavageHead: Record<string, IWildHead>;
+    SavageBody: Record<string, IWildBody>;
+    SavageFeet: Record<string, IWildFeet>;
     CustomizationVoice: ICustomizationVoice[];
     BodyParts: IBodyParts;
-}
-export interface ISavageHead {
-    wild_head_1: IWildHead;
-    wild_head_2: IWildHead;
-    wild_head_3: IWildHead;
-    Wild_Dealmaker_head: IWildHead;
-    Wild_Killa_head: IWildHead;
-    bear_head: IWildHead;
-    bear_head_1: IWildHead;
-    usec_head_1: IWildHead;
-    Head_BOSS_Glukhar: IWildHead;
-    Wild_Head_nonMesh: IWildHead;
-    Head_BOSS_Sanitar: IWildHead;
-    wild_head_drozd: IWildHead;
-    wild_head_misha: IWildHead;
-    head_cultist_01: IWildHead;
-    head_cultist_02: IWildHead;
-    head_cultist_03: IWildHead;
-    DefaultUsecHead: IWildHead;
-    usec_head_3: IWildHead;
-    usec_head_4: IWildHead;
-    usec_head_5: IWildHead;
 }
 export interface IWildHead {
     head: string;
     isNotRandom: boolean;
     NotRandom: boolean;
 }
-export interface ISavageBody {
-    wild_body: IWildBody;
-    wild_body_1: IWildBody;
-    wild_body_2: IWildBody;
-    wild_body_3: IWildBody;
-    Wild_Dealmaker_body: IWildBody;
-    wild_security_body_1: IWildBody;
-    wild_security_body_2: IWildBody;
-    wild_Killa_body: IWildBody;
-    wild_pmcBot_body: IWildBody;
-    wild_Shturman_body: IWildBody;
-    wild_Gluhar_body: IWildBody;
-    Tshirt_security_TshirtTatu_01: IWildBody;
-    Tshirt_security_TshirtTatu_02: IWildBody;
-    Top_security_Husky: IWildBody;
-    Top_security_Gorka4: IWildBody;
-    scav_kit_upper_meteor: IWildBody;
-    wild_body_russia1: IWildBody;
-    Top_BOSS_Sanitar: IWildBody;
-    wild_body_motocross: IWildBody;
-    top_cultist_01: IWildBody;
-    top_cultist_02: IWildBody;
-    wild_body_rainparka: IWildBody;
-    wild_body_underarmour: IWildBody;
-    top_boss_tagilla: IWildBody;
-    DefaultUsecBody: IWildBody;
-    usec_upper_acu: IWildBody;
-    usec_upper_commando: IWildBody;
-    usec_upper_aggressor: IWildBody;
-    usec_upper_hoody: IWildBody;
-    usec_upper_pcuironsight: IWildBody;
-    usec_top_beltstaff: IWildBody;
-    usec_upper_flexion: IWildBody;
-    usec_upper_tier3: IWildBody;
-    usec_upper_pcsmulticam: IWildBody;
-    usec_upper_tier_2: IWildBody;
-    usec_upper_infiltrator: IWildBody;
-    user_upper_NightPatrol: IWildBody;
-    wild_body_bomber: IWildBody;
-    wild_top_yellowcoat: IWildBody;
-}
 export interface IWildBody {
     body: string;
     hands: string;
     isNotRandom: boolean;
-}
-export interface ISavageFeet {
-    wild_feet: IWildFeet;
-    wild_feet_1: IWildFeet;
-    wild_feet_2: IWildFeet;
-    Wild_Dealmaker_feet: IWildFeet;
-    wild_security_feet_1: IWildFeet;
-    Wild_Killa_feet: IWildFeet;
-    wild_pmcBot_feet: IWildFeet;
-    Pants_BOSS_Glukhar: IWildFeet;
-    Pants_BOSS_Shturman: IWildFeet;
-    Pants_security_Gorka4: IWildFeet;
-    Pants_security_Flora: IWildFeet;
-    scav_kit_lower_sklon: IWildFeet;
-    Pants_BOSS_Sanitar: IWildFeet;
-    wild_feet_sweatpants: IWildFeet;
-    wild_feet_wasatch: IWildFeet;
-    wild_feet_slimPants: IWildFeet;
-    pants_cultist_01: IWildFeet;
-    pants_cultist_02: IWildFeet;
-    wild_feet_scavelite_taclite: IWildFeet;
-    pants_boss_tagilla: IWildFeet;
-    wild_feet_bomber: IWildFeet;
-    wild_pants_yellowcoat: IWildFeet;
 }
 export interface IWildFeet {
     feet: string;
@@ -315,6 +527,38 @@ export interface IBodyParts {
     Body: string;
     Feet: string;
     Hands: string;
+}
+export interface IAirdropGlobalSettings {
+    AirdropViewType: string;
+    ParachuteEndOpenHeight: number;
+    ParachuteStartOpenHeight: number;
+    PlaneAdditionalDistance: number;
+    PlaneAirdropDuration: number;
+    PlaneAirdropFlareWait: number;
+    PlaneAirdropSmoke: number;
+    PlaneMaxFlightHeight: number;
+    PlaneMinFlightHeight: number;
+    PlaneSpeed: number;
+    SmokeActivateHeight: number;
+}
+export interface IKarmaCalculationSettings {
+    defaultPveKarmaValue: number;
+    enable: boolean;
+    expireDaysAfterLastRaid: number;
+    maxKarmaThresholdPercentile: number;
+    minKarmaThresholdPercentile: number;
+    minSurvivedRaidCount: number;
+}
+export interface IArenaEftTransferSettings {
+    ArenaEftTransferSettings: IArenaEftTransferSettings;
+}
+export interface IArenaEftTransferSettings {
+    ArenaManagerReputationTaxMultiplier: number;
+    CharismaTaxMultiplier: number;
+    CreditPriceTaxMultiplier: number;
+    RubTaxMultiplier: number;
+    TransferLimitsByGameEdition: Record<string, number>;
+    TransferLimitsSettings: Record<string, number>;
 }
 export interface IArmorMaterials {
     UHMWPE: IArmorType;
@@ -372,6 +616,12 @@ export interface IEffects {
     HeavyBleeding: IHeavyBleeding;
     LightBleeding: ILightBleeding;
     BodyTemperature: IBodyTemperature;
+    ZombieInfection: IZombieInfection;
+}
+export interface IZombieInfection {
+    Dehydration: number;
+    HearingDebuffPercentage: number;
+    СumulativeTime: number;
 }
 export interface IExistence {
     EnergyLoopTime: number;
@@ -553,6 +803,7 @@ export interface IBuffs {
     Buffs_food_alyonka: IBuff[];
     Buffs_food_slippers: IBuff[];
     Buffs_knife: IBuff[];
+    Buffs_EndOfWinterBonfire: IBuff[];
 }
 export interface IBuff {
     BuffType: string;
@@ -656,6 +907,7 @@ export interface IBodyPartsSetting {
     Minimum: number;
     Maximum: number;
     Default: number;
+    EnvironmentDamageMultiplier: number;
     OverDamageReceivedMultiplier: number;
 }
 export interface IHealthFactorsSettings {
@@ -716,6 +968,8 @@ export interface IRagFair {
     balancerAveragePriceCoefficient: number;
     delaySinceOfferAdd: number;
     uniqueBuyerTimeoutInDays: number;
+    userRatingChangeFrequencyMultiplayer: number;
+    RagfairTurnOnTimestamp: number;
     ratingSumForIncrease: number;
     ratingIncreaseCount: number;
     ratingSumForDecrease: number;
@@ -724,12 +978,18 @@ export interface IRagFair {
     maxSumForDecreaseRatingPerOneSale: number;
     maxSumForRarity: IMaxSumForRarity;
     ChangePriceCoef: number;
+    ItemRestrictions: IItemGlobalRestrictions[];
     balancerUserItemSaleCooldownEnabled: boolean;
     balancerUserItemSaleCooldown: number;
     youSellOfferMaxStorageTimeInHour: number;
     yourOfferDidNotSellMaxStorageTimeInHour: number;
     isOnlyFoundInRaidAllowed: boolean;
     sellInOnePiece: number;
+}
+export interface IItemGlobalRestrictions {
+    MaxFlea: number;
+    MaxFleaStacked: number;
+    TemplateId: string;
 }
 export interface IMaxActiveOfferCount {
     from: number;
@@ -752,7 +1012,10 @@ export interface IStamina {
     Capacity: number;
     SprintDrainRate: number;
     BaseRestorationRate: number;
+    BipodAimDrainRateMultiplier: number;
     JumpConsumption: number;
+    MountingHorizontalAimDrainRateMultiplier: number;
+    MountingVerticalAimDrainRateMultiplier: number;
     GrenadeHighThrow: number;
     GrenadeLowThrow: number;
     AimDrainRate: number;
@@ -823,8 +1086,101 @@ export interface IAlpinist {
     RequirementTip: string;
 }
 export interface IRestrictionsInRaid {
+    MaxInLobby: number;
+    MaxInRaid: number;
     TemplateId: string;
-    Value: number;
+}
+export interface IFavoriteItemsSettings {
+    WeaponStandMaxItemsCount: number;
+    PlaceOfFameMaxItemsCount: number;
+}
+export interface IVaultingSettings {
+    IsActive: boolean;
+    VaultingInputTime: number;
+    GridSettings: IVaultingGridSettings;
+    MovesSettings: IVaultingMovesSettings;
+}
+export interface IVaultingGridSettings {
+    GridSizeX: number;
+    GridSizeY: number;
+    GridSizeZ: number;
+    SteppingLengthX: number;
+    SteppingLengthY: number;
+    SteppingLengthZ: number;
+    GridOffsetX: number;
+    GridOffsetY: number;
+    GridOffsetZ: number;
+    OffsetFactor: number;
+}
+export interface IVaultingMovesSettings {
+    VaultSettings: IVaultingSubMoveSettings;
+    ClimbSettings: IVaultingSubMoveSettings;
+}
+export interface IVaultingSubMoveSettings {
+    IsActive: boolean;
+    MaxWithoutHandHeight: number;
+    SpeedRange: Ixyz;
+    MoveRestrictions: IMoveRestrictions;
+    AutoMoveRestrictions: IMoveRestrictions;
+}
+export interface IMoveRestrictions {
+    IsActive: boolean;
+    MinDistantToInteract: number;
+    MinHeight: number;
+    MaxHeight: number;
+    MinLength: number;
+    MaxLength: number;
+}
+export interface IBTRSettings {
+    LocationsWithBTR: string[];
+    BasePriceTaxi: number;
+    AddPriceTaxi: number;
+    CleanUpPrice: number;
+    DeliveryPrice: number;
+    ModDeliveryCost: number;
+    BearPriceMod: number;
+    UsecPriceMod: number;
+    ScavPriceMod: number;
+    CoefficientDiscountCharisma: number;
+    DeliveryMinPrice: number;
+    TaxiMinPrice: number;
+    BotCoverMinPrice: number;
+    MapsConfigs: Record<string, IBtrMapConfig>;
+    DiameterWheel: number;
+    HeightWheel: number;
+    HeightWheelMaxPosLimit: number;
+    HeightWheelMinPosLimit: number;
+    SnapToSurfaceWheelsSpeed: number;
+    CheckSurfaceForWheelsTimer: number;
+    HeightWheelOffset: number;
+}
+export interface IBtrMapConfig {
+    BtrSkin: string;
+    CheckSurfaceForWheelsTimer: number;
+    DiameterWheel: number;
+    HeightWheel: number;
+    HeightWheelMaxPosLimit: number;
+    HeightWheelMinPosLimit: number;
+    HeightWheelOffset: number;
+    SnapToSurfaceWheelsSpeed: number;
+    SuspensionDamperStiffness: number;
+    SuspensionRestLength: number;
+    SuspensionSpringStiffness: number;
+    SuspensionTravel: number;
+    SuspensionWheelRadius: number;
+    mapID: string;
+    pathsConfigurations: IPathConfig[];
+}
+export interface IPathConfig {
+    active: boolean;
+    id: string;
+    enterPoint: string;
+    exitPoint: string;
+    pathPoints: string[];
+    once: boolean;
+    circle: boolean;
+    circleCount: number;
+    skinType: string[];
 }
 export interface ISquadSettings {
     CountOfRequestsToOnePlayer: number;
@@ -832,7 +1188,15 @@ export interface ISquadSettings {
     SendRequestDelaySeconds: number;
 }
 export interface IInsurance {
+    ChangeForReturnItemsInOfflineRaid: number;
     MaxStorageTimeInHour: number;
+    CoefOfSendingMessageTime: number;
+    CoefOfHavingMarkOfUnknown: number;
+    EditionSendingMessageTime: Record<string, IMessageSendTImeMultipler>;
+    OnlyInDeathCase: boolean;
+}
+export interface IMessageSendTImeMultipler {
+    multiplier: number;
 }
 export interface ISkillsSettings {
     SkillProgressRate: number;
@@ -841,6 +1205,7 @@ export interface ISkillsSettings {
     HideoutManagement: IHideoutManagement;
     Crafting: ICrafting;
     Metabolism: IMetabolism;
+    MountingErgonomicsBonusPerLevel: number;
     Immunity: Immunity;
     Endurance: IEndurance;
     Strength: IStrength;
@@ -866,6 +1231,7 @@ export interface ISkillsSettings {
     BearAksystems: any[];
     BearHeavycaliber: any[];
     BearRawpower: any[];
+    BipodErgonomicsBonusPerLevel: number;
     UsecArsystems: any[];
     UsecDeepweaponmodding_Settings: any[];
     UsecLongrangeoptics_Settings: any[];
@@ -925,6 +1291,7 @@ export interface IArmorCounters {
 export interface IHideoutManagement {
     SkillPointsPerAreaUpgrade: number;
     SkillPointsPerCraft: number;
+    CircleOfCultistsBonusPercent: number;
     ConsumptionReductionPerLevel: number;
     SkillBoostPercent: number;
     SkillPointsRate: ISkillPointsRate;
@@ -1224,11 +1591,13 @@ export interface IFenceSettings {
     paidExitStandingNumerator: number;
 }
 export interface IFenceLevel {
+    ReachOnMarkOnUnknowns: boolean;
     SavageCooldownModifier: number;
     ScavCaseTimeModifier: number;
     PaidExitCostModifier: number;
     BotFollowChance: number;
     ScavEquipmentSpawnChanceModifier: number;
+    TransitGridSize: Ixyz;
     PriceModifier: number;
     HostileBosses: boolean;
     HostileScavs: boolean;
@@ -1240,6 +1609,14 @@ export interface IFenceLevel {
     BotHelpChance: number;
     BotSpreadoutChance: number;
     BotStopChance: number;
+    PriceModTaxi: number;
+    PriceModDelivery: number;
+    PriceModCleanUp: number;
+    ReactOnMarkOnUnknowns: boolean;
+    ReactOnMarkOnUnknownsPVE: boolean;
+    DeliveryGridSize: Ixyz;
+    CanInteractWithBtr: boolean;
+    CircleOfCultistsBonusPercent: number;
 }
 export interface IInertia {
     InertiaLimits: Ixyz;
@@ -1323,6 +1700,16 @@ export interface IBotPreset {
 }
 export interface IAudioSettings {
     AudioGroupPresets: IAudioGroupPreset[];
+    EnvironmentSettings: IEnvironmentSettings;
+    HeadphonesSettings: IHeadphonesSettings;
+    MetaXRAudioPluginSettings: IMetaXRAudioPluginSettings;
+    PlayerSettings: IPlayerSettings;
+    RadioBroadcastSettings: IRadioBroadcastSettings;
+}
+export interface IHeadphonesSettings {
+    FadeDuration: number;
+    FadeIn: string;
+    FadeOut: string;
 }
 export interface IAudioGroupPreset {
     AngleToAllowBinaural: number;
@@ -1333,7 +1720,16 @@ export interface IAudioGroupPreset {
     Name: string;
     OcclusionEnabled: boolean;
     OcclusionIntensity: number;
+    OcclusionRolloffScale: number;
     OverallVolume: number;
+}
+export interface IEnvironmentSettings {
+    SnowStepsVolumeMultiplier: number;
+    SurfaceMultipliers: ISurfaceMultiplier[];
+}
+export interface ISurfaceMultiplier {
+    SurfaceType: string;
+    VolumeMult: number;
 }
 export interface IBotWeaponScattering {
     Name: string;
@@ -1347,7 +1743,11 @@ export interface IPreset {
     _changeWeaponName: boolean;
     _name: string;
     _parent: string;
-    _items: Item[];
+    _items: IItem[];
     /** Default presets have this property */
     _encyclopedia?: string;
+}
+export interface IQuestSettings {
+    GlobalRewardRepModifierDailyQuestPvE: number;
+    GlobalRewardRepModifierQuestPvE: number;
 }

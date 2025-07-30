@@ -1,14 +1,14 @@
-import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { IBaseConfig } from "@spt/models/spt/config/IBaseConfig";
 export interface IHealthConfig extends IBaseConfig {
-    kind: "aki-health";
-    healthMultipliers: HealthMultipliers;
-    save: Save;
+    kind: "spt-health";
+    healthMultipliers: IHealthMultipliers;
+    save: ISave;
 }
-export interface HealthMultipliers {
+export interface IHealthMultipliers {
     death: number;
     blacked: number;
 }
-export interface Save {
+export interface ISave {
     health: boolean;
     effects: boolean;
 }

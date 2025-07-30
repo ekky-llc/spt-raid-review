@@ -55,7 +55,7 @@ export interface TrackingPlayer {
 
 export interface TrackingRaidKill {
   time: number;
-  killerId: string;
+  profileId: string;
   killedId: string;
   weapon: string;
   distance: number;

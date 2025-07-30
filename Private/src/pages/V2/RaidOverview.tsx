@@ -1,24 +1,28 @@
 
 // import api from '../../api/api';
 
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router";
 import { TrackingRaidData, TrackingRaidDataPlayers } from '../../types/api_types'
 import './Raids.css'
-import { msToHMS } from "../../helpers";
+import { intl, msToHMS } from "../../helpers";
 
 import BotMapping from '../../assets/botMapping.json'
 import { useEffect, useState } from "react";
 import _ from "lodash";
 import { LOCATIONS } from "../../helpers/locations";
-
+import cyr_to_en from '../../assets/intl/cyr_to_en.json';
+import { transliterateCyrillicToLatin } from "../../helpers/transliterateCyrillicToLatin";
 
 export default function RaidOverview() {
-    const { raid } = useOutletContext() as { raid: TrackingRaidData };
+    const { raid, intl: intl_dir_ot } = useOutletContext() as { raid: TrackingRaidData, intl: { [key:string] : string } };
 
+    
     const [ calcStats, setCalcStats ] = useState(null as null | Map<string, { kills: number, lootings: number, accuracy: number }>);
     const [ raidSummary, setRaidSummary ] = useState([] as { title: string; value: any;}[]);
     const [ groupedByType, setGroupedByType ] = useState('' as string);
     const [ groupedBy, setGroupedBy ] = useState([] as TrackingRaidDataPlayers[][]);
+    
+    const intl_dir : Record<string, string> = {...intl_dir_ot, ...cyr_to_en};
 
     useEffect(() => {
       if (raid && raid.players) {
@@ -26,7 +30,7 @@ export default function RaidOverview() {
         for (let i = 0; i < raid.players.length; i++) {
           const player = raid.players[i];
           
-          let kills = _.filter(raid.kills, (killer) => killer.killerId === player.profileId).length;
+          let kills = _.filter(raid.kills, (killer) => killer.profileId === player.profileId).length;
           let lootingsAdded = _.filter(raid.looting, (looter) => looter.profileId === player.profileId && looter.added === '1').length;
           let lootingsRemoved = _.filter(raid.looting, (looter) => looter.profileId === player.profileId && looter.added === '0').length;
           let lootings = lootingsAdded - lootingsRemoved;
@@ -195,12 +199,18 @@ export default function RaidOverview() {
         
         return (raid && groupedBy && groupedBy.length > 0 ? groupedBy.map( (gp) => gp.map( (p, index) => {
           const SAIN = getPlayerDifficultyAndBrain(p).toLowerCase();
+          const LAST_STATUS = _.chain(raid.player_status).filter((ps) => ps.profileId === p.profileId && ps.status === 'Dead').sortBy('time', 'desc').first().value();
+          
+          let KIA = true;
+          if (LAST_STATUS) {
+            KIA = false;
+          }
 
-          return (<tr key={`group-${index}`} className={`${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
+          return (<tr key={`group-${index}`} className={`${KIA ? '' : ' text-red-700 opacity-85'} ${index === 0 || (index === gp.length - 1) ? (index === 0 ? 'border-t border-dashed border-eft' : 'border-b border-dashed border-eft' ) : '' } ${SAIN === 'player' ? 'font-bold' : ''}`}>
               <td className="text-right p-2 uppercase">{ p.team === 'Savage' ? 'Scav' : p.team }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.group }</td>
               <td className="text-center p-2 uppercase border-x border-eft">{ p.level }</td>
-              <td className="text-left p-2">{ p.name }</td>
+              <td className="text-left p-2">{KIA ? '' : ' 💀 '}{ transliterateCyrillicToLatin(intl(p.name, intl_dir)) }</td>
               <td className="text-right p-2 capitalize">{ raid.detectedMods.match(/SAIN/gi) ? SAIN : '' }</td>
               <td className="text-center p-2 w-12 border-l border-eft">{ calcStats ? calcStats.get(p.profileId)?.kills || '-' : null  }</td>
               <td className={`text-center p-2 w-12 ${(calcStats && (calcStats.get(p.profileId)?.lootings || 0) < 0) ? 'text-red-400' : 'text-green-400'}`}>{ calcStats ? calcStats.get(p.profileId)?.lootings || '-'  : null }</td>
@@ -235,26 +245,28 @@ export default function RaidOverview() {
         <section className="mt-4">
             <div className="w-full flex flex-row justify-between">
               <span className="text-lg font-bold">Leaderboard</span>
-              <span>Sort by Side, Team or Spawned</span>
+              <span className="lg:block hidden">Sort by Side, Team or Spawned</span>
             </div>
-            <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
-                <thead>
-                    <tr className="bg-eft text-black">
-                        <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'TEAM' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('TEAM')}>Side</th>
-                        <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'GROUP' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('GROUP')}>Team</th>
-                        <th className="text-right px-2">Lvl</th>
-                        <th className="text-left px-2">Username</th>
-                        <th className="text-right px-2"> { raid.detectedMods.match(/SAIN/gi) ? 'SAIN' : '' }</th>
-                        <th className="text-center px-2">K</th>
-                        <th className="text-center px-2">L</th>
-                        <th className="text-center px-2">A%</th>
-                        <th className={`text-right px-2 underline cursor-pointer ${groupedByType === '' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('')}>Spawned</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    { generatePlayerTable(raid) || <tr><td colSpan={9}>No Data.</td></tr>}
-                </tbody>
-            </table>
+            <div className="max-w-screen overflow-auto">
+              <table id="raid-leaderboard" className="mb-2 w-full border border-eft">
+                  <thead>
+                      <tr className="bg-eft text-black">
+                          <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'TEAM' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('TEAM')}>Side</th>
+                          <th className={`text-right px-2 underline cursor-pointer ${groupedByType === 'GROUP' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('GROUP')}>Team</th>
+                          <th className="text-right px-2">Lvl</th>
+                          <th className="text-left px-2">Username</th>
+                          <th className="text-right px-2"> { raid.detectedMods.match(/SAIN/gi) ? 'SAIN' : '' }</th>
+                          <th className="text-center px-2" title="Kills">K</th>
+                          <th className="text-center px-2" title="Looted items">L</th>
+                          <th className="text-center px-2" title="Accuracy">A%</th>
+                          <th className={`text-right px-2 underline cursor-pointer ${groupedByType === '' ? 'bg-black text-eft' : ''}`} onClick={() => setGroupedByType('')}>Spawned</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      { generatePlayerTable(raid) || <tr><td colSpan={9}>No Data.</td></tr>}
+                  </tbody>
+              </table>
+            </div>
         </section>
       </>
     );

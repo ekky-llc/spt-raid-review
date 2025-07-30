@@ -1,9 +1,6 @@
-import { ILocations } from "@spt-aki/models/spt/server/ILocations";
+import { IPath } from "@spt/models/eft/common/tables/ILocationsBase";
+import { ILocations } from "@spt/models/spt/server/ILocations";
 export interface ILocationsGenerateAllResponse {
     locations: ILocations;
-    paths: Path[];
-}
-export interface Path {
-    Source: string;
-    Destination: string;
+    paths: IPath[];
 }

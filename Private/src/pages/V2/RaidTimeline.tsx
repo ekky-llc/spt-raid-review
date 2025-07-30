@@ -1,19 +1,25 @@
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router";
 import { TrackingRaidData } from "../../types/api_types";
 import { bodypart, intl, msToHMS } from "../../helpers";
 import { useEffect, useState } from "react";
 import _ from "lodash";
 
+import cyr_to_en from '../../assets/intl/cyr_to_en.json';
+import { transliterateCyrillicToLatin } from "../../helpers/transliterateCyrillicToLatin";
+
 export default function RaidTimeline() {
+
   const [ actionFilterModal, setActionFilterModal ] = useState(false);
   const [ usernameFilterModal, setUsernameFilterModal ] = useState(false);
   const [ usernamesWithActivity, setUsernamesWithActivity ] = useState({} as { profileId: string, name: string | undefined }[]);
   const [ usernameFilter, setUsernameFilter ] = useState({} as { [key:string] : boolean });
   const [ actionFilter, setActionFilter ] = useState({} as { [key:string] : boolean });
-  const { raid, intl : intl_dir } = useOutletContext() as {
+  const { raid, intl : intl_dir_ot } = useOutletContext() as {
       raid: TrackingRaidData,
       intl: { [key: string]: string }
   };
+
+  const intl_dir : Record<string, string> = {...intl_dir_ot, ...cyr_to_en};
 
   useEffect(() => {
 
@@ -82,12 +88,12 @@ export default function RaidTimeline() {
                   <>
                     {/* @ts-ignore */}
                     <td className="opacity-75 px-2 border-r border-eft">{msToHMS(tli.time)}</td>
-                    <td className="text-right pr-2">{killer ? intl(killer.name, intl_dir) : "Unknown"}</td>
+                    <td className="text-right pr-2">{killer ? transliterateCyrillicToLatin(intl(killer.name, intl_dir)) : "Unknown"}</td>
                     <td className="text-center px-2 border-l border-r border-eft">
                       <span className="opacity-75">killed </span>
                     </td>
                     <td className="text-left px-2">
-                      <strong>{killed ? intl(killed.name, intl_dir) : "Unknown"}</strong>
+                      <strong>{killed ? transliterateCyrillicToLatin(intl(killed.name, intl_dir)) : "Unknown"}</strong>
                       <span className="opacity-75"> with a </span>
                         {/* @ts-ignore */}
                       <strong>{ intl([tli.weapon.replace("Name", "ShortName")], intl_dir) } [{bodypart[tli.bodyPart]? bodypart[tli.bodyPart]: tli.bodyPart}] [{ Number(tli.distance).toFixed(2) }m]</strong>
@@ -97,7 +103,7 @@ export default function RaidTimeline() {
                   <>
                     {/* @ts-ignore */}
                     <td className="opacity-75 px-2 border-r border-eft">{msToHMS(tli.time)}</td>
-                    <td className="text-right pr-2">{looter ? intl(looter.name, intl_dir) : "Unknown"}</td>
+                    <td className="text-right pr-2">{looter ? transliterateCyrillicToLatin(intl(looter.name, intl_dir)) : "Unknown"}</td>
                     <td className="text-center px-2 border-l border-r border-eft">
                       <span className="opacity-75">
                       {Number(tli.added) ? " looted " : " dropped "}
@@ -192,37 +198,39 @@ export default function RaidTimeline() {
 
   return (
       <section className="raid-timeline">
-            <div className="w-full flex flex-row justify-between">
-              <span className="text-lg font-bold">Timeline</span>
-              <span>Filter by Username or Action</span>
-            </div>
-        <table id="raid-timeline" className="mb-2 w-full border border-eft">
-            <thead>
-              <tr className="bg-eft text-black">
-                <th className="text-left px-2 cursor-pointer">Time</th>
-                <th className="text-right border-l relative border-r border-eft underline">
-                  <span className="cursor-pointer" onClick={() => setUsernameFilterModal(!usernameFilterModal)}>Username</span>
-                  { usernameFilterModal ? 
-                    <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2  w-full w-48 z-50">
-                      { generateUsernameToggle() }
-                    </div> : ''
-                  }
-                </th>
-                <th className="text-center px-2 relative underline cursor-pointer">
-                  <span className="cursor-pointer" onClick={() => setActionFilterModal(!actionFilterModal)}>Action</span>
-                  { actionFilterModal ? 
-                    <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2 w-full w-48 z-50">
-                      { generateActionToggle() }
-                    </div> : ''
-                  }
-                </th>
-                <th className="text-left px-2">Detail</th>
-              </tr>
-          </thead>
-          <tbody>
-            { generateTimeline() }
-          </tbody>
-        </table>
+        <div className="w-full flex flex-row justify-between">
+          <span className="text-lg font-bold">Timeline</span>
+          <span>Filter by Username or Action</span>
+        </div>
+        <div className="max-w-screen overflow-auto">
+          <table id="raid-timeline" className="mb-2 border border-eft">
+              <thead>
+                <tr className="bg-eft text-black">
+                  <th className="text-left px-2 cursor-pointer">Time</th>
+                  <th className="text-right border-l relative border-r border-eft underline min-w-[200px]">
+                    <span className="cursor-pointer" onClick={() => setUsernameFilterModal(!usernameFilterModal)}>Username</span>
+                    { usernameFilterModal ? 
+                      <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2  w-full w-48 z-50">
+                        { generateUsernameToggle() }
+                      </div> : ''
+                    }
+                  </th>
+                  <th className="text-center px-2 relative underline cursor-pointer min-w-[100px]">
+                    <span className="cursor-pointer" onClick={() => setActionFilterModal(!actionFilterModal)}>Action</span>
+                    { actionFilterModal ? 
+                      <div className="table-toggle text-left text-xs absolute right-0 text-eft bg-black border border-eft p-1 pt-2 w-full w-48 z-50">
+                        { generateActionToggle() }
+                      </div> : ''
+                    }
+                  </th>
+                  <th className="text-left px-2 min-w-[500px] w-full">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+              { generateTimeline() }
+            </tbody>
+          </table>
+        </div>
     </section>
   )
 }
