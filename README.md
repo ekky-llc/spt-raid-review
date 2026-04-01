@@ -1,3 +1,12 @@
+# ⚠️ This project has been archived
+
+This repository is no longer maintained. The new version is being actively developed and maintained by **Chazut**.
+
+- 🔗 **New version (mod page):** https://forge.sp-tarkov.com/mod/1479/raid-review
+- 💻 **New source code:** https://github.com/Chazut/SPT-RaidReview
+
+---
+
 # SPT Raid Review
 
 An experimental tool for the SPT community to review raid data—kills, looting, and positional movement—with the ability to replay events after escaping.
